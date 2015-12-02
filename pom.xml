@@ -4,7 +4,7 @@
   <groupId>uk.ac.lancs.ucrel</groupId>
   <artifactId>DisCorDB</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.1-SNAPSHOT</version>
   <name>DisCorDB</name>
   <url>http://maven.apache.org</url>
   <dependencies>
