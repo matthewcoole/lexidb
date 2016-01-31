@@ -13,3 +13,7 @@ hs_err_pid*
 
 #generated classes and jars dir
 target/
+
+#idea files
+.idea/
+*.iml
