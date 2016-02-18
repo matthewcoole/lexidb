@@ -20,5 +20,10 @@ public class ParserTest {
     @Test
     public void testParseDir() throws IOException {
         p.parseDir(Paths.get("C:\\Users\\Matt\\Desktop\\LOB\\lob_text"));
+        p.lookup("the");
+        p.lookup("of");
+        p.lookup("to");
+        p.lookup("that");
+        p.lookup("and");
     }
 }
