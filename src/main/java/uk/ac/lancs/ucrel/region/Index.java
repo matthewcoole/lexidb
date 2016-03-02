@@ -1,15 +1,25 @@
 package uk.ac.lancs.ucrel.region;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-/**
- * Created by Matt on 18/02/2016.
- */
 public class Index {
-    private Path idxFilePath;
+    private Path regionPath, idxPath;
 
-    public Index(Path dataPath){
-        idxFilePath = Paths.get(dataPath.toString(), "idx.disco");
+    public Index(Path regionPath) throws IOException {
+        this.regionPath = regionPath;
+        idxPath = Paths.get(regionPath.toString(), "idx.disco");
+        Files.deleteIfExists(idxPath);
+        Files.createFile(idxPath);
+    }
+
+    public void add(int val, int pos){
+
+    }
+
+    public void save(){
+
     }
 }
