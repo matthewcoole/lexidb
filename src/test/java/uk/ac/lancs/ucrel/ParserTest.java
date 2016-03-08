@@ -6,9 +6,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-/**
- * Created by Matt on 17/02/2016.
- */
 public class ParserTest {
     private Parser p;
 

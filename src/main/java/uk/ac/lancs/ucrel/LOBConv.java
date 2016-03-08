@@ -7,9 +7,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Matt on 17/02/2016.
- */
 public class LOBConv {
 
     public static Path OUT = Paths.get("C:\\Users\\Matt\\Desktop\\LOB\\lob_text");

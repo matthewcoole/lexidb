@@ -9,9 +9,6 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-/**
- * Created by Matt on 17/02/2016.
- */
 public class Parser {
 
     private SortedMap<String, Integer> dict = new TreeMap<String, Integer>();
