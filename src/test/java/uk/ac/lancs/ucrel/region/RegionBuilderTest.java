@@ -15,7 +15,7 @@ public class RegionBuilderTest {
         RegionBuilder rb = new RegionBuilder(Paths.get("C:\\Users\\Matt\\Desktop\\data_dump"));
         ArrayList<String> test = new ArrayList<String>();
         for(int i = 0; i < 1000000; i++){
-            test.add("test" + i%100000);
+            test.add("test" + i%10000);
         }
         rb.add(test);
         rb.build();

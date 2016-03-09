@@ -10,10 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 public class RegionAccessor {
 
@@ -22,8 +19,8 @@ public class RegionAccessor {
     private static final int context = 5;
 
     private Path regionPath;
-    private SortedMap<String, Integer> dict;
-    private String[] map;
+    private Map<String, Integer> dict;
+    private List<String> map;
     int numericValue, indexPos, count;
     List<Integer> indexEntries;
     List<List<Integer>> concLines;
@@ -35,25 +32,27 @@ public class RegionAccessor {
     public void search(String word) throws IOException {
         long start = System.currentTimeMillis();
         regenerateDict();
+        long a = System.currentTimeMillis();
         numericValue = dict.get(word);
+        long b = System.currentTimeMillis();
         getIndexPos();
+        long c = System.currentTimeMillis();
         getIndexEntries();
+        long d = System.currentTimeMillis();
         getConcordanceLines();
         long end = System.currentTimeMillis();
-        LOG.info("Search \"" + word + "\" completed in " + (end - start) + "ms");
+        LOG.info("Search \"" + word + "\" completed in " + (end - start) + "ms (" + (a-start) + "ms regenDict, " + (b-a) + "ms getNumericVal, " + (c-b) + "ms getIndexPos, " + (d-c) + "ms getIndexEnts, " + (end - d) + "ms getConcLines)");
         printLines();
     }
 
     private void regenerateDict() throws IOException {
-        dict = new TreeMap<String, Integer>();
+        dict = new HashMap<String, Integer>();
+        map = new ArrayList<String>();
         List<String> words = Files.readAllLines(Paths.get(regionPath.toString(), "dict.disco"), StandardCharsets.UTF_8);
         int i = 0;
         for(String word : words){
+            map.add(word);
             dict.put(word, i++);
-        }
-        map = new String[dict.size()];
-        for(String word : dict.keySet()){
-            map[dict.get(word)] = word;
         }
     }
 
@@ -95,8 +94,6 @@ public class RegionAccessor {
                 currentPos++;
             }
             concLines.add(line);
-            //if(concLines.size() >= 20)
-                //break;
         }
         dis.close();
     }
@@ -110,7 +107,7 @@ public class RegionAccessor {
     private String getLine(List<Integer> line){
         StringBuilder sb = new StringBuilder();
         for(int i : line){
-            sb.append(map[i]).append(" ");
+            sb.append(map.get(i)).append(" ");
         }
         return sb.toString();
     }
