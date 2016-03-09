@@ -10,10 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class RegionBuilder {
 
@@ -22,7 +20,8 @@ public class RegionBuilder {
 
     private Path regionPath;
     private List<String> words;
-    private SortedMap<String, Integer> dict;
+    private List<String> dictEntries;
+    private Map<String, Integer> dict;
     private int[] data;
     private int[] wordCount;
     private int[] indexMapping;
@@ -43,13 +42,18 @@ public class RegionBuilder {
     public void build(){
         long start = System.currentTimeMillis();
         init();
+        long a = System.currentTimeMillis();
         assignInitNumericValues();
+        long b = System.currentTimeMillis();
         generateInitToFinalMap();
+        long c = System.currentTimeMillis();
         initIndex();
+        long d = System.currentTimeMillis();
         assignFinalNumericValues();
+        long e = System.currentTimeMillis();
         generateIndexMapping();
         long end = System.currentTimeMillis();
-        LOG.info("Built region in " + (end - start) + "ms");
+        LOG.info("Built region in " + (end - start) + "ms (" + (a - start) + "ms init, " + (b - a) + "ms initVals, " + (c-b) + "ms initToFinalMapGen, " + (d-c) + "ms initIndex, " + (e-d) + "ms finalNumerics, " + (end - e) + "ms indexMapping)");
         LOG.trace(this);
     }
 
@@ -59,7 +63,7 @@ public class RegionBuilder {
         writeBinaryFile("data.disco", data);
         writeBinaryFile("idx_ent.disco", getIndexEntries());
         writeBinaryFile("idx_pos.disco", indexMapping);
-        Files.write(createFile("dict.disco"), dict.keySet(), StandardCharsets.UTF_8);
+        Files.write(createFile("dict.disco"), dictEntries, StandardCharsets.UTF_8);
         long end = System.currentTimeMillis();
         LOG.info("Region written in " + (end - start) + "ms");
     }
@@ -94,7 +98,7 @@ public class RegionBuilder {
 
     private void init(){
         data = new int[words.size()];
-        dict = new TreeMap<String, Integer>();
+        dict = new HashMap<String, Integer>();
         typeCount = 0;
         totalCount = words.size();
     }
@@ -112,7 +116,9 @@ public class RegionBuilder {
     private void generateInitToFinalMap(){
         initToFinalMap = new int[dict.size()];
         int i = 0;
-        for(String word : dict.keySet()){
+        dictEntries = new ArrayList<String>(dict.keySet());
+        Collections.sort(dictEntries);
+        for(String word : dictEntries){
             initToFinalMap[dict.get(word)] = i++;
         }
     }
