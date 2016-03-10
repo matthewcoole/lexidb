@@ -18,13 +18,9 @@ public class RegionBuilder {
     private static final int BUFFER_SIZE = 1024 * 256;
 
     private Path regionPath;
-    private List<String> words;
-    private List<String> dictEntries;
+    private List<String> words, dictEntries;
     private Map<String, Integer> dict;
-    private int[] data;
-    private int[] wordCount;
-    private int[] indexMapping;
-    private int[] initToFinalMap;
+    private int[] data, wordCount, indexMapping, initToFinalMap;
     private List<List<Integer>> index;
     private int typeCount, totalCount;
 
@@ -133,8 +129,8 @@ public class RegionBuilder {
     private void initIndex(){
         wordCount = new int[dict.size()];
         indexMapping = new int[dict.size()];
-        index = new ArrayList<List<Integer>>();
-        for(int n : initToFinalMap){
+        index = new ArrayList<List<Integer>>(dict.size());
+        for(int i = 0; i < dict.size(); i++){
             index.add(new ArrayList<Integer>());
         }
     }

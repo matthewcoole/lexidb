@@ -26,13 +26,12 @@ public class CorpusBuilderTest {
     }
 
     @Test
-    public void test() throws IOException, InterruptedException {
-        long start = System.currentTimeMillis();
+    public void test() throws IOException {
         CorpusBuilder cb = new CorpusBuilder(Paths.get("C:\\Users\\Matt\\Desktop\\data_dump"));
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < 100; i++){
             cb.addRegion(randomWordList());
         }
-        long end = System.currentTimeMillis();
-        System.out.println("Corpus built in " + (end-start) + "ms");
+        cb.build();
+        cb.save();
     }
 }
