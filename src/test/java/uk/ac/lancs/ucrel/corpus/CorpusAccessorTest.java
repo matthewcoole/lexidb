@@ -9,7 +9,7 @@ public class CorpusAccessorTest {
 
     @Test
     public void testSearch() throws IOException {
-        CorpusAccessor ca = new CorpusAccessor(Paths.get("C:\\Users\\Matt\\Desktop\\lob_test"));
+        CorpusAccessor ca = new CorpusAccessor(Paths.get("C:\\Users\\Matt\\Desktop\\hansard"));
         ca.search("the", 20, false);
         ca.search("of", 20, false);
         ca.search("to", 20, false);

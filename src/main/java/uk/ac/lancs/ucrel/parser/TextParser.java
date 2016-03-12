@@ -18,7 +18,7 @@ import java.util.StringTokenizer;
 public class TextParser {
 
     private static final Logger LOG = LogManager.getLogger(TextParser.class);
-    private static final int REGION_SIZE = 10000;
+    private static final int REGION_SIZE = 1000000;
 
     private Path dataPath;
     private List<String> currentWords;

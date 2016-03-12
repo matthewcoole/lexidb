@@ -48,7 +48,7 @@ public class RegionBuilder {
         long e = System.currentTimeMillis();
         generateIndexMapping();
         long end = System.currentTimeMillis();
-        LOG.debug("Region built in " + (end - start) + "ms (" + (a - start) + "ms init, " + (b - a) + "ms initVals, " + (c-b) + "ms initToFinalMapGen, " + (d-c) + "ms initIndex, " + (e-d) + "ms finalNumerics, " + (end - e) + "ms indexMapping)");
+        LOG.info("Region built in " + (end - start) + "ms (" + (a - start) + "ms init, " + (b - a) + "ms initVals, " + (c-b) + "ms initToFinalMapGen, " + (d-c) + "ms initIndex, " + (e-d) + "ms finalNumerics, " + (end - e) + "ms indexMapping)");
         LOG.trace(this);
     }
 
@@ -60,7 +60,7 @@ public class RegionBuilder {
         writeBinaryFile("idx_pos.disco", indexMapping);
         Files.write(createFile("dict.disco"), dictEntries, StandardCharsets.UTF_8);
         long end = System.currentTimeMillis();
-        LOG.debug("Region written in " + (end - start) + "ms");
+        LOG.info("Region written in " + (end - start) + "ms");
     }
 
     private void writeBinaryFile(String filename, int[] ints) throws IOException {

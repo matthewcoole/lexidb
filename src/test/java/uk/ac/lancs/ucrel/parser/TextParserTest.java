@@ -9,7 +9,7 @@ public class TextParserTest {
 
     @Test
     public void test() throws IOException {
-        TextParser tp = new TextParser(Paths.get("C:\\Users\\Matt\\Desktop\\lob_test"));
-        tp.parse(Paths.get("C:\\Users\\Matt\\Desktop\\corpora\\lob"));
+        TextParser tp = new TextParser(Paths.get("C:\\Users\\Matt\\Desktop\\hansard"));
+        tp.parse(Paths.get("C:\\Users\\Matt\\Desktop\\test_out"));
     }
 }

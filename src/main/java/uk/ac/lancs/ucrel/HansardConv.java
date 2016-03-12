@@ -42,6 +42,9 @@ public class HansardConv {
                 List<String> conv = new ArrayList<String>(input.size());
                 for(String s : input){
                     String newS = StringEscapeUtils.unescapeHtml(s);
+                    newS = newS.replaceAll("[^A-Za-z ]", "");
+                    newS = newS.trim();
+                    newS = newS.toLowerCase();
                     StringTokenizer st = new StringTokenizer(newS);
                     wordCount += st.countTokens();
                     conv.add(newS);
