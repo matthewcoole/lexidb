@@ -30,8 +30,8 @@ public class CorpusBuilder {
     public CorpusBuilder(Path corpusPath) throws IOException {
         this.corpusPath = corpusPath;
         regionNameFormatter = new DecimalFormat("0000");
-        delete();
         Files.createDirectories(corpusPath);
+        delete();
     }
 
     public void addRegion(List<String> words) throws IOException {

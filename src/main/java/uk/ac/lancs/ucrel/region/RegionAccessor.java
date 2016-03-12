@@ -14,14 +14,14 @@ import java.util.*;
 
 public class RegionAccessor {
 
-    private static final Logger LOG = LogManager.getLogger(RegionBuilder.class);
+    private static final Logger LOG = LogManager.getLogger(RegionAccessor.class);
     private static final int BUFFER_SIZE = 1024 * 256;
     private static final int context = 5;
 
     private Path regionPath;
     private Map<String, Integer> dict;
     private List<String> map;
-    int numericValue, indexPos, count;
+    int numericValue, indexPos, count, limit;
     List<Integer> indexEntries;
     List<List<Integer>> concLines;
 
@@ -29,20 +29,18 @@ public class RegionAccessor {
         this.regionPath = regionPath;
     }
 
-    public void search(String word) throws IOException {
-        long start = System.currentTimeMillis();
+    public List<String> search(String word, int limit) throws IOException {
+        this.limit = limit;
         regenerateDict();
-        long a = System.currentTimeMillis();
         numericValue = dict.get(word);
-        long b = System.currentTimeMillis();
         getIndexPos();
-        long c = System.currentTimeMillis();
         getIndexEntries();
-        long d = System.currentTimeMillis();
         getConcordanceLines();
-        long end = System.currentTimeMillis();
-        LOG.info("Search \"" + word + "\" completed in " + (end - start) + "ms (" + (a-start) + "ms regenDict, " + (b-a) + "ms getNumericVal, " + (c-b) + "ms getIndexPos, " + (d-c) + "ms getIndexEnts, " + (end - d) + "ms getConcLines)");
-        printLines();
+        List<String> lines = new ArrayList<String>();
+        for(List<Integer> l : concLines){
+            lines.add(getLine(l));
+        }
+        return lines;
     }
 
     private void regenerateDict() throws IOException {
@@ -94,6 +92,8 @@ public class RegionAccessor {
                 currentPos++;
             }
             concLines.add(line);
+            if(concLines.size() >= limit)
+                break;
         }
         dis.close();
     }

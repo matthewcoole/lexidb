@@ -9,10 +9,10 @@ import java.util.List;
 
 public class LOBConv {
 
-    public static Path OUT = Paths.get("C:\\Users\\Matt\\Desktop\\LOB\\lob_text");
+    public static Path OUT = Paths.get("C:\\Users\\Matt\\Desktop\\lob_text");
 
     public static void main(String[] args) throws IOException {
-        Path in = Paths.get("C:\\Users\\Matt\\Desktop\\LOB\\LOB");
+        Path in = Paths.get("C:\\Users\\Matt\\Desktop\\corpora\\lob");
         Files.walkFileTree(in, new SimpleFileVisitor<Path>(){
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
