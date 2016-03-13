@@ -16,7 +16,7 @@ public class CorpusAccessorTest {
 
     @Test
     public void testSearch() throws IOException {
-        CorpusAccessor ca = new CorpusAccessor(Paths.get("C:\\Users\\Matt\\Desktop\\hansard"));
+        CorpusAccessor ca = new CorpusAccessor(Paths.get("C:\\Users\\Matt\\Desktop\\bnc_4_node"));
         for(String s : words){
             avgTimes.put(s, 0L);
             for(int i = 0; i < runs; i++){
