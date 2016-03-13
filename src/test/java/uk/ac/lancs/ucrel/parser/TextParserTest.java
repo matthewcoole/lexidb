@@ -10,6 +10,6 @@ public class TextParserTest {
     @Test
     public void test() throws IOException {
         TextParser tp = new TextParser(Paths.get("C:\\Users\\Matt\\Desktop\\hansard"));
-        tp.parse(Paths.get("C:\\Users\\Matt\\Desktop\\test_out"));
+        tp.parse(Paths.get("C:\\Users\\Matt\\Desktop\\00\\00"));
     }
 }

@@ -70,7 +70,7 @@ public class RegionAccessor {
         int bytesToSkip = indexPos * 4;
         dis.skipBytes(bytesToSkip);
         indexEntries = new ArrayList<Integer>();
-        for(int i = 0; i < count; i++){
+        for(int i = 0; (i < count) && (i < limit); i++){
             indexEntries.add(dis.readInt());
         }
         dis.close();

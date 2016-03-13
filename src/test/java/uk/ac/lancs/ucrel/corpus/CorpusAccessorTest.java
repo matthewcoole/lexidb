@@ -4,21 +4,30 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class CorpusAccessorTest {
+
+    private String[] words = {"the", "of", "to", "that", "and", "in", "a", "is", "i", "it"};
+    private Map<String, Long> avgTimes = new TreeMap<String, Long>();
+    private int limit = 10, runs = 10;
 
     @Test
     public void testSearch() throws IOException {
         CorpusAccessor ca = new CorpusAccessor(Paths.get("C:\\Users\\Matt\\Desktop\\hansard"));
-        ca.search("the", 20, false);
-        ca.search("of", 20, false);
-        ca.search("to", 20, false);
-        ca.search("that", 20, false);
-        ca.search("and", 20, false);
-        ca.search("in", 20, false);
-        ca.search("a", 20, false);
-        ca.search("is", 20, false);
-        ca.search("i", 20, false);
-        ca.search("it", 20, false);
+        for(String s : words){
+            avgTimes.put(s, 0L);
+            for(int i = 0; i < runs; i++){
+                long start = System.currentTimeMillis();
+                ca.search(s, limit, false);
+                long end = System.currentTimeMillis();
+                long avg = avgTimes.get(s);
+                avg = ((avg * i) + (end - start)) / (i + 1);
+                avgTimes.put(s, avg);
+            }
+        }
+        System.out.println(avgTimes);
     }
 }
