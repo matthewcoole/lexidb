@@ -17,3 +17,6 @@ target/
 #idea files
 .idea/
 *.iml
+
+#log files
+*.out
