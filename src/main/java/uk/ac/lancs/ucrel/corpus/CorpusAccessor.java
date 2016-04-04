@@ -87,7 +87,10 @@ public class CorpusAccessor {
         for(int i : indexEntries){
             String region = regionNameFormatter.format(i);
             RegionAccessor ra = new RegionAccessor(Paths.get(corpusPath.toString(), region));
+
             concLines.addAll(ra.search(word, limit));
+            ra.search(numericValue, limit);
+
             regionsAccessed++;
             if(concLines.size() >= limit)
                 break;

@@ -20,6 +20,7 @@ public class RegionAccessor {
 
     private Path regionPath;
     private Map<String, Integer> dict;
+    private List<Integer> corpusToRegionMap;
     private List<String> map;
     int numericValue, indexPos, count, limit;
     List<Integer> indexEntries;
@@ -31,16 +32,58 @@ public class RegionAccessor {
 
     public List<String> search(String word, int limit) throws IOException {
         this.limit = limit;
+        long a = System.currentTimeMillis();
         regenerateDict();
+        long b = System.currentTimeMillis();
+        LOG.debug("Dictionary generation: " + (b - a) + "ms");
         numericValue = dict.get(word);
+        LOG.debug(" -> " + numericValue + " : " + regionPath.toString());
+        long c = System.currentTimeMillis();
         getIndexPos();
+        LOG.debug(indexPos);
+        long d = System.currentTimeMillis();
         getIndexEntries();
+        long e = System.currentTimeMillis();
         getConcordanceLines();
+        long f = System.currentTimeMillis();
         List<String> lines = new ArrayList<String>();
         for(List<Integer> l : concLines){
             lines.add(getLine(l));
         }
+        long g = System.currentTimeMillis();
+        LOG.debug(regionPath.toString());
+        LOG.debug(word + ": " + (g - a) + "ms total: " + (b-a) + "ms, " + (c-b) + "ms, " + (d-c) + "ms, " + (e-d) + "ms, " + (f-e) + "ms, " + (g-f) + "ms, ");
         return lines;
+    }
+
+    public List<List<Integer>> search(int word, int limit) throws IOException {
+        this.limit = limit;
+        long start = System.currentTimeMillis();
+        regenerateCorpusToRegionMap();
+        long end = System.currentTimeMillis();
+        LOG.debug("Corpus to region map generation: " + (end - start) + "ms");
+        numericValue = corpusToRegionMap.get(word);
+        LOG.debug(word + " -> " + numericValue + " : " + regionPath.toString());
+        getIndexPos();
+        LOG.debug(indexPos);
+        getIndexEntries();
+        getConcordanceLines();
+        return concLines;
+    }
+
+    public Map<String, Integer> getDict() throws IOException {
+        if(dict == null)
+            regenerateDict();
+        return dict;
+    }
+
+    private void regenerateCorpusToRegionMap() throws IOException {
+        corpusToRegionMap = new ArrayList<Integer>();
+        Path mapFile = Paths.get(regionPath.toString(), "map.disco");
+        DataInputStream dis = new DataInputStream(new BufferedInputStream(Files.newInputStream(mapFile), BUFFER_SIZE));
+        while(dis.available() > 0){
+            corpusToRegionMap.add(dis.readInt());
+        }
     }
 
     private void regenerateDict() throws IOException {

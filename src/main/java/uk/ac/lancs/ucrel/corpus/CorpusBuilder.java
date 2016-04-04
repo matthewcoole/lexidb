@@ -2,6 +2,7 @@ package uk.ac.lancs.ucrel.corpus;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import uk.ac.lancs.ucrel.region.RegionAccessor;
 import uk.ac.lancs.ucrel.region.RegionBuilder;
 
 import java.io.BufferedOutputStream;
@@ -45,6 +46,7 @@ public class CorpusBuilder {
         long start = System.currentTimeMillis();
         generateDict();
         generateMappings();
+        generateCorpusToRegionMappings();
         long end = System.currentTimeMillis();
         LOG.info("Corpus built in " + (end - start) + "ms");
     }
@@ -116,6 +118,17 @@ public class CorpusBuilder {
             pos += dict.get(dictEntries.get(i)).size();
         }
         totalCount = pos;
+    }
+
+    private void generateCorpusToRegionMappings() throws IOException {
+        long start = System.currentTimeMillis();
+        for(int i = 0; i < regionCount; i++){
+            RegionBuilder rb = new RegionBuilder(Paths.get(corpusPath.toString(), regionNameFormatter.format(i)));
+            RegionAccessor ra = new RegionAccessor(Paths.get(corpusPath.toString(), regionNameFormatter.format(i)));
+            rb.generateCorpusToRegionMap(dictEntries, ra.getDict());
+        }
+        long end = System.currentTimeMillis();
+        LOG.debug("Corpus to region maps generated in " + (end - start) + "ms");
     }
 
     private void delete() throws IOException {

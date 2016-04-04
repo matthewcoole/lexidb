@@ -10,13 +10,13 @@ import java.util.TreeMap;
 
 public class CorpusAccessorTest {
 
-    private String[] words = {"the", "of", "to", "that", "and", "in", "a", "is", "i", "it"};
+    private String[] words = {"aaan", "gfck", "ozmp", "xciu"};
     private Map<String, Long> avgTimes = new TreeMap<String, Long>();
-    private int limit = 10, runs = 10;
+    private int limit = 1, runs = 1;
 
     @Test
     public void testSearch() throws IOException {
-        CorpusAccessor ca = new CorpusAccessor(Paths.get("C:\\Users\\Matt\\Desktop\\bnc_4_node"));
+        CorpusAccessor ca = new CorpusAccessor(Paths.get("/home/mpc/data"));
         for(String s : words){
             avgTimes.put(s, 0L);
             for(int i = 0; i < runs; i++){

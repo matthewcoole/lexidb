@@ -27,8 +27,8 @@ public class CorpusBuilderTest {
 
     @Test
     public void test() throws IOException {
-        CorpusBuilder cb = new CorpusBuilder(Paths.get("C:\\Users\\Matt\\Desktop\\data_dump"));
-        for(int i = 0; i < 100; i++){
+        CorpusBuilder cb = new CorpusBuilder(Paths.get("/home/mpc/data"));
+        for(int i = 0; i < 10; i++){
             cb.addRegion(randomWordList());
         }
         cb.build();

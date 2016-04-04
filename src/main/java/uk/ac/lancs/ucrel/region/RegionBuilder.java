@@ -63,6 +63,18 @@ public class RegionBuilder {
         LOG.info("Region written in " + (end - start) + "ms");
     }
 
+    public void generateCorpusToRegionMap(List<String> corpusDict, Map<String, Integer> regionDict) throws IOException {
+        int[] map = new int[corpusDict.size()];
+        for(int i = 0; i < corpusDict.size(); i++){
+            String s = corpusDict.get(i);
+            int n = -1;
+            if(regionDict.containsKey(s))
+                n = regionDict.get(s);
+            map[i] = n;
+        }
+        writeBinaryFile("map.disco", map);
+    }
+
     private void writeBinaryFile(String filename, int[] ints) throws IOException {
         DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(Files.newOutputStream(createFile(filename)), BUFFER_SIZE));
         for(int n : ints){
