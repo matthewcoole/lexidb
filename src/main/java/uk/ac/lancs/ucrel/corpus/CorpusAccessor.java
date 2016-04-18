@@ -24,11 +24,12 @@ public class CorpusAccessor {
 
     private Path corpusPath;
     private Map<String, Integer> dict;
+    private List<String> wordList;
     private int numericValue, indexPos, count, limit, regionsAccessed;
     private List<Integer> indexEntries;
     private DecimalFormat regionNameFormatter;
     private String word;
-    private List<String> concLines;
+    private List<List<Integer>> concLines;
 
     public CorpusAccessor(Path corpusPath) throws IOException {
         this.corpusPath = corpusPath;
@@ -36,7 +37,7 @@ public class CorpusAccessor {
         generateDictionary();
     }
 
-    public void search(String w, int limit, boolean print) throws IOException {
+    public List<String> search(String w, int limit) throws IOException {
         long start = System.currentTimeMillis();
         this.limit = limit;
         word = w;
@@ -46,16 +47,29 @@ public class CorpusAccessor {
         getConcordanceLines();
         long end = System.currentTimeMillis();
         LOG.info("Search for \"" + word + "\" in " + (end - start) + "ms from " + regionsAccessed + " regions");
-        if(print)
-            printLines();
+        return getLinesAsString(concLines);
+    }
+
+    private List<String> getLinesAsString(List<List<Integer>> lines) {
+        List<String> finalLines = new ArrayList<String>();
+        for(List<Integer> line : lines){
+            StringBuilder sb = new StringBuilder();
+            for(Integer i : line){
+                sb.append(wordList.get(i)).append(' ');
+            }
+            finalLines.add(sb.toString().trim());
+        }
+        return finalLines;
     }
 
     private void generateDictionary () throws IOException {
         List<String> words = Files.readAllLines(Paths.get(corpusPath.toString(), "dict.disco"), StandardCharsets.UTF_8);
         dict = new HashMap<String, Integer>();
+        wordList = new ArrayList<String>();
         int i = 0;
         for(String s : words){
             dict.put(s, i++);
+            wordList.add(s);
         }
     }
 
@@ -82,24 +96,20 @@ public class CorpusAccessor {
     }
 
     private void getConcordanceLines() throws IOException {
-        concLines = new ArrayList<String>();
+        concLines = new ArrayList<List<Integer>>();
         regionsAccessed = 0;
         for(int i : indexEntries){
             String region = regionNameFormatter.format(i);
             RegionAccessor ra = new RegionAccessor(Paths.get(corpusPath.toString(), region));
 
-            concLines.addAll(ra.search(word, limit));
-            ra.search(numericValue, limit);
+            //concLines.addAll(ra.search(word, limit));
+
+            //TODO: Find out why this skips a few regions before finding results...
+            concLines.addAll(ra.search(numericValue, limit));
 
             regionsAccessed++;
             if(concLines.size() >= limit)
                 break;
-        }
-    }
-
-    private void printLines(){
-        for(String s : concLines){
-            System.out.println(s);
         }
     }
 }

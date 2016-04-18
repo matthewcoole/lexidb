@@ -49,6 +49,9 @@ public class TextParser {
                 return FileVisitResult.CONTINUE;
             }
         });
+        if(currentWords.size() > 0){
+            cb.addRegion(currentWords);
+        }
         long end = System.currentTimeMillis();
         LOG.info("Parse took " + (end - start) + "ms");
         cb.build();
