@@ -1,1 +1,7 @@
-{"name":"DisCorDB","tagline":"Distributed Corpus Database","body":"# DisCorDB v0.1 [![Build Status](https://travis-ci.com/matthewcoole/DisCorDB.svg?token=mkPLpDMdXVNXnVBaw8bo&branch=master)](https://travis-ci.com/matthewcoole/DisCorDB)\r\n\r\nDisCorDB is a distributed corpus database. It's design is based on the output of CDP (Corpus Data Project) developed at Lancaster University.\r\n\r\nDisCorDB can fulfil the following queries;\r\n- Concordances (in-progress)\r\n- Collocations (planned)","google":"","note":"Don't delete this file! It's used internally to help with page regeneration."}
+{
+  "name": "DisCorDB",
+  "tagline": "Distributed Corpus Database",
+  "body": "# DisCorDB v0.1 [![Build Status](https://travis-ci.com/matthewcoole/DisCorDB.svg?token=mkPLpDMdXVNXnVBaw8bo&branch=master)](https://travis-ci.com/matthewcoole/DisCorDB)\r\n\r\nDisCorDB is a distributed corpus database. It's design is based on the output of CDP (Corpus Data Project) developed at Lancaster University.\r\n\r\nDisCorDB functionality;\r\n- Concordances (Keyword In Context)\r\n- Collocations (N-Grams)",
+  "google": "",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
