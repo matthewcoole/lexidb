@@ -91,7 +91,8 @@ public class RegionAccessor {
         map = new ArrayList<String>();
         List<String> words = Files.readAllLines(Paths.get(regionPath.toString(), "dict.disco"), StandardCharsets.UTF_8);
         int i = 0;
-        for(String word : words){
+        for(String s : words){
+            String word = s.split(" ")[0];
             map.add(word);
             dict.put(word, i++);
         }

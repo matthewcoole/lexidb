@@ -18,7 +18,7 @@ public class RegionBuilder {
     private static final int BUFFER_SIZE = 1024 * 256;
 
     private Path regionPath;
-    private List<String> words, dictEntries;
+    private List<String> words, dictEntries, finalDictEntries;
     private Map<String, Integer> dict;
     private int[] data, wordCount, indexMapping, initToFinalMap;
     private List<List<Integer>> index;
@@ -58,7 +58,8 @@ public class RegionBuilder {
         writeBinaryFile("data.disco", data);
         writeBinaryFile("idx_ent.disco", getIndexEntries());
         writeBinaryFile("idx_pos.disco", indexMapping);
-        Files.write(createFile("dict.disco"), dictEntries, StandardCharsets.UTF_8);
+        generateFinalDictionaryEntries();
+        Files.write(createFile("dict.disco"), finalDictEntries, StandardCharsets.UTF_8);
         long end = System.currentTimeMillis();
         LOG.info("Region written in " + (end - start) + "ms");
     }
@@ -156,6 +157,13 @@ public class RegionBuilder {
         for(int i = 0; i < indexMapping.length; i++){
             indexMapping[i] = pos;
             pos += wordCount[i];
+        }
+    }
+
+    private void generateFinalDictionaryEntries(){
+        finalDictEntries = new ArrayList<String>();
+        for(int i = 0; i < dictEntries.size(); i++){
+            finalDictEntries.add(dictEntries.get(i) + " " + wordCount[i]);
         }
     }
 

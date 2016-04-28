@@ -68,8 +68,9 @@ public class CorpusAccessor {
         wordList = new ArrayList<String>();
         int i = 0;
         for(String s : words){
-            dict.put(s, i++);
-            wordList.add(s);
+            String word = s.split(" ")[0];
+            dict.put(word, i++);
+            wordList.add(word);
         }
     }
 

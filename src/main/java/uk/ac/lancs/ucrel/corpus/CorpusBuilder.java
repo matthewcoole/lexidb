@@ -24,7 +24,8 @@ public class CorpusBuilder {
     private DecimalFormat regionNameFormatter;
     private int regionCount, totalCount;
     private Map<String, List<Integer>> dict;
-    private List<String> dictEntries;
+    private Map<String, Integer> dictWordCount;
+    private List<String> dictEntries, finalDictEntries;
     private int[] wordCount, indexMapping;
 
 
@@ -55,9 +56,17 @@ public class CorpusBuilder {
         long start = System.currentTimeMillis();
         writeBinaryFile("idx_ent.disco", getIndexEntries());
         writeBinaryFile("idx_pos.disco", indexMapping);
-        Files.write(createFile("dict.disco"), dictEntries, StandardCharsets.UTF_8);
+        generateFinalDict();
+        Files.write(createFile("dict.disco"), finalDictEntries, StandardCharsets.UTF_8);
         long end = System.currentTimeMillis();
         LOG.info("Corpus written in " + (end - start) + "ms");
+    }
+
+    private void generateFinalDict(){
+        finalDictEntries = new ArrayList<String>();
+        for(String s : dictEntries){
+            finalDictEntries.add(s + " " + dictWordCount.get(s));
+        }
     }
 
     private int[] getIndexEntries(){
@@ -89,6 +98,7 @@ public class CorpusBuilder {
 
     private void generateDict() throws IOException {
         dict = new HashMap<String, List<Integer>>();
+        dictWordCount = new HashMap<String, Integer>();
         Files.walkFileTree(corpusPath, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -97,9 +107,16 @@ public class CorpusBuilder {
                     int region = Integer.parseInt(f.getParentFile().getName());
                     List<String> words = Files.readAllLines(file, StandardCharsets.UTF_8);
                     for(String w : words){
-                        if(!dict.containsKey(w))
-                            dict.put(w, new ArrayList<Integer>());
-                        dict.get(w).add(region);
+                        String[] ent = w.split(" ");
+                        String word = ent[0];
+                        int count = Integer.parseInt(ent[1]);
+                        if(!dict.containsKey(word)) {
+                            dict.put(word, new ArrayList<Integer>());
+                            dictWordCount.put(word, 0);
+                        }
+                        dict.get(word).add(region);
+                        int currentCount = dictWordCount.get(word);
+                        dictWordCount.put(word, (currentCount + count));
                     }
                 }
                 return FileVisitResult.CONTINUE;

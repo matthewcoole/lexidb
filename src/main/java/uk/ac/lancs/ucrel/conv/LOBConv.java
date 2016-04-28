@@ -1,4 +1,4 @@
-package uk.ac.lancs.ucrel;
+package uk.ac.lancs.ucrel.conv;
 
 import java.nio.charset.StandardCharsets;
 import java.io.IOException;

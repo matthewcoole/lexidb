@@ -1,4 +1,4 @@
-package uk.ac.lancs.ucrel;
+package uk.ac.lancs.ucrel.conv;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.LogManager;
@@ -29,7 +29,7 @@ public class HansardConv {
     public static long last;
 
     public static void main(String[] args) throws IOException {
-        Path in = Paths.get("C:\\Users\\Matt\\Desktop\\corpora\\hansard_test");
+        Path in = Paths.get("C:\\Users\\Matt\\Desktop\\bnc_full");
         Files.createDirectories(OUT);
         headF = new DecimalFormat("00");
         tailF = new DecimalFormat("0000");
