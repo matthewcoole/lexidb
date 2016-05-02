@@ -2,6 +2,7 @@ package uk.ac.lancs.ucrel.region;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import uk.ac.lancs.ucrel.file.system.FileUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
@@ -55,10 +56,13 @@ public class RegionBuilder {
     public void save() throws IOException {
         long start = System.currentTimeMillis();
         Files.createDirectories(regionPath);
-        writeBinaryFile("data.disco", data);
-        writeBinaryFile("idx_ent.disco", getIndexEntries());
-        writeBinaryFile("idx_pos.disco", indexMapping);
+
+        FileUtils.write(Paths.get(regionPath.toString(), "data.disco"), data);
+        FileUtils.write(Paths.get(regionPath.toString(), "idx_ent.disco"), getIndexEntries());
+        FileUtils.write(Paths.get(regionPath.toString(), "idx_pos.disco"), indexMapping);
+
         generateFinalDictionaryEntries();
+
         Files.write(createFile("dict.disco"), finalDictEntries, StandardCharsets.UTF_8);
         long end = System.currentTimeMillis();
         LOG.info("Region written in " + (end - start) + "ms");
@@ -73,16 +77,8 @@ public class RegionBuilder {
                 n = regionDict.get(s);
             map[i] = n;
         }
-        writeBinaryFile("map.disco", map);
-    }
 
-    private void writeBinaryFile(String filename, int[] ints) throws IOException {
-        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(Files.newOutputStream(createFile(filename)), BUFFER_SIZE));
-        for(int n : ints){
-            dos.writeInt(n);
-        }
-        dos.flush();
-        dos.close();
+        FileUtils.write(Paths.get(regionPath.toString(), "map.disco"), map);
     }
 
     private Path createFile(String filename) throws IOException {

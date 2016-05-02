@@ -2,6 +2,7 @@ package uk.ac.lancs.ucrel.corpus;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import uk.ac.lancs.ucrel.file.system.FileUtils;
 import uk.ac.lancs.ucrel.region.RegionAccessor;
 import uk.ac.lancs.ucrel.region.RegionBuilder;
 
@@ -54,8 +55,10 @@ public class CorpusBuilder {
 
     public void save() throws IOException {
         long start = System.currentTimeMillis();
-        writeBinaryFile("idx_ent.disco", getIndexEntries());
-        writeBinaryFile("idx_pos.disco", indexMapping);
+
+        FileUtils.write(Paths.get(corpusPath.toString(), "idx_ent.disco"), getIndexEntries());
+        FileUtils.write(Paths.get(corpusPath.toString(), "idx_pos.disco"), indexMapping);
+
         generateFinalDict();
         Files.write(createFile("dict.disco"), finalDictEntries, StandardCharsets.UTF_8);
         long end = System.currentTimeMillis();
@@ -78,15 +81,6 @@ public class CorpusBuilder {
             }
         }
         return entries;
-    }
-
-    private void writeBinaryFile(String filename, int[] ints) throws IOException {
-        DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(Files.newOutputStream(createFile(filename)), BUFFER_SIZE));
-        for(int n : ints){
-            dos.writeInt(n);
-        }
-        dos.flush();
-        dos.close();
     }
 
     private Path createFile(String filename) throws IOException {
