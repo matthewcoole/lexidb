@@ -2,10 +2,12 @@ package uk.ac.lancs.ucrel.region;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import uk.ac.lancs.ucrel.file.system.FileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,49 +22,24 @@ public class RegionAccessor {
 
     private Path regionPath;
     private Map<String, Integer> dict;
-    private List<Integer> corpusToRegionMap;
+    private int[] corpusToRegionMap;
+    private int[] regionToCorpusMap;
     private List<String> map;
     int numericValue, indexPos, count, limit;
-    List<Integer> indexEntries;
-    List<List<Integer>> concLines;
+    private int[] indexEntries;
+    private List<int[]> concLines;
 
     public RegionAccessor(Path regionPath){
         this.regionPath = regionPath;
     }
 
-    public List<String> search(String word, int limit) throws IOException {
-        this.limit = limit;
-        long a = System.currentTimeMillis();
-        regenerateDict();
-        long b = System.currentTimeMillis();
-        LOG.debug("Dictionary generation: " + (b - a) + "ms");
-        numericValue = dict.get(word);
-        LOG.debug(" -> " + numericValue + " : " + regionPath.toString());
-        long c = System.currentTimeMillis();
-        getIndexPos();
-        LOG.debug(indexPos);
-        long d = System.currentTimeMillis();
-        getIndexEntries();
-        long e = System.currentTimeMillis();
-        getConcordanceLines();
-        long f = System.currentTimeMillis();
-        List<String> lines = new ArrayList<String>();
-        for(List<Integer> l : concLines){
-            lines.add(getLine(l));
-        }
-        long g = System.currentTimeMillis();
-        LOG.debug(regionPath.toString());
-        LOG.debug(word + ": " + (g - a) + "ms total: " + (b-a) + "ms, " + (c-b) + "ms, " + (d-c) + "ms, " + (e-d) + "ms, " + (f-e) + "ms, " + (g-f) + "ms, ");
-        return lines;
-    }
-
-    public List<List<Integer>> search(int word, int limit) throws IOException {
+    public List<int[]> search(int word, int limit) throws IOException {
         this.limit = limit;
         long start = System.currentTimeMillis();
         regenerateCorpusToRegionMap();
         long end = System.currentTimeMillis();
         LOG.debug("Corpus to region map generation: " + (end - start) + "ms");
-        numericValue = corpusToRegionMap.get(word);
+        numericValue = corpusToRegionMap[word];
         LOG.debug(word + " -> " + numericValue + " : " + regionPath.toString());
         getIndexPos();
         LOG.debug(indexPos);
@@ -78,11 +55,16 @@ public class RegionAccessor {
     }
 
     private void regenerateCorpusToRegionMap() throws IOException {
-        corpusToRegionMap = new ArrayList<Integer>();
         Path mapFile = Paths.get(regionPath.toString(), "map.disco");
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(Files.newInputStream(mapFile), BUFFER_SIZE));
-        while(dis.available() > 0){
-            corpusToRegionMap.add(dis.readInt());
+        IntBuffer ib = FileUtils.readAllInts(mapFile);
+        corpusToRegionMap = new int[ib.limit()];
+        ib.get(corpusToRegionMap);
+        regionToCorpusMap = new int[corpusToRegionMap.length];
+        int n = 0;
+        for(int i : corpusToRegionMap){
+            if(i >= 0)
+                regionToCorpusMap[i] = n;
+            n++;
         }
     }
 
@@ -100,29 +82,40 @@ public class RegionAccessor {
 
     private void getIndexPos() throws IOException {
         Path indexPosFile = Paths.get(regionPath.toString(), "idx_pos.disco");
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(Files.newInputStream(indexPosFile), BUFFER_SIZE));
-        int bytesToSkip = numericValue * 4;
-        dis.skipBytes(bytesToSkip);
-        indexPos = dis.readInt();
-        count = dis.readInt() - indexPos;
-        dis.close();
+        IntBuffer ib = FileUtils.readInts(indexPosFile, numericValue, 2);
+        indexPos = ib.get(0);
+        count = ib.get(1) - indexPos;
     }
 
     private void getIndexEntries() throws IOException {
         Path indexEntFile = Paths.get(regionPath.toString(), "idx_ent.disco");
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(Files.newInputStream(indexEntFile), BUFFER_SIZE));
-        int bytesToSkip = indexPos * 4;
-        dis.skipBytes(bytesToSkip);
-        indexEntries = new ArrayList<Integer>();
-        for(int i = 0; (i < count) && (i < limit); i++){
-            indexEntries.add(dis.readInt());
-        }
-        dis.close();
+        IntBuffer ib = FileUtils.readInts(indexEntFile, indexPos, count);
+        indexEntries = new int[ib.limit()];
+        ib.get(indexEntries);
     }
 
     private void getConcordanceLines() throws IOException {
         Path dataFile = Paths.get(regionPath.toString(), "data.disco");
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(Files.newInputStream(dataFile), BUFFER_SIZE));
+        IntBuffer ib = FileUtils.readAllInts(dataFile);
+
+        limit = (limit > count || limit < 1) ? count : limit;
+
+        concLines = new ArrayList<int[]>();
+
+        for(int i = 0; i < limit; i++){
+            int[] line = new int[(context * 2) + 1];
+            int n = indexEntries[i] - context;
+            for(int j = 0; j < line.length; j++){
+                try {
+                    line[j] = regionToCorpusMap[ib.get(n++)];
+                } catch (IndexOutOfBoundsException e){
+                    //ignore if we fall off the end of the region
+                }
+            }
+            concLines.add(line);
+        }
+
+        /*DataInputStream dis = new DataInputStream(new BufferedInputStream(Files.newInputStream(dataFile), BUFFER_SIZE));
         concLines = new ArrayList<List<Integer>>();
         int currentPos = 0;
         for(int pos : indexEntries){
@@ -132,27 +125,13 @@ public class RegionAccessor {
             currentPos += wordsToSkip;
             List<Integer> line = new ArrayList<Integer>();
             for(int i = 0; i < ((context * 2) + 1); i++){
-                line.add(dis.readInt());
+                line.add(regionToCorpusMap[dis.readInt()]);
                 currentPos++;
             }
             concLines.add(line);
             if(concLines.size() >= limit)
                 break;
         }
-        dis.close();
-    }
-
-    private void printLines(){
-        for(List<Integer> line : concLines){
-            System.out.println(getLine(line));
-        }
-    }
-
-    private String getLine(List<Integer> line){
-        StringBuilder sb = new StringBuilder();
-        for(int i : line){
-            sb.append(map.get(i)).append(" ");
-        }
-        return sb.toString();
+        dis.close();*/
     }
 }

@@ -34,7 +34,7 @@ public class FileUtils {
     }
 
     public static IntBuffer readInts(Path file, int pos, int length) throws IOException {
-        return read(file, pos, length).asIntBuffer();
+        return read(file, pos * 4, length * 4).asIntBuffer();
     }
 
     public static IntBuffer readAllInts(Path file) throws IOException {

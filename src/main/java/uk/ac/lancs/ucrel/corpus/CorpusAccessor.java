@@ -29,7 +29,7 @@ public class CorpusAccessor {
     private List<Integer> indexEntries;
     private DecimalFormat regionNameFormatter;
     private String word;
-    private List<List<Integer>> concLines;
+    private List<int[]> concLines;
 
     public CorpusAccessor(Path corpusPath) throws IOException {
         this.corpusPath = corpusPath;
@@ -37,7 +37,7 @@ public class CorpusAccessor {
         generateDictionary();
     }
 
-    public List<String> search(String w, int limit) throws IOException {
+    public List<int[]> search(String w, int limit) throws IOException {
         long start = System.currentTimeMillis();
         this.limit = limit;
         word = w;
@@ -47,19 +47,23 @@ public class CorpusAccessor {
         getConcordanceLines();
         long end = System.currentTimeMillis();
         LOG.info("Search for \"" + word + "\" in " + (end - start) + "ms from " + regionsAccessed + " regions");
-        return getLinesAsString(concLines);
+        return concLines;
     }
 
-    private List<String> getLinesAsString(List<List<Integer>> lines) {
+    public List<String> getLinesAsString(List<int[]> lines) {
         List<String> finalLines = new ArrayList<String>();
-        for(List<Integer> line : lines){
-            StringBuilder sb = new StringBuilder();
-            for(Integer i : line){
-                sb.append(wordList.get(i)).append(' ');
-            }
-            finalLines.add(sb.toString().trim());
+        for(int[] line : lines){
+            finalLines.add(getLineAsString(line));
         }
         return finalLines;
+    }
+
+    public String getLineAsString(int[] line){
+        StringBuilder sb = new StringBuilder();
+        for(Integer i : line){
+            sb.append(wordList.get(i)).append(' ');
+        }
+        return sb.toString().trim();
     }
 
     private void generateDictionary () throws IOException {
@@ -97,19 +101,14 @@ public class CorpusAccessor {
     }
 
     private void getConcordanceLines() throws IOException {
-        concLines = new ArrayList<List<Integer>>();
+        concLines = new ArrayList<int[]>();
         regionsAccessed = 0;
         for(int i : indexEntries){
             String region = regionNameFormatter.format(i);
             RegionAccessor ra = new RegionAccessor(Paths.get(corpusPath.toString(), region));
-
-            //concLines.addAll(ra.search(word, limit));
-
-            //TODO: Find out why this skips a few regions before finding results...
             concLines.addAll(ra.search(numericValue, limit));
-
             regionsAccessed++;
-            if(concLines.size() >= limit)
+            if(concLines.size() >= limit && limit > 0)
                 break;
         }
     }
