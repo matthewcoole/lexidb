@@ -17,7 +17,6 @@ import java.util.*;
 public class RegionAccessor {
 
     private static final Logger LOG = LogManager.getLogger(RegionAccessor.class);
-    private static final int BUFFER_SIZE = 1024 * 256;
     private static final int context = 5;
 
     private Path regionPath;
@@ -114,24 +113,5 @@ public class RegionAccessor {
             }
             concLines.add(line);
         }
-
-        /*DataInputStream dis = new DataInputStream(new BufferedInputStream(Files.newInputStream(dataFile), BUFFER_SIZE));
-        concLines = new ArrayList<List<Integer>>();
-        int currentPos = 0;
-        for(int pos : indexEntries){
-            int wordsToSkip = (pos - currentPos) - context;
-            int bytesToSkip = wordsToSkip * 4;
-            dis.skipBytes(bytesToSkip);
-            currentPos += wordsToSkip;
-            List<Integer> line = new ArrayList<Integer>();
-            for(int i = 0; i < ((context * 2) + 1); i++){
-                line.add(regionToCorpusMap[dis.readInt()]);
-                currentPos++;
-            }
-            concLines.add(line);
-            if(concLines.size() >= limit)
-                break;
-        }
-        dis.close();*/
     }
 }

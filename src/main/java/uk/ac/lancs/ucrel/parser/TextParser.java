@@ -29,9 +29,9 @@ public class TextParser {
     }
 
     public void parse(Path src) throws IOException {
+        long start = System.currentTimeMillis();
         cb = new CorpusBuilder(dataPath);
         currentWords = new ArrayList<String>();
-        long start = System.currentTimeMillis();
         Files.walkFileTree(src, new SimpleFileVisitor<Path>(){
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -52,9 +52,9 @@ public class TextParser {
         if(currentWords.size() > 0){
             cb.addRegion(currentWords);
         }
-        long end = System.currentTimeMillis();
-        LOG.info("Parse took " + (end - start) + "ms");
         cb.build();
         cb.save();
+        long end = System.currentTimeMillis();
+        LOG.info("Parse of " + src.toString() + " took " + (end - start) + "ms");
     }
 }
