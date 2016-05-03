@@ -16,7 +16,6 @@ import java.util.*;
 public class RegionBuilder {
 
     private static final Logger LOG = LogManager.getLogger(RegionBuilder.class);
-    private static final int BUFFER_SIZE = 1024 * 256;
 
     private Path regionPath;
     private List<String> words, dictEntries, finalDictEntries;

@@ -19,7 +19,6 @@ import java.util.*;
 public class CorpusBuilder {
 
     private static final Logger LOG = LogManager.getLogger(CorpusBuilder.class);
-    private static final int BUFFER_SIZE = 1024 * 256;
 
     private Path corpusPath;
     private DecimalFormat regionNameFormatter;

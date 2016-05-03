@@ -12,11 +12,11 @@ import java.util.List;
 public class BNCConv {
 
     public static final SAXParserFactory factory = SAXParserFactory.newInstance();
-    public static final Path OUT = Paths.get("C:\\Users\\Matt\\Desktop\\bnc_full");
+    public static final Path OUT = Paths.get("/home/mpc/Desktop/bnc_spoken_conv");
 
     public static void main(String[] args) throws Exception {
         Files.createDirectories(OUT);
-        Path in = Paths.get("C:\\Users\\Matt\\Desktop\\corpora\\bnc\\");
+        Path in = Paths.get("/home/mpc/Desktop/bnc");
         Files.walkFileTree(in,new SimpleFileVisitor<Path>(){
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {

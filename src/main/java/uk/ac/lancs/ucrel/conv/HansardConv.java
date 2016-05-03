@@ -13,14 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-/**
- * Created by Matt on 11/03/2016.
- */
 public class HansardConv {
 
     private static final Logger LOG = LogManager.getLogger(HansardConv.class);
 
-    public static Path OUT = Paths.get("C:\\Users\\Matt\\Desktop\\test_out");
+    public static Path OUT = Paths.get("/home/mpc/Desktop/lob");
     public static int outFileCount =0;
     public static int wordCount = 0;
     public static List<String> allLines;
@@ -29,7 +26,7 @@ public class HansardConv {
     public static long last;
 
     public static void main(String[] args) throws IOException {
-        Path in = Paths.get("C:\\Users\\Matt\\Desktop\\bnc_full");
+        Path in = Paths.get("/home/mpc/Desktop/lob_");
         Files.createDirectories(OUT);
         headF = new DecimalFormat("00");
         tailF = new DecimalFormat("0000");

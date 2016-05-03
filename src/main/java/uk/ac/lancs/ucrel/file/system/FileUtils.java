@@ -1,6 +1,5 @@
 package uk.ac.lancs.ucrel.file.system;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -9,14 +8,11 @@ import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
 public class FileUtils {
-
-    public static final int BUFFER_SIZE = 1024 * 256;
 
     public static FileChannel getNewFileChannel(Path file, String mode) throws IOException {
         Files.createFile(file);

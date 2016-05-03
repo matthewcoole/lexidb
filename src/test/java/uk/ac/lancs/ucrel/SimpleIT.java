@@ -17,7 +17,7 @@ public class SimpleIT {
     @ClassRule
     public static TemporaryFolder DATA = new TemporaryFolder();
 
-    public String[] expectedResults = {"switched off the shop lights and closed the shutters; but so", "paleness onto the wet pavement, and it was while I was", "it. I closed the door and put the shop key in"};
+    public String[] expectedResults = {"new slogan jones is best and the fact that jones is", "manufacturers who wanted their children and their childrens children to reap", "himself in his own lifetime and let his brats and brats"};
 
     private CorpusAccessor ca;
 
