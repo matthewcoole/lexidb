@@ -1,5 +1,7 @@
 package uk.ac.lancs.ucrel.rmi;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
@@ -52,7 +54,12 @@ public class Client {
     private String getCommand(){
         pause();
         System.out.print("discoDB > ");
-        return new Scanner(System.in).next();
+        try {
+            BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
+            return buffer.readLine();
+        } catch (Exception e){
+            return "";
+        }
     }
 
     private void pause(){
@@ -63,23 +70,33 @@ public class Client {
         }
     }
 
-    private void runCommand(String cmd) {
-        String method = getMethod(cmd);
-        String[] params = getParams(cmd);
-        Class[] classes = getParamClasses(params);
-
-        if(!methods.contains(method)){
-            System.err.println("Command not found!");
-            return;
-        }
-
+    private void runCommand(String cmd){
         try {
-            if(params.length > 0)
-                this.getClass().getMethod(method).invoke(this, params);
-            else
-                this.getClass().getMethod(method, classes).invoke(this);
+            String op = getMethod(cmd);
+            String[] params = getParams(cmd);
+            if (op.equals("exit"))
+                System.exit(0);
+            else if (op.equals("shutdown")) {
+                s.shutdown();
+                System.exit(0);
+            }
+            else if(op.equals("insert")) {
+                Result r = s.insert(params[0]);
+                System.out.println(r);
+            }
+            else if(op.equals("kwic")) {
+                Result r;
+                if(params.length == 2){
+                    int sort = Integer.parseInt(params[1]);
+                    r = s.search(params[0], sort);
+                } else {
+                    r = s.search(params[0]);
+                }
+                System.out.println(r);
+            }
+
         } catch (Exception e){
-            System.err.println(e.getMessage());
+            System.err.println("Command failed!: " + e.getMessage());
         }
     }
 
