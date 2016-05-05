@@ -23,7 +23,7 @@ public class ServerImpl implements Server {
         try {
             ca = new CorpusAccessor(Paths.get(dataPath));
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
     }
 
@@ -41,6 +41,7 @@ public class ServerImpl implements Server {
             long start = System.currentTimeMillis();
             TextParser tp = new TextParser(Paths.get(dataPath));
             tp.parse(Paths.get(path));
+            ca = new CorpusAccessor(Paths.get(dataPath));
             long end = System.currentTimeMillis();
             return new Result("Inserted " + path, (end - start), new ArrayList<String>());
         } catch(Exception e){
@@ -56,10 +57,9 @@ public class ServerImpl implements Server {
         try {
             long start = System.currentTimeMillis();
             List<int[]> results = searchResults(keyword);
-            List<String> page = getResults(results, 20);
             long end = System.currentTimeMillis();
 
-            return new Result("Found " + results.size() + " for \"" + keyword + "\"", (end - start), page);
+            return new Result("Found " + results.size() + " for \"" + keyword + "\"", (end - start), getResults(results, 20));
 
         } catch (Exception e){
             List<String> errors = new ArrayList<String>();
@@ -75,10 +75,9 @@ public class ServerImpl implements Server {
             long start = System.currentTimeMillis();
             List<int[]> results = searchResults(keyword);
             Collections.sort(results, new ConcLineComparator(sort));
-            List<String> page = getResults(results, 20);
             long end = System.currentTimeMillis();
 
-            return new Result("Found " + results.size() + " for \"" + keyword + "\" (sorted on " + sort + ")", (end - start), page);
+            return new Result("Found " + results.size() + " for \"" + keyword + "\" (sorted on " + sort + ")", (end - start), getResults(results, 20));
 
         } catch(Exception e){
             List<String> errors = new ArrayList<String>();
@@ -90,7 +89,6 @@ public class ServerImpl implements Server {
 
     private List<int[]> searchResults(String keyword){
         try {
-            CorpusAccessor ca = new CorpusAccessor(Paths.get(dataPath));
             return ca.search(keyword, 0);
         } catch(Exception e){
             e.printStackTrace();
