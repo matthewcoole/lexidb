@@ -1,4 +1,7 @@
-package uk.ac.lancs.ucrel.rmi;
+package uk.ac.lancs.ucrel.server;
+
+import uk.ac.lancs.ucrel.rmi.Server;
+import uk.ac.lancs.ucrel.server.ServerImpl;
 
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;

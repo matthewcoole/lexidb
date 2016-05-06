@@ -52,7 +52,7 @@
             <configuration>
               <archive>
                 <manifest>
-                  <mainClass>uk.ac.lancs.ucrel.rmi.DBStartup</mainClass>
+                  <mainClass>uk.ac.lancs.ucrel.server.DBStartup</mainClass>
                 </manifest>
               </archive>
               <descriptorRefs>
@@ -70,7 +70,7 @@
             <configuration>
               <archive>
                 <manifest>
-                  <mainClass>uk.ac.lancs.ucrel.rmi.Client</mainClass>
+                  <mainClass>uk.ac.lancs.ucrel.cli.Client</mainClass>
                 </manifest>
               </archive>
               <descriptorRefs>

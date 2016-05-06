@@ -25,7 +25,7 @@ public class CorpusAccessor {
     private Path corpusPath;
     private Map<String, Integer> dict;
     private List<String> wordList;
-    private int numericValue, indexPos, count, limit, regionsAccessed;
+    private int numericValue, indexPos, count, limit, regionsAccessed, context;
     private List<Integer> indexEntries;
     private DecimalFormat regionNameFormatter;
     private String word;
@@ -37,9 +37,10 @@ public class CorpusAccessor {
         generateDictionary();
     }
 
-    public List<int[]> search(String w, int limit) throws IOException {
+    public List<int[]> search(String w, int context, int limit) throws IOException {
         long start = System.currentTimeMillis();
         this.limit = limit;
+        this.context = context;
         word = w;
         numericValue = dict.get(w);
         getIndexPos();
@@ -106,7 +107,7 @@ public class CorpusAccessor {
         for(int i : indexEntries){
             String region = regionNameFormatter.format(i);
             RegionAccessor ra = new RegionAccessor(Paths.get(corpusPath.toString(), region));
-            concLines.addAll(ra.search(numericValue, limit));
+            concLines.addAll(ra.search(numericValue, context, limit));
             regionsAccessed++;
             if(concLines.size() >= limit && limit > 0)
                 break;

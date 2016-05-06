@@ -1,4 +1,9 @@
-package uk.ac.lancs.ucrel.rmi;
+package uk.ac.lancs.ucrel.cli;
+
+import uk.ac.lancs.ucrel.cli.commands.*;
+import uk.ac.lancs.ucrel.cli.commands.Set;
+import uk.ac.lancs.ucrel.rmi.Server;
+import uk.ac.lancs.ucrel.rmi.result.Result;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -13,7 +18,10 @@ public class Client {
     private Registry r;
     private Server s;
     private boolean connected = false;
-    private Set<String> methods;
+    private Result last;
+    private Map<String, Param> params;
+    private ArrayList<String> history;
+    private Map<String, Command> commands;
 
     public static void main(String[] args) {
         Client c = new Client();
@@ -29,22 +37,21 @@ public class Client {
             Remote tmp = r.lookup("serv");
             if (tmp instanceof Server)
                 s = (Server) tmp;
-            methods = new HashSet<String>();
-            for(Method m : this.getClass().getMethods()){
-                methods.add(m.getName());
-            }
+            params = Param.getDefaultParams();
+            commands = new HashMap<String, Command>();
+            commands.put("get", new Get(params));
+            commands.put("help", new Help(commands));
+            commands.put("shutdown", new Shutdown(s));
+            commands.put("exit", new Exit());
+            commands.put("set", new Set(params));
+            commands.put("insert", new Insert(s));
+            commands.put("kwic", new Kwic(s, params));
+            commands.put("it", new It(s));
+            history = new ArrayList<String>();
             connected = true;
         } catch(Exception e){
             System.err.println("Could not connect to server: " + e.getMessage());
         }
-    }
-
-    public void exit(){
-        System.exit(0);
-    }
-
-    public void search(String s){
-        System.out.println("Searching for " + s);
     }
 
     private boolean isConnected(){
@@ -74,27 +81,13 @@ public class Client {
         try {
             String op = getMethod(cmd);
             String[] params = getParams(cmd);
-            if (op.equals("exit"))
-                System.exit(0);
-            else if (op.equals("shutdown")) {
-                s.shutdown();
-                System.exit(0);
+            history.add(cmd);
+            if (commands.containsKey(op)){
+                Command c = commands.get(op);
+                c.setParams(params);
+                c.invoke();
+                c.getResult().print();
             }
-            else if(op.equals("insert")) {
-                Result r = s.insert(params[0]);
-                System.out.println(r);
-            }
-            else if(op.equals("kwic")) {
-                Result r;
-                if(params.length == 2){
-                    int sort = Integer.parseInt(params[1]);
-                    r = s.search(params[0], sort);
-                } else {
-                    r = s.search(params[0]);
-                }
-                System.out.println(r);
-            }
-
         } catch (Exception e){
             System.err.println("Command failed!: " + e.getMessage());
         }
@@ -112,13 +105,5 @@ public class Client {
             params.add(st.nextToken());
         }
         return params.toArray(new String[params.size()]);
-    }
-
-    private Class[] getParamClasses(String[] params){
-        List<Class> classes = new ArrayList<Class>();
-        for(String s : params){
-            classes.add(String.class);
-        }
-        return classes.toArray(new Class[classes.size()]);
     }
 }

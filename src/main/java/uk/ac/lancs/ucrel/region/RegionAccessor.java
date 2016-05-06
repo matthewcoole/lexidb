@@ -17,7 +17,7 @@ import java.util.*;
 public class RegionAccessor {
 
     private static final Logger LOG = LogManager.getLogger(RegionAccessor.class);
-    private static final int context = 5;
+    private int context = 5;
 
     private Path regionPath;
     private Map<String, Integer> dict;
@@ -32,8 +32,9 @@ public class RegionAccessor {
         this.regionPath = regionPath;
     }
 
-    public List<int[]> search(int word, int limit) throws IOException {
+    public List<int[]> search(int word, int context, int limit) throws IOException {
         this.limit = limit;
+        this.context = context;
         long start = System.currentTimeMillis();
         regenerateCorpusToRegionMap();
         long end = System.currentTimeMillis();
