@@ -20,3 +20,6 @@ target/
 
 #log files
 *.out
+
+#maven files
+dependency-reduced-pom.xml

@@ -23,40 +23,5 @@
       <artifactId>mockito-all</artifactId>
       <version>2.0.2-beta</version>
     </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.17</version>
-    </dependency>
   </dependencies>
-  <build>
-    <resources>
-      <resource>
-        <directory>src/resources</directory>
-        <includes>
-          <include>log4j.properties</include>
-        </includes>
-      </resource>
-    </resources>
-    <plugins>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>make-commons</id>
-            <configuration>
-              <descriptorRefs>
-                <descriptorRef>jar-with-dependencies</descriptorRef>
-              </descriptorRefs>
-              <finalName>discodb-commons</finalName>
-            </configuration>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 </project>
