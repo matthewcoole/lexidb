@@ -7,3 +7,4 @@ discoDB functionality;
   - [Regular expressions](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html) supported.
   - Sorting (lexically and by frequency).
 - Collocations (N-Grams)
+- Word lists (in progress)
