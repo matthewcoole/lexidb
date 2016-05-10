@@ -1,4 +1,4 @@
-# ![alt](https://openclipart.org/image/300px/svg_to_png/191143/1392845552.png =100x100) discoDB v0.1 [![Build Status](https://travis-ci.com/matthewcoole/DisCorDB.svg?token=mkPLpDMdXVNXnVBaw8bo&branch=master)](https://travis-ci.com/matthewcoole/DisCorDB)
+# ![](https://openclipart.org/image/300px/svg_to_png/191143/1392845552.png | width=100) discoDB v0.1 [![Build Status](https://travis-ci.com/matthewcoole/DisCorDB.svg?token=mkPLpDMdXVNXnVBaw8bo&branch=master)](https://travis-ci.com/matthewcoole/DisCorDB)
 
 discoDB is a distributed corpus database. It's design is based on the output of CDP (Corpus Data Project) developed at Lancaster University.
 
