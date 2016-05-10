@@ -10,12 +10,14 @@ import java.nio.IntBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.NumberFormat;
 import java.util.Random;
 
 public class FileUtilsIT {
 
     @ClassRule
     public static TemporaryFolder DATA = new TemporaryFolder();
+
 
     @Test
     public void testReadAndWrite() throws IOException {

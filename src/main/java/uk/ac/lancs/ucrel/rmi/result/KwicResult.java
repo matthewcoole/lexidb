@@ -1,12 +1,13 @@
 package uk.ac.lancs.ucrel.rmi.result;
 
 import java.io.Serializable;
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.StringTokenizer;
 
 public class KwicResult extends Result implements Serializable {
 
-    private int context, start, end, total, padding;
+    private int context, start, end, total, prePadding, keyPadding;
     private long time;
     private List<String> page;
 
@@ -18,10 +19,25 @@ public class KwicResult extends Result implements Serializable {
         this.context = context;
         this.time = time;
         this.page = page;
-        padding = getPadding();
+        prePadding = getPrePadding();
+        keyPadding = getKeyPadding();
     }
 
-    private int getPadding(){
+    private int getKeyPadding(){
+        int longest = 0;
+        for(String s : page){
+            StringTokenizer st = new StringTokenizer(s);
+            for(int i = 0; i < context; i++){
+                st.nextToken();
+            }
+            String keyword = st.nextToken();
+            if(keyword.length() > longest)
+                longest = keyword.length();
+        }
+        return longest;
+    }
+
+    private int getPrePadding(){
         int longest = 0;
         for(String s : page){
             StringTokenizer st = new StringTokenizer(s);
@@ -41,13 +57,25 @@ public class KwicResult extends Result implements Serializable {
         for(int i = 0; i < context; i++){
             pre.append(st.nextToken()).append(" ");
         }
-        int toAdd = padding - pre.length();
+        int toAdd = prePadding - pre.length();
         StringBuilder full = new StringBuilder();
         for(int i = 0; i < toAdd; i++){
             full.append(" ");
         }
         full.append(pre.toString());
-        full.append(" ").append(st.nextToken()).append("  ");
+        full.append(" ");
+        String keyword = st.nextToken();
+        toAdd = keyPadding - keyword.length();
+        for(int i = 0; i < toAdd/2; i++){
+            full.append(" ");
+        }
+        full.append(keyword);
+        for(int i = 0; i < toAdd/2; i++){
+            full.append(" ");
+        }
+        if(toAdd%2!=0)
+            full.append(" ");
+        full.append("  ");
         while(st.hasMoreTokens()){
             full.append(st.nextToken()).append(" ");
         }
@@ -62,7 +90,7 @@ public class KwicResult extends Result implements Serializable {
             sb.append(addPadding(s)).append("\n");
         }
         if(end < total)
-            sb.append("\n(Results " + start + "-" + end + " of " + total + ") Type \"it\" for more.\n");
+            sb.append("\n(Results " + start + "-" + end + " of " + NumberFormat.getInstance().format(total) + ") Type \"it\" for more.\n");
         System.out.println(sb.toString());
     }
 }

@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CorpusAccessor {
 
@@ -25,11 +27,8 @@ public class CorpusAccessor {
     private Path corpusPath;
     private Map<String, Integer> dict;
     private List<String> wordList;
-    private int numericValue, indexPos, count, limit, regionsAccessed, context;
-    private List<Integer> indexEntries;
+    private int count, limit, regionsAccessed, context, totalWordCount, regexMatches;
     private DecimalFormat regionNameFormatter;
-    private String word;
-    private List<int[]> concLines;
 
     public CorpusAccessor(Path corpusPath) throws IOException {
         this.corpusPath = corpusPath;
@@ -37,18 +36,42 @@ public class CorpusAccessor {
         generateDictionary();
     }
 
+    public int getWordCount(){
+        return totalWordCount;
+    }
+
+    public int getWordTypeCount(){
+        return wordList.size();
+    }
+
+    public List<int[]> regex(String regex, int context, int limit) throws IOException {
+        Pattern p = Pattern.compile(regex);
+        List<int[]> lines = new ArrayList<int[]>();
+        regexMatches = 0;
+        for(String word : wordList){
+            if(p.matcher(word).matches()) {
+                lines.addAll(search(word, context, limit));
+                regexMatches++;
+            }
+        }
+        return lines;
+    }
+
+    public int getRegexMatches(){
+        return regexMatches;
+    }
+
     public List<int[]> search(String w, int context, int limit) throws IOException {
         long start = System.currentTimeMillis();
         this.limit = limit;
         this.context = context;
-        word = w;
-        numericValue = dict.get(w);
-        getIndexPos();
-        getIndexEntries();
-        getConcordanceLines();
+        int numericValue = dict.get(w);
+        int indexPos = getIndexPos(numericValue);
+        List<Integer> indexEntries = getIndexEntries(indexPos);
+        List<int[]> lines = getConcordanceLines(numericValue, indexEntries);
         long end = System.currentTimeMillis();
-        LOG.info("Search for \"" + word + "\" in " + (end - start) + "ms from " + regionsAccessed + " regions");
-        return concLines;
+        LOG.info("Search for \"" + w + "\" in " + (end - start) + "ms from " + regionsAccessed + " regions");
+        return lines;
     }
 
     public List<String> getLinesAsString(List<int[]> lines) {
@@ -73,44 +96,49 @@ public class CorpusAccessor {
         wordList = new ArrayList<String>();
         int i = 0;
         for(String s : words){
-            String word = s.split(" ")[0];
+            String[] items = s.split(" ");
+            String word = items[0];
+            totalWordCount += Integer.parseInt(items[1]);
             dict.put(word, i++);
             wordList.add(word);
         }
     }
 
-    private void getIndexPos() throws IOException {
+    private int getIndexPos(int numericValue) throws IOException {
         Path indexPosFile = Paths.get(corpusPath.toString(), "idx_pos.disco");
         DataInputStream dis = new DataInputStream(new BufferedInputStream(Files.newInputStream(indexPosFile), BUFFER_SIZE));
         int bytesToSkip = numericValue * 4;
         dis.skipBytes(bytesToSkip);
-        indexPos = dis.readInt();
+        int indexPos = dis.readInt();
         count = dis.readInt() - indexPos;
         dis.close();
+        return indexPos;
     }
 
-    private void getIndexEntries() throws IOException{
+    private List<Integer> getIndexEntries(int indexPos) throws IOException{
         Path indexEntFile = Paths.get(corpusPath.toString(), "idx_ent.disco");
         DataInputStream dis = new DataInputStream(new BufferedInputStream(Files.newInputStream(indexEntFile), BUFFER_SIZE));
         int bytesToSkip = indexPos * 4;
         dis.skipBytes(bytesToSkip);
-        indexEntries = new ArrayList<Integer>();
+        List<Integer> indexEntries = new ArrayList<Integer>();
         for(int i = 0; i < count; i++){
             indexEntries.add(dis.readInt());
         }
         dis.close();
+        return indexEntries;
     }
 
-    private void getConcordanceLines() throws IOException {
-        concLines = new ArrayList<int[]>();
+    private List<int[]> getConcordanceLines(int numericValue, List<Integer> indexEntries) throws IOException {
+        List<int[]> lines = new ArrayList<int[]>();
         regionsAccessed = 0;
         for(int i : indexEntries){
             String region = regionNameFormatter.format(i);
             RegionAccessor ra = new RegionAccessor(Paths.get(corpusPath.toString(), region));
-            concLines.addAll(ra.search(numericValue, context, limit));
+            lines.addAll(ra.search(numericValue, context, limit));
             regionsAccessed++;
-            if(concLines.size() >= limit && limit > 0)
+            if(lines.size() >= limit && limit > 0)
                 break;
         }
+        return lines;
     }
 }

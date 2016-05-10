@@ -2,9 +2,9 @@ package uk.ac.lancs.ucrel.sort;
 
 import java.util.Comparator;
 
-public class ConcLineComparator implements Comparator<int[]> {
+public class LexicalComparator implements Comparator<int[]> {
     private int pos;
-    public ConcLineComparator(int context, int pos){
+    public LexicalComparator(int context, int pos){
         this.pos = context + pos;
     }
 

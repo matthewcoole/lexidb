@@ -1,13 +1,16 @@
 package uk.ac.lancs.ucrel.cli;
 
+import jline.console.ConsoleReader;
+import jline.console.completer.ArgumentCompleter;
+import jline.console.completer.FileNameCompleter;
+import jline.console.completer.StringsCompleter;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import uk.ac.lancs.ucrel.cli.commands.*;
-import uk.ac.lancs.ucrel.cli.commands.Set;
 import uk.ac.lancs.ucrel.rmi.Server;
-import uk.ac.lancs.ucrel.rmi.result.Result;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.lang.reflect.Method;
 import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -15,19 +18,39 @@ import java.util.*;
 
 public class Client {
 
+    private ConsoleReader console;
     private Registry r;
     private Server s;
-    private boolean connected = false;
-    private Result last;
-    private Map<String, Param> params;
-    private ArrayList<String> history;
     private Map<String, Command> commands;
+    private DefaultParser parser = new DefaultParser();
 
     public static void main(String[] args) {
         Client c = new Client();
-        while(c.isConnected()) {
-            String cmd = c.getCommand();
-            c.runCommand(cmd);
+        c.run();
+    }
+
+    private ConsoleReader getConsole(){
+        ConsoleReader c = null;
+        try {
+            c = new ConsoleReader();
+            c.addCompleter(new ArgumentCompleter(new StringsCompleter(Command.getDefaultCommandsList()), new FileNameCompleter()));
+            c.setPrompt("discoDB> ");
+            c.clearScreen();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return c;
+    }
+
+    private void run() {
+        String cmd = null;
+        try {
+            while ((cmd = console.readLine()) != null) {
+                runCommand(cmd.trim());
+                pause();
+            }
+        } catch (Exception e){
+            e.printStackTrace();
         }
     }
 
@@ -37,35 +60,13 @@ public class Client {
             Remote tmp = r.lookup("serv");
             if (tmp instanceof Server)
                 s = (Server) tmp;
-            params = Param.getDefaultParams();
             commands = new HashMap<String, Command>();
-            commands.put("get", new Get(params));
-            commands.put("help", new Help(commands));
-            commands.put("shutdown", new Shutdown(s));
-            commands.put("exit", new Exit());
-            commands.put("set", new Set(params));
-            commands.put("insert", new Insert(s));
-            commands.put("kwic", new Kwic(s, params));
-            commands.put("it", new It(s));
-            history = new ArrayList<String>();
-            connected = true;
+            for(Command c : Command.getDefaultCommands(s)){
+                commands.put(c.getUsage().split(" ")[0], c);
+            }
+            console = getConsole();
         } catch(Exception e){
             System.err.println("Could not connect to server: " + e.getMessage());
-        }
-    }
-
-    private boolean isConnected(){
-        return connected;
-    }
-
-    private String getCommand(){
-        pause();
-        System.out.print("discoDB > ");
-        try {
-            BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
-            return buffer.readLine();
-        } catch (Exception e){
-            return "";
         }
     }
 
@@ -79,31 +80,35 @@ public class Client {
 
     private void runCommand(String cmd){
         try {
-            String op = getMethod(cmd);
-            String[] params = getParams(cmd);
-            history.add(cmd);
+            CommandLine line = parser.parse(new Options(), cmd.split(" "), true);
+            String op = line.getArgs()[0];
+            if(op.equals("clear")){
+                console.clearScreen();
+                return;
+            }
             if (commands.containsKey(op)){
                 Command c = commands.get(op);
-                c.setParams(params);
-                c.invoke();
+                line = getCommandLine(c, cmd);
+                if(line == null)
+                    return;
+                c.invoke(line);
                 c.getResult().print();
+            } else {
+                System.err.println("Command not found!");
             }
         } catch (Exception e){
+            e.printStackTrace();
             System.err.println("Command failed!: " + e.getMessage());
         }
     }
 
-    private String getMethod(String cmd){
-        return new StringTokenizer(cmd).nextToken();
-    }
-
-    private String[] getParams(String cmd){
-        StringTokenizer st = new StringTokenizer(cmd);
-        List<String> params = new ArrayList<String>();
-        st.nextToken();
-        while(st.hasMoreTokens()){
-            params.add(st.nextToken());
+    private CommandLine getCommandLine(Command c, String cmd){
+        try {
+            return  parser.parse(c.getOptions(), cmd.split(" "));
+        } catch (ParseException e) {
+            System.err.println(e.getMessage());
+            c.printHelp();
+            return null;
         }
-        return params.toArray(new String[params.size()]);
     }
 }

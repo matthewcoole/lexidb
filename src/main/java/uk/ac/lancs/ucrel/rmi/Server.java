@@ -9,6 +9,7 @@ public interface Server extends Remote {
     boolean isShutdown() throws RemoteException;
     void shutdown() throws RemoteException;
     Result insert(String path) throws RemoteException;
-    Result kwic(String keyword, int context, int limit, int sort, int order, int page) throws RemoteException;
+    Result kwic(String searchTerm, int context, int limit, int sortType, int sortPos, int order, int page) throws RemoteException;
     Result it() throws RemoteException;
+    Result status() throws RemoteException;
 }

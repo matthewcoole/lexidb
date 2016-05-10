@@ -1,49 +1,84 @@
 package uk.ac.lancs.ucrel.cli.commands;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import uk.ac.lancs.ucrel.rmi.Server;
 import uk.ac.lancs.ucrel.rmi.result.Result;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-public abstract class Command {
+public abstract class Command implements Comparable<Command> {
 
-    private String name;
-    private String desc;
-    private String[] params;
-    private Result r;
+    private static List<Command> defaultCommands;
 
-    public Command(String name){
-        this.name = name;
+    protected String usage;
+    protected String desc;
+    protected String[] params;
+    protected Result result;
+    protected Options ops;
+
+    public Command(String usage){
+        this.usage = usage;
     }
 
-    public Command(String name, String desc, String... params){
-        this.name = name;
+    public Command(String usage, String desc){
+        this.usage = usage;
         this.desc = desc;
-        this.params = params;
+        this.ops = new Options();
     }
 
-    public String getName(){
-        return name;
+    public static List<Command> getDefaultCommands(Server s){
+        defaultCommands = new ArrayList<Command>();
+        defaultCommands.add(new Help(defaultCommands));
+        defaultCommands.add(new Shutdown(s));
+        defaultCommands.add(new Exit());
+        defaultCommands.add(new Insert(s));
+        defaultCommands.add(new Kwic(s));
+        defaultCommands.add(new It(s));
+        defaultCommands.add(new Status(s));
+        Collections.sort(defaultCommands);
+        return defaultCommands;
     }
 
-    public String getDesc(){
-        return desc;
+    public static List<String> getDefaultCommandsList(){
+        List<String> cmdNames = new ArrayList<String>();
+        for(Command cmd : defaultCommands){
+            cmdNames.add(cmd.usage.split(" ")[0]);
+        }
+        return cmdNames;
+    }
+
+    public Options getOptions(){
+        return ops;
+    }
+
+    public void printHelp(){
+        HelpFormatter hf = new HelpFormatter();
+        hf.printHelp(usage, desc, ops, null);
     }
 
     public Result getResult(){
-        return r;
+        if(result == null)
+            return new Result("");
+        return result;
     }
 
     public void setResult(Result r){
-        this.r = r;
+        this.result = r;
     }
 
-    public String[] getParams(){
-        return params;
-    }
-
-    public void setParams(String[] params){
-        this.params = params;
-    }
-
-    public void invoke(){
+    public void invoke(CommandLine line){
         System.err.println("Unimplemented command!");
+    }
+
+    public int compareTo(Command cmd){
+        return this.usage.compareTo(cmd.usage);
+    }
+
+    public String getUsage(){
+        return usage;
     }
 }
