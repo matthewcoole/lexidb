@@ -103,7 +103,6 @@ public class ServerImpl implements Server {
             }
             else {
                 last = regexResults(searchTerm, context, limit);
-                regexMatches = ca.getRegexMatches();
             }
             lastPos = 0;
             sortResults(sortType, sortPos, order, context);
@@ -150,7 +149,9 @@ public class ServerImpl implements Server {
 
     private List<int[]> regexResults(String regex, int context, int limit){
         try {
-            return ca.regex(regex, context, limit);
+            List<String> matches = ca.regex(regex);
+            regexMatches = matches.size();
+            return ca.search(matches, context, limit);
         } catch (Exception e){
             e.printStackTrace();
             return new ArrayList<int[]>();

@@ -2,36 +2,35 @@ package uk.ac.lancs.ucrel.corpus;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import uk.ac.lancs.ucrel.access.Accessor;
+import uk.ac.lancs.ucrel.file.system.FileUtils;
+import uk.ac.lancs.ucrel.index.IndexEntry;
 import uk.ac.lancs.ucrel.region.RegionAccessor;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CorpusAccessor {
+public class CorpusAccessor extends Accessor {
 
     private static final Logger LOG = LogManager.getLogger(CorpusAccessor.class);
-    private static final int BUFFER_SIZE = 1024 * 256;
 
-    private Path corpusPath;
     private Map<String, Integer> dict;
     private List<String> wordList;
-    private int count, limit, regionsAccessed, context, totalWordCount, regexMatches;
+    private int limit, context, totalWordCount;
     private DecimalFormat regionNameFormatter;
 
     public CorpusAccessor(Path corpusPath) throws IOException {
-        this.corpusPath = corpusPath;
+        setPath(corpusPath);
         regionNameFormatter = new DecimalFormat("0000");
         generateDictionary();
     }
@@ -44,34 +43,53 @@ public class CorpusAccessor {
         return wordList.size();
     }
 
-    public List<int[]> regex(String regex, int context, int limit) throws IOException {
+    public List<String> regex(String regex) throws IOException {
         Pattern p = Pattern.compile(regex);
-        List<int[]> lines = new ArrayList<int[]>();
-        regexMatches = 0;
+        List<String> matches = new ArrayList<String>();
         for(String word : wordList){
             if(p.matcher(word).matches()) {
-                lines.addAll(search(word, context, limit));
-                regexMatches++;
+                matches.add(word);
             }
         }
-        return lines;
-    }
-
-    public int getRegexMatches(){
-        return regexMatches;
+        return matches;
     }
 
     public List<int[]> search(String w, int context, int limit) throws IOException {
-        long start = System.currentTimeMillis();
+        List<String> words = new ArrayList<String>();
+        words.add(w);
+        return search(words, context, limit);
+    }
+
+    public List<int[]> search(List<String> words, int context, int limit) throws IOException {
         this.limit = limit;
         this.context = context;
-        int numericValue = dict.get(w);
-        int indexPos = getIndexPos(numericValue);
-        List<Integer> indexEntries = getIndexEntries(indexPos);
-        List<int[]> lines = getConcordanceLines(numericValue, indexEntries);
-        long end = System.currentTimeMillis();
-        LOG.info("Search for \"" + w + "\" in " + (end - start) + "ms from " + regionsAccessed + " regions");
+        List<Integer> numericValues = getNumericValues(words);
+        List<IndexEntry> indexEntries = getIndexPositions(numericValues);
+        getIndexEntryValues(indexEntries);
+        List<int[]> lines = getConcordanceLines(numericValues, indexEntries);
         return lines;
+    }
+
+    private void getIndexEntryValues(List<IndexEntry> indexEntries) throws IOException {
+        for(IndexEntry ie : indexEntries){
+            getIndexEntryValues(ie);
+        }
+    }
+
+    private List<IndexEntry> getIndexPositions(List<Integer> numericValues) throws IOException {
+        List<IndexEntry> indexEntries = new ArrayList<IndexEntry>();
+        for(int i : numericValues){
+            indexEntries.add(getIndexPos(i));
+        }
+        return indexEntries;
+    }
+
+    private List<Integer> getNumericValues(List<String> words) {
+        List<Integer> numericValues = new ArrayList<Integer>();
+        for(String w : words){
+            numericValues.add(dict.get(w));
+        }
+        return numericValues;
     }
 
     public List<String> getLinesAsString(List<int[]> lines) {
@@ -91,7 +109,7 @@ public class CorpusAccessor {
     }
 
     private void generateDictionary () throws IOException {
-        List<String> words = Files.readAllLines(Paths.get(corpusPath.toString(), "dict.disco"), StandardCharsets.UTF_8);
+        List<String> words = Files.readAllLines(Paths.get(getPath().toString(), "dict.disco"), StandardCharsets.UTF_8);
         dict = new HashMap<String, Integer>();
         wordList = new ArrayList<String>();
         int i = 0;
@@ -104,37 +122,19 @@ public class CorpusAccessor {
         }
     }
 
-    private int getIndexPos(int numericValue) throws IOException {
-        Path indexPosFile = Paths.get(corpusPath.toString(), "idx_pos.disco");
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(Files.newInputStream(indexPosFile), BUFFER_SIZE));
-        int bytesToSkip = numericValue * 4;
-        dis.skipBytes(bytesToSkip);
-        int indexPos = dis.readInt();
-        count = dis.readInt() - indexPos;
-        dis.close();
-        return indexPos;
-    }
-
-    private List<Integer> getIndexEntries(int indexPos) throws IOException{
-        Path indexEntFile = Paths.get(corpusPath.toString(), "idx_ent.disco");
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(Files.newInputStream(indexEntFile), BUFFER_SIZE));
-        int bytesToSkip = indexPos * 4;
-        dis.skipBytes(bytesToSkip);
-        List<Integer> indexEntries = new ArrayList<Integer>();
-        for(int i = 0; i < count; i++){
-            indexEntries.add(dis.readInt());
-        }
-        dis.close();
-        return indexEntries;
-    }
-
-    private List<int[]> getConcordanceLines(int numericValue, List<Integer> indexEntries) throws IOException {
+    private List<int[]> getConcordanceLines(List<Integer> numericValues, List<IndexEntry> indexEntries) throws IOException {
         List<int[]> lines = new ArrayList<int[]>();
-        regionsAccessed = 0;
-        for(int i : indexEntries){
+        int regionsAccessed = 0;
+        Set<Integer> regions = new HashSet<Integer>();
+        for(IndexEntry ie : indexEntries){
+            for(int i : ie.getIndexValues()){
+                regions.add(i);
+            }
+        }
+        for(int i : regions){
             String region = regionNameFormatter.format(i);
-            RegionAccessor ra = new RegionAccessor(Paths.get(corpusPath.toString(), region));
-            lines.addAll(ra.search(numericValue, context, limit));
+            RegionAccessor ra = new RegionAccessor(Paths.get(getPath().toString(), region));
+            lines.addAll(ra.search(numericValues, context, limit));
             regionsAccessed++;
             if(lines.size() >= limit && limit > 0)
                 break;
