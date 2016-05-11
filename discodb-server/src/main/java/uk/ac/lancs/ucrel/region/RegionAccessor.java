@@ -100,23 +100,27 @@ public class RegionAccessor extends Accessor {
 
     private List<int[]> getConcordanceLines(List<IndexEntry> indexEntries, int limit) throws IOException {
         List<int[]> concLines = new ArrayList<int[]>();
+        List<Integer> allIndexValues = new ArrayList<Integer>();
+        int count = 0;
         for(IndexEntry ie : indexEntries){
-            concLines.addAll(getConcordanceLines(ie, limit));
+            allIndexValues.addAll(ie.getIndexValuesAsList());
+            count += ie.getCount();
         }
+        concLines.addAll(getConcordanceLines(allIndexValues, count, limit));
         return concLines;
     }
 
-    private List<int[]> getConcordanceLines(IndexEntry ie, int limit) throws IOException {
+    private List<int[]> getConcordanceLines(List<Integer> indexValues, int count, int limit) throws IOException {
         Path dataFile = Paths.get(getPath().toString(), "data.disco");
         IntBuffer ib = FileUtils.readAllInts(dataFile);
 
-        limit = (limit > ie.getCount() || limit < 1) ? ie.getCount() : limit;
+        limit = (limit > count || limit < 1) ? count : limit;
 
         List<int[]> concLines = new ArrayList<int[]>();
 
         for(int i = 0; i < limit; i++){
             int[] line = new int[(context * 2) + 1];
-            int n = ie.getIndexValues()[i] - context;
+            int n = indexValues.get(i) - context;
             for(int j = 0; j < line.length; j++){
                 try {
                     line[j] = regionToCorpusMap[ib.get(n++)];

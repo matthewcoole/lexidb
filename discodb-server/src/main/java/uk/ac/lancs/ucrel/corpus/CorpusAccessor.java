@@ -3,21 +3,15 @@ package uk.ac.lancs.ucrel.corpus;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import uk.ac.lancs.ucrel.access.Accessor;
-import uk.ac.lancs.ucrel.file.system.FileUtils;
 import uk.ac.lancs.ucrel.index.IndexEntry;
 import uk.ac.lancs.ucrel.region.RegionAccessor;
-
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.nio.IntBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CorpusAccessor extends Accessor {
