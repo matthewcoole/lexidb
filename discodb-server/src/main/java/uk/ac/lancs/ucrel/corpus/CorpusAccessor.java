@@ -20,6 +20,7 @@ public class CorpusAccessor extends Accessor {
 
     private Map<String, Integer> dict;
     private List<String> wordList;
+    private List<Integer> wordFrequencyList;
     private int limit, context, totalWordCount;
     private DecimalFormat regionNameFormatter;
 
@@ -35,6 +36,14 @@ public class CorpusAccessor extends Accessor {
 
     public int getWordTypeCount(){
         return wordList.size();
+    }
+
+    public List<String> getWordList(){
+        return wordList;
+    }
+
+    public List<Integer> getFrequencyList(){
+        return wordFrequencyList;
     }
 
     public List<String> regex(String regex) throws IOException {
@@ -106,13 +115,16 @@ public class CorpusAccessor extends Accessor {
         List<String> words = Files.readAllLines(Paths.get(getPath().toString(), "dict.disco"), StandardCharsets.UTF_8);
         dict = new HashMap<String, Integer>();
         wordList = new ArrayList<String>();
+        wordFrequencyList = new ArrayList<Integer>();
         int i = 0;
         for(String s : words){
             String[] items = s.split(" ");
             String word = items[0];
-            totalWordCount += Integer.parseInt(items[1]);
+            int freq = Integer.parseInt(items[1]);
+            totalWordCount += freq;
             dict.put(word, i++);
             wordList.add(word);
+            wordFrequencyList.add(freq);
         }
     }
 
