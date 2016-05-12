@@ -26,7 +26,7 @@ public class CorpusBuilder {
     private Map<String, List<Integer>> dict;
     private Map<String, Integer> dictWordCount;
     private List<String> dictEntries, finalDictEntries;
-    private int[] wordCount, indexMapping;
+    private int[] indexMapping;
 
 
     public CorpusBuilder(Path corpusPath) throws IOException {
@@ -120,7 +120,6 @@ public class CorpusBuilder {
     }
 
     private void generateMappings(){
-        wordCount = new int[dict.size()];
         indexMapping = new int[dict.size()];
         int pos = 0;
         for(int i = 0; i < indexMapping.length; i++){

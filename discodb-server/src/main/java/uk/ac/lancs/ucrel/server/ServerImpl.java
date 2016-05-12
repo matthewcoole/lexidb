@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ServerImpl implements Server {
 
@@ -31,6 +33,8 @@ public class ServerImpl implements Server {
     private int lastPos, lastContext, lastPageLength, lastSortPos, lastSortType, regexMatches;
     private long lastTime;
     private String lastSearchTerm;
+    private ExecutorService es = Executors.newCachedThreadPool();
+    private InsertResult lastInsert;
 
     public ServerImpl(String  dataPath){
         this.dataPath = dataPath;
@@ -67,24 +71,36 @@ public class ServerImpl implements Server {
 
     public void shutdown() throws RemoteException {
         shutdown = true;
+        es.shutdown();
     }
 
-    public Result insert(String path) throws RemoteException {
+    public void insertRun(String path) {
         System.out.println("Inserting from " + path);
         try {
+            lastInsert = new InsertResult(".", false);
             long start = System.currentTimeMillis();
             TextParser tp = new TextParser(Paths.get(dataPath));
             tp.parse(Paths.get(path));
             ca = new CorpusAccessor(Paths.get(dataPath));
             long end = System.currentTimeMillis();
             lastTime = (end - start);
-            return new InsertResult("Inserted " + path, (end - start));
+            lastInsert =  new InsertResult("\nInserted " + path + " in " + (end - start) + "ms.", true);
         } catch(Exception e){
             List<String> errors = new ArrayList<String>();
             errors.add(e.getMessage());
             errors.add(e.getCause().getMessage());
-            return new Result("Failed to insert \"" + path + "\"");
+            lastInsert = new InsertResult("\nFailed to insert \"" + path + "\"", true);
         }
+    }
+
+    public InsertResult insert(String path) throws RemoteException {
+        es.execute(() -> insertRun(path));
+        lastInsert = new InsertResult("\nInserting " + path + ". Please wait...", false);
+        return lastInsert;
+    }
+
+    public InsertResult lastInsert() throws RemoteException {
+        return lastInsert;
     }
 
     public Result kwic(String searchTerm, int context, int limit, int sortType, int sortPos, int order, int pageLength) throws RemoteException {

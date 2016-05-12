@@ -3,15 +3,23 @@ package uk.ac.lancs.ucrel.rmi.result;
 public class InsertResult extends Result {
 
     private long time;
+    private boolean complete;
 
-    public InsertResult(String header, long time){
-        super(header);
-        this.time = time;
+    public InsertResult(String msg, boolean complete){
+        super(msg);
+        this.complete = complete;
+    }
+
+    public boolean isComplete(){
+        return complete;
     }
 
     public void print(){
-        StringBuilder sb = new StringBuilder("\n");
-        sb.append(header).append(" in ").append(time).append("ms.").append("\n");
-        System.out.println(sb.toString());
+        StringBuilder sb = new StringBuilder();
+        sb.append(header);
+        if(complete)
+            System.out.println(sb.toString());
+        else
+            System.out.print(sb.toString());
     }
 }
