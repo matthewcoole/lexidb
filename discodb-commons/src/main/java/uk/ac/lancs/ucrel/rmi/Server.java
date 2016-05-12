@@ -5,6 +5,7 @@ import uk.ac.lancs.ucrel.rmi.result.Result;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.Properties;
 
 public interface Server extends Remote {
     boolean isShutdown() throws RemoteException;
@@ -15,4 +16,8 @@ public interface Server extends Remote {
     Result status() throws RemoteException;
     InsertResult lastInsert() throws RemoteException;
     boolean sendRaw(String filename, byte[] data) throws RemoteException;
+    boolean isAvailable() throws RemoteException;
+    void notify(String server) throws RemoteException;
+    boolean equals(Server s) throws RemoteException;
+    Properties getProperties() throws RemoteException;
 }
