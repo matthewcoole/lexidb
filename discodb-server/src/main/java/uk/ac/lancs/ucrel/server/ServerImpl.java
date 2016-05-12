@@ -1,6 +1,7 @@
 package uk.ac.lancs.ucrel.server;
 
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
+import uk.ac.lancs.ucrel.file.system.FileUtils;
 import uk.ac.lancs.ucrel.parser.TextParser;
 import uk.ac.lancs.ucrel.rmi.result.InsertResult;
 import uk.ac.lancs.ucrel.rmi.result.KwicResult;
@@ -11,6 +12,8 @@ import uk.ac.lancs.ucrel.sort.LexicalComparator;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.RemoteException;
 import java.text.DateFormat;
@@ -35,6 +38,7 @@ public class ServerImpl implements Server {
     private String lastSearchTerm;
     private ExecutorService es = Executors.newCachedThreadPool();
     private InsertResult lastInsert;
+    private Path rawTempPath;
 
     public ServerImpl(String  dataPath){
         this.dataPath = dataPath;
@@ -74,28 +78,40 @@ public class ServerImpl implements Server {
         es.shutdown();
     }
 
-    public void insertRun(String path) {
-        System.out.println("Inserting from " + path);
+    public void insertRun(Path p) {
+        System.out.println("Inserting from " + p.toString());
         try {
             lastInsert = new InsertResult(".", false);
             long start = System.currentTimeMillis();
             TextParser tp = new TextParser(Paths.get(dataPath));
-            tp.parse(Paths.get(path));
+            tp.parse(p);
             ca = new CorpusAccessor(Paths.get(dataPath));
             long end = System.currentTimeMillis();
             lastTime = (end - start);
-            lastInsert =  new InsertResult("\nInserted " + path + " in " + (end - start) + "ms.", true);
+            lastInsert =  new InsertResult("\nInserted completed in " + (end - start) + "ms.", true);
         } catch(Exception e){
             List<String> errors = new ArrayList<String>();
             errors.add(e.getMessage());
             errors.add(e.getCause().getMessage());
-            lastInsert = new InsertResult("\nFailed to insert \"" + path + "\"", true);
+            lastInsert = new InsertResult("\nInsert failed!", true);
         }
     }
 
-    public InsertResult insert(String path) throws RemoteException {
-        es.execute(() -> insertRun(path));
-        lastInsert = new InsertResult("\nInserting " + path + ". Please wait...", false);
+    public boolean sendRaw(String filename, byte[] data) throws RemoteException {
+        try {
+            if(rawTempPath == null)
+                rawTempPath = Files.createTempDirectory("discodb_raw");
+            FileUtils.write(Paths.get(rawTempPath.toString(), filename), data);
+            return true;
+        } catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public InsertResult insert() throws RemoteException {
+        es.execute(() -> insertRun(rawTempPath));
+        lastInsert = new InsertResult("\nInserting. Please wait...", false);
         return lastInsert;
     }
 

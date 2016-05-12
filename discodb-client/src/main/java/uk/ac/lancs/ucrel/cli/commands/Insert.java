@@ -5,6 +5,10 @@ import uk.ac.lancs.ucrel.rmi.Server;
 import uk.ac.lancs.ucrel.rmi.result.InsertResult;
 import uk.ac.lancs.ucrel.rmi.result.Result;
 
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+
 public class Insert extends Command {
 
     private Server s;
@@ -17,7 +21,19 @@ public class Insert extends Command {
 
     public void invoke(CommandLine line){
         try {
-            is = s.insert(line.getArgs()[1]);
+
+            Path dir = Paths.get(line.getArgs()[1]);
+
+            Files.walkFileTree(dir, new SimpleFileVisitor<Path>(){
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    s.sendRaw(file.getFileName().toString(), Files.readAllBytes(file));
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+
+            is = s.insert();
+
             while(!is.isComplete()){
                 Thread.sleep(1000);
                 is.print();
