@@ -15,7 +15,7 @@ public class DBStartup {
 
     public static void main(String[] args) throws RemoteException, AlreadyBoundException, InterruptedException {
         Properties  p = loadServerProperties();
-        Server s = new ServerImpl(args[0], p);
+        Server s = new ServerImpl(p);
         int port = Integer.parseInt(p.getProperty("server.port"));
         Registry r = LocateRegistry.createRegistry(port);
         Server stub = (Server) UnicastRemoteObject.exportObject(s, 0);

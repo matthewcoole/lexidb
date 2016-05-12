@@ -12,9 +12,8 @@ import uk.ac.lancs.ucrel.sort.LexicalComparator;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -34,7 +33,7 @@ public class ServerImpl implements Server {
     private String dataPath;
     private CorpusAccessor ca;
     private List<int[]> last;
-    private int lastPos, lastContext, lastPageLength, lastSortPos, lastSortType, regexMatches;
+    private int lastPos, lastContext, lastPageLength, lastSortPos, lastSortType, regexMatches, nextPeer;
     private long lastTime;
     private String lastSearchTerm;
     private ExecutorService es = Executors.newCachedThreadPool();
@@ -44,10 +43,10 @@ public class ServerImpl implements Server {
     private Map<String, Server> peers;
     private boolean available = false;
 
-    public ServerImpl(String dataPath, Properties props) {
-        this.dataPath = dataPath;
+    public ServerImpl(Properties props) {
         this.startTime = new Date();
         this.props = props;
+        dataPath = props.getProperty("server.data.path");
         peers = new HashMap<String, Server>();
         es.execute(() -> connectToPeers());
         try {
@@ -114,7 +113,6 @@ public class ServerImpl implements Server {
             } catch (Exception e){
 
             }
-            System.out.println(peers);
             for(String server : peers.keySet()){
                 Server s = peers.get(server);
                 try {
@@ -189,7 +187,38 @@ public class ServerImpl implements Server {
         }
     }
 
+    public boolean distributeRaw() throws RemoteException {
+        try {
+            Files.walkFileTree(rawTempPath, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    String[] peerList = peers.keySet().toArray(new String[0]);
+                    nextPeer++;
+                    nextPeer = nextPeer % (peerList.length + 1);
+                    if (nextPeer < peerList.length) {
+                        Server s = peers.get(peerList[nextPeer]);
+                        s.sendRaw(file.getFileName().toString(), Files.readAllBytes(file));
+                        Files.delete(file);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+            return true;
+        } catch (Exception e){
+            return false;
+        }
+    }
+
     public InsertResult insert() throws RemoteException {
+        for(String server : peers.keySet()){
+            peers.get(server).insertLocal();
+        }
+        insertLocal();
+        return lastInsert;
+    }
+
+    public InsertResult insertLocal() throws RemoteException {
+        System.out.println("Inserting local files");
         es.execute(() -> insertRun(rawTempPath));
         lastInsert = new InsertResult("\nInserting. Please wait...", false);
         return lastInsert;

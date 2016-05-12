@@ -11,11 +11,13 @@ public interface Server extends Remote {
     boolean isShutdown() throws RemoteException;
     void shutdown() throws RemoteException;
     InsertResult insert() throws RemoteException;
+    InsertResult insertLocal() throws RemoteException;
     Result kwic(String searchTerm, int context, int limit, int sortType, int sortPos, int order, int page) throws RemoteException;
     Result it() throws RemoteException;
     Result status() throws RemoteException;
     InsertResult lastInsert() throws RemoteException;
     boolean sendRaw(String filename, byte[] data) throws RemoteException;
+    boolean distributeRaw() throws RemoteException;
     boolean isAvailable() throws RemoteException;
     void notify(String server) throws RemoteException;
     boolean equals(Server s) throws RemoteException;

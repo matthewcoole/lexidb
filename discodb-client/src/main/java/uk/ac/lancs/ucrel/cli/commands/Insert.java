@@ -38,6 +38,10 @@ public class Insert extends Command {
 
             System.out.println("Transferred " + fileCount + " files to server for insertion");
 
+            s.distributeRaw();
+
+            System.out.println("Files distributed between all servers");
+
             is = s.insert();
 
             while(!is.isComplete()){
