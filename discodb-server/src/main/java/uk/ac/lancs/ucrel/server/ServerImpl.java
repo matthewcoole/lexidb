@@ -3,6 +3,8 @@ package uk.ac.lancs.ucrel.server;
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
 import uk.ac.lancs.ucrel.file.system.FileUtils;
 import uk.ac.lancs.ucrel.parser.TextParser;
+import uk.ac.lancs.ucrel.result.FullKwicResult;
+import uk.ac.lancs.ucrel.result.FullResult;
 import uk.ac.lancs.ucrel.rmi.result.InsertResult;
 import uk.ac.lancs.ucrel.rmi.result.KwicResult;
 import uk.ac.lancs.ucrel.rmi.result.Result;
@@ -32,16 +34,15 @@ public class ServerImpl implements Server {
     private Date startTime;
     private String dataPath;
     private CorpusAccessor ca;
-    private List<int[]> last;
-    private int lastPos, lastContext, lastPageLength, lastSortPos, lastSortType, regexMatches, nextPeer;
-    private long lastTime;
-    private String lastSearchTerm;
+    private int nextPeer;
     private ExecutorService es = Executors.newCachedThreadPool();
     private InsertResult lastInsert;
     private Path rawTempPath;
     private Properties props;
     private Map<String, Server> peers;
     private boolean available = false;
+
+    private FullResult lastResult;
 
     public ServerImpl(Properties props) {
         this.startTime = new Date();
@@ -165,7 +166,6 @@ public class ServerImpl implements Server {
             tp.parse(p);
             ca = new CorpusAccessor(Paths.get(dataPath));
             long end = System.currentTimeMillis();
-            lastTime = (end - start);
             lastInsert = new InsertResult("\nInserted completed in " + (end - start) + "ms.", true);
         } catch (Exception e) {
             List<String> errors = new ArrayList<String>();
@@ -232,23 +232,13 @@ public class ServerImpl implements Server {
         System.out.println("Search for " + searchTerm);
         try {
             long start = System.currentTimeMillis();
-            this.lastSearchTerm = searchTerm;
-            this.lastContext = context;
-            this.lastTime = sortType;
-            this.lastSortType = sortType;
-            this.lastSortPos = sortPos;
-            this.lastPageLength = pageLength;
-            if (!isRegex(searchTerm)) {
-                last = searchResults(searchTerm, context, limit);
-                regexMatches = 0;
-            } else {
-                last = regexResults(searchTerm, context, limit);
-            }
-            lastPos = 0;
-            sortResults(sortType, sortPos, order, context);
+            FullKwicResult fkr = ca.kwic(searchTerm, context, limit);
+            lastResult = fkr;
+            fkr.sort(sortType, sortPos, order);
+            fkr.setPageLength(pageLength);
             long end = System.currentTimeMillis();
-            lastTime = end - start;
-            return getResults();
+            fkr.setTime(end - start);
+            return lastResult.it(ca);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -256,77 +246,12 @@ public class ServerImpl implements Server {
         }
     }
 
-    private boolean isRegex(String s) {
-        return s.matches("^.*[^a-zA-Z ].*$");
-    }
-
-    private void sortResults(int sortType, int sortPos, int order, int context) {
-        if (sortType == 0)
-            return;
-        else if (sortType == 1) {
-            Collections.sort(last, new LexicalComparator(context, sortPos));
-        } else if (sortType == 2) {
-            Collections.sort(last, new FrequencyComparator(context, sortPos, last));
-        }
-
-        if (order < 0)
-            Collections.reverse(last);
+    public Result list(String searchTerm) throws RemoteException {
+        return null;
     }
 
     public Result it() throws RemoteException {
-        return getResults();
-    }
-
-    private List<int[]> searchResults(String keyword, int context, int limit) {
-        try {
-            return ca.search(keyword, context, limit);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList<int[]>();
-        }
-    }
-
-    private List<int[]> regexResults(String regex, int context, int limit) {
-        try {
-            List<String> matches = ca.regex(regex);
-            regexMatches = matches.size();
-            return ca.search(matches, context, limit);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList<int[]>();
-        }
-    }
-
-    private String getSortString() {
-        StringBuilder sb = new StringBuilder();
-        if (lastSortType == 0)
-            return sb.toString();
-        sb.append(" (sorted ");
-        if (lastSortType == 1)
-            sb.append("lexically ");
-        else if (lastSortType == 2)
-            sb.append("by frequency ");
-        sb.append("on position ").append(lastSortPos).append(")");
-        return sb.toString();
-    }
-
-    private String getRegexString() {
-        StringBuilder sb = new StringBuilder();
-        if (regexMatches > 0)
-            sb.append(" (regex matched ").append(regexMatches).append(" word types)");
-        return sb.toString();
-    }
-
-    private Result getResults() {
-        List<String> page = new ArrayList<String>();
-        for (int i = lastPos; i < last.size() && i < (lastPos + lastPageLength); i++) {
-            page.add(ca.getLineAsString(last.get(i)));
-        }
-        lastPos += lastPageLength;
-        String header = "Found " + NumberFormat.getInstance().format(last.size()) + " results for \"" + lastSearchTerm + "\"";
-        header += getRegexString();
-        header += getSortString();
-        return new KwicResult(header, lastTime, page, (lastPos - lastPageLength + 1), lastPos, last.size(), lastContext);
+        return lastResult.it(ca);
     }
 
     public Properties getProperties() throws RemoteException {

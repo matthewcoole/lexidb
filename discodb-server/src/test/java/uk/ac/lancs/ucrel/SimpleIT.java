@@ -34,7 +34,7 @@ public class SimpleIT {
 
     @Test
     public void basicLookup() throws IOException {
-        List<int[]> raw_results = ca.search("and", 5, 3);
+        List<int[]> raw_results = ca.kwic("and", 5, 3).getResults();
         List<String> results = ca.getLinesAsString(raw_results);
         assertThat(results, IsIterableContainingInOrder.contains(expectedResults));
     }

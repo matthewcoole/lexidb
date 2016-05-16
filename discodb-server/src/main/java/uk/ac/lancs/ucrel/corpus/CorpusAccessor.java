@@ -5,6 +5,8 @@ import org.apache.log4j.Logger;
 import uk.ac.lancs.ucrel.access.Accessor;
 import uk.ac.lancs.ucrel.index.IndexEntry;
 import uk.ac.lancs.ucrel.region.RegionAccessor;
+import uk.ac.lancs.ucrel.result.FullKwicResult;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -57,20 +59,40 @@ public class CorpusAccessor extends Accessor {
         return matches;
     }
 
-    public List<int[]> search(String w, int context, int limit) throws IOException {
-        List<String> words = new ArrayList<String>();
-        words.add(w);
-        return search(words, context, limit);
+    public Map<Integer, Integer> list(String word){
+        List<String> words = new ArrayList<>();
+        words.add(word);
+        return list(words);
     }
 
-    public List<int[]> search(List<String> words, int context, int limit) throws IOException {
+    public Map<Integer, Integer> list(List<String> words){
+        Map<Integer, Integer> freq = new HashMap<Integer, Integer>();
+        List<Integer> numericaValues = getNumericValues(words);
+        for(int val : numericaValues){
+            freq.put(val, wordFrequencyList.get(val));
+        }
+        return freq;
+    }
+
+    public FullKwicResult kwic(String searchTerm, int context, int limit) throws IOException {
         this.limit = limit;
         this.context = context;
+
+        List<String> words = new ArrayList<>();
+        if(isRegex(searchTerm))
+            words.addAll(regex(searchTerm));
+        else
+            words.add(searchTerm);
+
         List<Integer> numericValues = getNumericValues(words);
         List<IndexEntry> indexEntries = getIndexPositions(numericValues);
         getIndexEntryValues(indexEntries);
         List<int[]> lines = getConcordanceLines(numericValues, indexEntries);
-        return lines;
+        return new FullKwicResult(searchTerm, words.size(), context, lines);
+    }
+
+    private boolean isRegex(String s) {
+        return s.matches("^.*[^a-zA-Z ].*$");
     }
 
     private void getIndexEntryValues(List<IndexEntry> indexEntries) throws IOException {
@@ -109,6 +131,10 @@ public class CorpusAccessor extends Accessor {
             sb.append(wordList.get(i)).append(' ');
         }
         return sb.toString().trim();
+    }
+
+    public String getNumericAsString(int numericValue){
+        return wordList.get(numericValue);
     }
 
     private void generateDictionary () throws IOException {

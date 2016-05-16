@@ -13,6 +13,7 @@ public interface Server extends Remote {
     InsertResult insert() throws RemoteException;
     InsertResult insertLocal() throws RemoteException;
     Result kwic(String searchTerm, int context, int limit, int sortType, int sortPos, int order, int page) throws RemoteException;
+    Result list(String searchTerm) throws RemoteException;
     Result it() throws RemoteException;
     Result status() throws RemoteException;
     InsertResult lastInsert() throws RemoteException;
