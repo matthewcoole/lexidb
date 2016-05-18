@@ -6,8 +6,6 @@ import uk.ac.lancs.ucrel.file.system.FileUtils;
 import uk.ac.lancs.ucrel.region.RegionAccessor;
 import uk.ac.lancs.ucrel.region.RegionBuilder;
 
-import java.io.BufferedOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -69,6 +67,50 @@ public class CorpusBuilder {
         for(String s : dictEntries){
             finalDictEntries.add(s + " " + dictWordCount.get(s));
         }
+    }
+
+    public static List<String> extractDictionaryEntries(List<String> dict){
+        List<String> dictEntries = new ArrayList<String>();
+        for(String s : dict){
+            dictEntries.add(s.split(" ")[0]);
+        }
+        return dictEntries;
+    }
+
+    public static Map<String, Integer> extractDictionary(List<String> dict){
+        Map<String, Integer> wordCounts = new HashMap<String, Integer>();
+        for(String entry : dict){
+            String[] part = entry.split(" ");
+            wordCounts.put(part[0], Integer.parseInt(part[1]));
+        }
+        return wordCounts;
+    }
+
+    public static Map<String, Integer> combineDictionaries(List<Map<String, Integer>> dicts){
+        Map<String, Integer> wordCounts = new HashMap<String, Integer>();
+        for(Map<String, Integer> dict : dicts){
+            for(String s : dict.keySet()){
+                if(!wordCounts.containsKey(s))
+                    wordCounts.put(s, 0);
+                int count = wordCounts.get(s) + dict.get(s);
+                wordCounts.put(s, count);
+            }
+        }
+        return wordCounts;
+    }
+
+    public static List<String> combineDictionaries(List<String>... dicts){
+        List<Map<String, Integer>> wordCounts = new ArrayList<Map<String, Integer>>();
+        for(List<String> dict : dicts){
+            wordCounts.add(extractDictionary(dict));
+        }
+        Map<String, Integer> wordCount = combineDictionaries(wordCounts);
+        List<String> dict = new ArrayList<String>();
+        for(String s : wordCount.keySet()){
+            dict.add(s + " " + wordCount.get(s));
+        }
+        Collections.sort(dict);
+        return dict;
     }
 
     private int[] getIndexEntries(){

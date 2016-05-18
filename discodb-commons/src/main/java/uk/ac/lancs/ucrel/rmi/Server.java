@@ -19,6 +19,7 @@ public interface Server extends Remote {
     InsertResult lastInsert() throws RemoteException;
     boolean sendRaw(String filename, byte[] data) throws RemoteException;
     boolean distributeRaw() throws RemoteException;
+    boolean sendRawToInsert(String filename, byte[] data) throws RemoteException;
     boolean isAvailable() throws RemoteException;
     void notify(String server) throws RemoteException;
     boolean equals(Server s) throws RemoteException;

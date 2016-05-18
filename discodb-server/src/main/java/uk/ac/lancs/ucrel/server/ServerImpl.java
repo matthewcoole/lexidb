@@ -38,6 +38,7 @@ public class ServerImpl implements Server {
     private ExecutorService es = Executors.newCachedThreadPool();
     private InsertResult lastInsert;
     private Path rawTempPath;
+    private Path rawToInsert;
     private Properties props;
     private Map<String, Server> peers;
     private boolean available = false;
@@ -84,7 +85,7 @@ public class ServerImpl implements Server {
         Server s = null;
         if (tmp instanceof Server)
             s = (Server) tmp;
-        if (s != null && !this.equals(s)) {
+        if (s != null) {
             peers.put(server, s);
             if(notify)
                 s.notify(props.getProperty("server.host") + ":" + props.getProperty("server.port"));
@@ -170,18 +171,35 @@ public class ServerImpl implements Server {
             long end = System.currentTimeMillis();
             lastInsert = new InsertResult("\nInserted completed in " + (end - start) + "ms.", true);
         } catch (Exception e) {
-            List<String> errors = new ArrayList<String>();
-            errors.add(e.getMessage());
-            errors.add(e.getCause().getMessage());
-            lastInsert = new InsertResult("\nInsert failed!", true);
+            e.printStackTrace();
+            lastInsert = new InsertResult("\nInsert failed! " + e.getMessage(), true);
         }
     }
 
     public boolean sendRaw(String filename, byte[] data) throws RemoteException {
+        if (rawTempPath == null)
+            rawTempPath = createTemp("discodb_raw");
+        return writeRaw(filename, data, rawTempPath);
+    }
+
+    public boolean sendRawToInsert(String filename, byte[] data) throws RemoteException {
+        if(rawToInsert == null)
+            rawToInsert = createTemp("discodb_to_insert");
+        return writeRaw(filename, data, rawToInsert);
+    }
+
+    public Path createTemp(String name){
+        try{
+            return Files.createTempDirectory(name);
+        } catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public boolean writeRaw(String filename, byte[] data, Path dir){
         try {
-            if (rawTempPath == null)
-                rawTempPath = Files.createTempDirectory("discodb_raw");
-            FileUtils.write(Paths.get(rawTempPath.toString(), filename), data);
+            FileUtils.write(Paths.get(dir.toString(), filename), data);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -196,10 +214,10 @@ public class ServerImpl implements Server {
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     String[] peerList = peers.keySet().toArray(new String[0]);
                     nextPeer++;
-                    nextPeer = nextPeer % (peerList.length + 1);
+                    nextPeer = nextPeer % (peerList.length);
                     if (nextPeer < peerList.length) {
                         Server s = peers.get(peerList[nextPeer]);
-                        s.sendRaw(file.getFileName().toString(), Files.readAllBytes(file));
+                        s.sendRawToInsert(file.getFileName().toString(), Files.readAllBytes(file));
                         Files.delete(file);
                     }
                     return FileVisitResult.CONTINUE;
@@ -215,13 +233,12 @@ public class ServerImpl implements Server {
         for(String server : peers.keySet()){
             peers.get(server).insertLocal();
         }
-        insertLocal();
         return lastInsert;
     }
 
     public InsertResult insertLocal() throws RemoteException {
         System.out.println("Inserting local files");
-        es.execute(() -> insertRun(rawTempPath));
+        es.execute(() -> insertRun(rawToInsert));
         lastInsert = new InsertResult("\nInserting. Please wait...", false);
         return lastInsert;
     }

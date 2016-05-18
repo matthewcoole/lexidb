@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
-import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
 import uk.ac.lancs.ucrel.parser.TextParser;
 import uk.ac.lancs.ucrel.rmi.Server;
 import uk.ac.lancs.ucrel.rmi.result.KwicResult;
@@ -26,8 +25,6 @@ public class SimpleIT {
 
     public String[] expectedResults = {"new slogan jones is best and the fact that jones is", "manufacturers who wanted their children and their childrens children to reap", "himself in his own lifetime and let his brats and brats"};
 
-    private CorpusAccessor ca;
-
     @BeforeClass
     public static void parseInData() throws IOException {
         TextParser tp = new TextParser(Paths.get(DATA.getRoot().getPath()));
@@ -35,11 +32,6 @@ public class SimpleIT {
         Properties p = new Properties();
         p.setProperty("server.data.path", Paths.get(DATA.getRoot().getPath()).toString());
         s = new ServerImpl(p);
-    }
-
-    @Before
-    public void setup() throws IOException {
-        ca = new CorpusAccessor(Paths.get(DATA.getRoot().getPath()));
     }
 
     @Test
