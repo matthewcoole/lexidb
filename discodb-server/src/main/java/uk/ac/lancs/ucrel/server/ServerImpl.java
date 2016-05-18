@@ -93,6 +93,8 @@ public class ServerImpl implements Server {
     }
 
     private void connectToPeers() {
+        if(props.getProperty("server.peers") == null)
+            return;
         String[] peerList = props.getProperty("server.peers").split(" ");
         while(!available){
             try {

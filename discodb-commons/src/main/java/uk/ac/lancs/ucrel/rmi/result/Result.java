@@ -6,7 +6,6 @@ public class Result implements Serializable {
 
     String header;
 
-
     public Result(String header){
         this.header = header;
     }

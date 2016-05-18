@@ -23,6 +23,10 @@ public class KwicResult extends Result implements Serializable {
         keyPadding = getKeyPadding();
     }
 
+    public List<String> getPage(){
+        return page;
+    }
+
     private int getKeyPadding(){
         int longest = 0;
         for(String s : page){
