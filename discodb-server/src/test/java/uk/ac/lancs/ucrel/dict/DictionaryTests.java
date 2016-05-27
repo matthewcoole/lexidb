@@ -46,4 +46,12 @@ public class DictionaryTests {
         assertThat(d1.get("missing"), is(1));
         assertThat(d1.get("test"), is(2));
     }
+
+    @Test
+    public void testCount(){
+        d.put("dict");
+        assertThat(d.count("test"), is(1));
+        assertThat(d.count(1), is(2));
+        assertThat(d.count(2), is(1));
+    }
 }

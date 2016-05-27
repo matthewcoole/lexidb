@@ -1,5 +1,11 @@
 package uk.ac.lancs.ucrel.dict;
 
+import uk.ac.lancs.ucrel.file.system.FileUtils;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -7,8 +13,8 @@ import java.util.*;
  */
 public class Dictionary {
 
-    private Map<String, Integer> stringToValue = new HashMap<String, Integer>();
-    private String[] valueToString;
+    private Map<String, DictionaryEntry> stringToEntry = new HashMap<String, DictionaryEntry>();
+    private DictionaryEntry[] valueToEntry;
     private boolean finalised = false;
 
     /**
@@ -19,9 +25,15 @@ public class Dictionary {
     public int put(String s) {
         if(finalised)
             throwRuntimeException();
-        if (!stringToValue.containsKey(s))
-            stringToValue.put(s, stringToValue.size());
-        return stringToValue.get(s);
+        if (!stringToEntry.containsKey(s))
+            stringToEntry.put(s, new DictionaryEntry(s, stringToEntry.size()));
+        DictionaryEntry de = stringToEntry.get(s);
+        de.increment();
+        return de.getValue();
+    }
+
+    private void put(String s, int count){
+        stringToEntry.put(s, new DictionaryEntry(s, stringToEntry.size(), count));
     }
 
     /**
@@ -35,9 +47,9 @@ public class Dictionary {
     }
 
     private void finalise() {
-        valueToString = new String[stringToValue.size()];
-        for (String s : stringToValue.keySet()) {
-            valueToString[stringToValue.get(s)] = s;
+        valueToEntry = new DictionaryEntry[stringToEntry.size()];
+        for (String s : stringToEntry.keySet()) {
+            valueToEntry[stringToEntry.get(s).getValue()] = stringToEntry.get(s);
         }
         finalised = true;
     }
@@ -48,9 +60,9 @@ public class Dictionary {
      * @return
      */
     public int get(String s){
-        if(!stringToValue.containsKey(s))
+        if(!stringToEntry.containsKey(s))
             return -1;
-        return stringToValue.get(s);
+        return stringToEntry.get(s).getValue();
     }
 
     /**
@@ -61,7 +73,17 @@ public class Dictionary {
     public String get(int i) {
         if (!finalised)
             finalise();
-        return valueToString[i];
+        return valueToEntry[i].getWord();
+    }
+
+    public int count(String s){
+        return stringToEntry.get(s).getCount();
+    }
+
+    public int count(int i){
+        if(!finalised)
+            finalise();
+        return valueToEntry[i].getCount();
     }
 
     /**
@@ -69,7 +91,7 @@ public class Dictionary {
      * @return
      */
     public int size() {
-        return stringToValue.size();
+        return stringToEntry.size();
     }
 
     /**
@@ -82,7 +104,7 @@ public class Dictionary {
      */
     public static int[] map(Dictionary a, Dictionary b) {
         int[] map = new int[a.size()];
-        for(String s : a.stringToValue.keySet()){
+        for(String s : a.stringToEntry.keySet()){
             map[a.get(s)] = b.get(s);
         }
         return map;
@@ -95,9 +117,44 @@ public class Dictionary {
      */
     public static Dictionary sort(Dictionary d){
         Dictionary sorted = new Dictionary();
-        Set<String> sortedKeys = new TreeSet<String>(d.stringToValue.keySet());
-        sorted.putAll(sortedKeys);
+        Set<String> sortedKeys = new TreeSet<String>(d.stringToEntry.keySet());
+        for(String s : sortedKeys){
+            sorted.put(s, d.count(s));
+        }
         return sorted;
+    }
+
+    /**
+     * Generates a dictionary from the file specified by p.
+     * @param p
+     * @return
+     */
+    public static Dictionary load(Path p){
+        Dictionary d = new Dictionary();
+        try {
+            List<String> words = Files.readAllLines(p, StandardCharsets.UTF_8);
+            for(String s : words){
+                String[] bits = s.split(" ");
+                String word = bits[0];
+                int count = Integer.parseInt(bits[1]);
+                d.put(word, count);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return d;
+    }
+
+    public void save(Path p){
+        List<String> lines = new ArrayList<String>();
+        for(int i = 0; i < size(); i++){
+            lines.add(get(i) + " " + count(i));
+        }
+        try {
+            Files.write(p, lines, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void throwRuntimeException(){
@@ -109,6 +166,6 @@ public class Dictionary {
      * @return
      */
     public List<String> getEntries(){
-        return new ArrayList<>(stringToValue.keySet());
+        return new ArrayList<>(stringToEntry.keySet());
     }
 }
