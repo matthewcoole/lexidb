@@ -1,7 +1,5 @@
 package uk.ac.lancs.ucrel.dict;
 
-import uk.ac.lancs.ucrel.file.system.FileUtils;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -29,6 +27,13 @@ public class Dictionary {
             stringToEntry.put(s, new DictionaryEntry(s, stringToEntry.size()));
         DictionaryEntry de = stringToEntry.get(s);
         de.increment();
+        return de.getValue();
+    }
+
+    public int putMany(String s, int n){
+        put(s);
+        DictionaryEntry de = stringToEntry.get(s);
+        de.addToCount(n - 1);
         return de.getValue();
     }
 
@@ -166,6 +171,8 @@ public class Dictionary {
      * @return
      */
     public List<String> getEntries(){
-        return new ArrayList<>(stringToEntry.keySet());
+        List<String> entries = new ArrayList<String>(stringToEntry.keySet());
+        Collections.sort(entries);
+        return entries;
     }
 }

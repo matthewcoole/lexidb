@@ -49,19 +49,6 @@ public class RegionBuilder {
         d.save(createFile("dict.disco"));
     }
 
-    public void generateCorpusToRegionMap(List<String> corpusDict, Map<String, Integer> regionDict) throws IOException {
-        int[] map = new int[corpusDict.size()];
-        for(int i = 0; i < corpusDict.size(); i++){
-            String s = corpusDict.get(i);
-            int n = -1;
-            if(regionDict.containsKey(s))
-                n = regionDict.get(s);
-            map[i] = n;
-        }
-
-        FileUtils.write(Paths.get(regionPath.toString(), "map.disco"), map);
-    }
-
     private Path createFile(String filename) throws IOException {
         Path filePath = Paths.get(regionPath.toString(), filename);
         Files.deleteIfExists(filePath);

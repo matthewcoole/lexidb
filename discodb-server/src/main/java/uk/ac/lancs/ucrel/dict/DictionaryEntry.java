@@ -32,6 +32,10 @@ public class DictionaryEntry {
         count++;
     }
 
+    public void addToCount(int n){
+        count += n;
+    }
+
     public boolean equals(Object o){
         if(o instanceof DictionaryEntry)
             return ((DictionaryEntry)o).getWord().equals(word);

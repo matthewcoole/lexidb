@@ -2,8 +2,8 @@ package uk.ac.lancs.ucrel.corpus;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import uk.ac.lancs.ucrel.dict.Dictionary;
 import uk.ac.lancs.ucrel.file.system.FileUtils;
-import uk.ac.lancs.ucrel.region.RegionAccessor;
 import uk.ac.lancs.ucrel.region.RegionBuilder;
 
 import java.io.File;
@@ -21,9 +21,8 @@ public class CorpusBuilder {
     private Path corpusPath;
     private DecimalFormat regionNameFormatter;
     private int regionCount, totalCount;
-    private Map<String, List<Integer>> dict;
-    private Map<String, Integer> dictWordCount;
-    private List<String> dictEntries, finalDictEntries;
+    private Map<String, List<Integer>> index;
+    private Dictionary d;
     private int[] indexMapping;
 
 
@@ -44,7 +43,7 @@ public class CorpusBuilder {
     public void build() throws IOException {
         long start = System.currentTimeMillis();
         generateDict();
-        generateMappings();
+        generateIndexMappings();
         generateCorpusToRegionMappings();
         long end = System.currentTimeMillis();
         LOG.info("Corpus built in " + (end - start) + "ms");
@@ -56,68 +55,17 @@ public class CorpusBuilder {
         FileUtils.write(Paths.get(corpusPath.toString(), "idx_ent.disco"), getIndexEntries());
         FileUtils.write(Paths.get(corpusPath.toString(), "idx_pos.disco"), indexMapping);
 
-        generateFinalDict();
-        Files.write(createFile("dict.disco"), finalDictEntries, StandardCharsets.UTF_8);
+        d.save(createFile("dict.disco"));
+
         long end = System.currentTimeMillis();
         LOG.info("Corpus written in " + (end - start) + "ms");
-    }
-
-    private void generateFinalDict(){
-        finalDictEntries = new ArrayList<String>();
-        for(String s : dictEntries){
-            finalDictEntries.add(s + " " + dictWordCount.get(s));
-        }
-    }
-
-    public static List<String> extractDictionaryEntries(List<String> dict){
-        List<String> dictEntries = new ArrayList<String>();
-        for(String s : dict){
-            dictEntries.add(s.split(" ")[0]);
-        }
-        return dictEntries;
-    }
-
-    public static Map<String, Integer> extractDictionary(List<String> dict){
-        Map<String, Integer> wordCounts = new HashMap<String, Integer>();
-        for(String entry : dict){
-            String[] part = entry.split(" ");
-            wordCounts.put(part[0], Integer.parseInt(part[1]));
-        }
-        return wordCounts;
-    }
-
-    public static Map<String, Integer> combineDictionaries(List<Map<String, Integer>> dicts){
-        Map<String, Integer> wordCounts = new HashMap<String, Integer>();
-        for(Map<String, Integer> dict : dicts){
-            for(String s : dict.keySet()){
-                if(!wordCounts.containsKey(s))
-                    wordCounts.put(s, 0);
-                int count = wordCounts.get(s) + dict.get(s);
-                wordCounts.put(s, count);
-            }
-        }
-        return wordCounts;
-    }
-
-    public static List<String> combineDictionaries(List<String>... dicts){
-        List<Map<String, Integer>> wordCounts = new ArrayList<Map<String, Integer>>();
-        for(List<String> dict : dicts){
-            wordCounts.add(extractDictionary(dict));
-        }
-        Map<String, Integer> wordCount = combineDictionaries(wordCounts);
-        List<String> dict = new ArrayList<String>();
-        for(String s : wordCount.keySet()){
-            dict.add(s + " " + wordCount.get(s));
-        }
-        Collections.sort(dict);
-        return dict;
     }
 
     private int[] getIndexEntries(){
         int[] entries = new int[totalCount];
         int i = 0;
-        for(String s : dictEntries){
-            for(int n : dict.get(s)){
+        for(String s : d.getEntries()){
+            for(int n : index.get(s)){
                 entries[i++] = n;
             }
         }
@@ -132,8 +80,8 @@ public class CorpusBuilder {
     }
 
     private void generateDict() throws IOException {
-        dict = new HashMap<String, List<Integer>>();
-        dictWordCount = new HashMap<String, Integer>();
+        index = new HashMap<String, List<Integer>>();
+        d = new Dictionary();
         Files.walkFileTree(corpusPath, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -145,41 +93,35 @@ public class CorpusBuilder {
                         String[] ent = w.split(" ");
                         String word = ent[0];
                         int count = Integer.parseInt(ent[1]);
-                        if(!dict.containsKey(word)) {
-                            dict.put(word, new ArrayList<Integer>());
-                            dictWordCount.put(word, 0);
+                        if(!index.containsKey(word)) {
+                            index.put(word, new ArrayList<Integer>());
                         }
-                        dict.get(word).add(region);
-                        int currentCount = dictWordCount.get(word);
-                        dictWordCount.put(word, (currentCount + count));
+                        index.get(word).add(region);
+                        d.putMany(word, count);
                     }
                 }
                 return FileVisitResult.CONTINUE;
             }
         });
-        dictEntries = new ArrayList<String>(dict.keySet());
-        Collections.sort(dictEntries);
+        d = Dictionary.sort(d);
     }
 
-    private void generateMappings(){
-        indexMapping = new int[dict.size()];
+    private void generateIndexMappings(){
+        indexMapping = new int[index.size()];
         int pos = 0;
         for(int i = 0; i < indexMapping.length; i++){
             indexMapping[i] = pos;
-            pos += dict.get(dictEntries.get(i)).size();
+            pos += index.get(d.get(i)).size();
         }
         totalCount = pos;
     }
 
     private void generateCorpusToRegionMappings() throws IOException {
-        long start = System.currentTimeMillis();
         for(int i = 0; i < regionCount; i++){
-            RegionBuilder rb = new RegionBuilder(Paths.get(corpusPath.toString(), regionNameFormatter.format(i)));
-            RegionAccessor ra = new RegionAccessor(Paths.get(corpusPath.toString(), regionNameFormatter.format(i)));
-            rb.generateCorpusToRegionMap(dictEntries, ra.getDict());
+            Dictionary rd = Dictionary.load(Paths.get(corpusPath.toString(), regionNameFormatter.format(i), "dict.disco"));
+            int[] map = Dictionary.map(d, rd);
+            FileUtils.write(Paths.get(corpusPath.toString(), regionNameFormatter.format(i), "map.disco"), map);
         }
-        long end = System.currentTimeMillis();
-        LOG.debug("Corpus to region maps generated in " + (end - start) + "ms");
     }
 
     private void delete() throws IOException {

@@ -7,8 +7,6 @@ import uk.ac.lancs.ucrel.file.system.FileUtils;
 import uk.ac.lancs.ucrel.index.IndexEntry;
 import java.io.IOException;
 import java.nio.IntBuffer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -18,10 +16,8 @@ public class RegionAccessor extends Accessor {
     private static final Logger LOG = LogManager.getLogger(RegionAccessor.class);
     private int context = 5;
 
-    private Map<String, Integer> dict;
     private int[] corpusToRegionMap;
     private int[] regionToCorpusMap;
-    private List<String> map;
 
     public RegionAccessor(Path regionPath){
         setPath(regionPath);
@@ -66,12 +62,6 @@ public class RegionAccessor extends Accessor {
         return indexEntries;
     }
 
-    public Map<String, Integer> getDict() throws IOException {
-        if(dict == null)
-            regenerateDict();
-        return dict;
-    }
-
     private void regenerateCorpusToRegionMap() throws IOException {
         Path mapFile = Paths.get(getPath().toString(), "map.disco");
         IntBuffer ib = FileUtils.readAllInts(mapFile);
@@ -83,18 +73,6 @@ public class RegionAccessor extends Accessor {
             if(i >= 0)
                 regionToCorpusMap[i] = n;
             n++;
-        }
-    }
-
-    private void regenerateDict() throws IOException {
-        dict = new HashMap<String, Integer>();
-        map = new ArrayList<String>();
-        List<String> words = Files.readAllLines(Paths.get(getPath().toString(), "dict.disco"), StandardCharsets.UTF_8);
-        int i = 0;
-        for(String s : words){
-            String word = s.split(" ")[0];
-            map.add(word);
-            dict.put(word, i++);
         }
     }
 

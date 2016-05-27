@@ -3,6 +3,8 @@ package uk.ac.lancs.ucrel.corpus;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import uk.ac.lancs.ucrel.access.Accessor;
+import uk.ac.lancs.ucrel.dict.*;
+import uk.ac.lancs.ucrel.dict.Dictionary;
 import uk.ac.lancs.ucrel.index.IndexEntry;
 import uk.ac.lancs.ucrel.region.RegionAccessor;
 import uk.ac.lancs.ucrel.result.FullKwicResult;
@@ -20,38 +22,32 @@ public class CorpusAccessor extends Accessor {
 
     private static final Logger LOG = LogManager.getLogger(CorpusAccessor.class);
 
-    private Map<String, Integer> dict;
-    private List<String> wordList;
-    private List<Integer> wordFrequencyList;
-    private int limit, context, totalWordCount;
+    private Dictionary d;
+    private int limit, context;
     private DecimalFormat regionNameFormatter;
 
     public CorpusAccessor(Path corpusPath) throws IOException {
         setPath(corpusPath);
         regionNameFormatter = new DecimalFormat("0000");
-        generateDictionary();
+        d = Dictionary.load(Paths.get(getPath().toString(), "dict.disco"));
     }
 
     public int getWordCount(){
-        return totalWordCount;
+        int wordCount = 0;
+        for(String s : d.getEntries()){
+            wordCount += d.count(s);
+        }
+        return wordCount;
     }
 
     public int getWordTypeCount(){
-        return wordList.size();
-    }
-
-    public List<String> getWordList(){
-        return wordList;
-    }
-
-    public List<Integer> getFrequencyList(){
-        return wordFrequencyList;
+        return d.size();
     }
 
     public List<String> regex(String regex) throws IOException {
         Pattern p = Pattern.compile(regex);
         List<String> matches = new ArrayList<String>();
-        for(String word : wordList){
+        for(String word : d.getEntries()){
             if(p.matcher(word).matches()) {
                 matches.add(word);
             }
@@ -69,7 +65,7 @@ public class CorpusAccessor extends Accessor {
         Map<Integer, Integer> freq = new HashMap<Integer, Integer>();
         List<Integer> numericaValues = getNumericValues(words);
         for(int val : numericaValues){
-            freq.put(val, wordFrequencyList.get(val));
+            freq.put(val, d.count(val));
         }
         return freq;
     }
@@ -112,51 +108,21 @@ public class CorpusAccessor extends Accessor {
     private List<Integer> getNumericValues(List<String> words) {
         List<Integer> numericValues = new ArrayList<Integer>();
         for(String w : words){
-            numericValues.add(dict.get(w));
+            numericValues.add(d.get(w));
         }
         return numericValues;
-    }
-
-    public List<String> getLinesAsString(List<int[]> lines) {
-        List<String> finalLines = new ArrayList<String>();
-        for(int[] line : lines){
-            finalLines.add(getLineAsString(line));
-        }
-        return finalLines;
     }
 
     public String getLineAsString(int[] line){
         StringBuilder sb = new StringBuilder();
         for(Integer i : line){
-            sb.append(wordList.get(i)).append(' ');
+            sb.append(d.get(i)).append(' ');
         }
         return sb.toString().trim();
     }
 
-    public String getNumericAsString(int numericValue){
-        return wordList.get(numericValue);
-    }
-
-    private void generateDictionary () throws IOException {
-        List<String> words = Files.readAllLines(Paths.get(getPath().toString(), "dict.disco"), StandardCharsets.UTF_8);
-        dict = new HashMap<String, Integer>();
-        wordList = new ArrayList<String>();
-        wordFrequencyList = new ArrayList<Integer>();
-        int i = 0;
-        for(String s : words){
-            String[] items = s.split(" ");
-            String word = items[0];
-            int freq = Integer.parseInt(items[1]);
-            totalWordCount += freq;
-            dict.put(word, i++);
-            wordList.add(word);
-            wordFrequencyList.add(freq);
-        }
-    }
-
     private List<int[]> getConcordanceLines(List<Integer> numericValues, List<IndexEntry> indexEntries) throws IOException {
         List<int[]> lines = new ArrayList<int[]>();
-        int regionsAccessed = 0;
         Set<Integer> regions = new HashSet<Integer>();
         for(IndexEntry ie : indexEntries){
             for(int i : ie.getIndexValues()){
@@ -167,7 +133,6 @@ public class CorpusAccessor extends Accessor {
             String region = regionNameFormatter.format(i);
             RegionAccessor ra = new RegionAccessor(Paths.get(getPath().toString(), region));
             lines.addAll(ra.search(numericValues, context, limit));
-            regionsAccessed++;
             if(lines.size() >= limit && limit > 0)
                 break;
         }
