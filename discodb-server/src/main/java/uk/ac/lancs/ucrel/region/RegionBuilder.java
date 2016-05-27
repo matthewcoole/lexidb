@@ -2,10 +2,9 @@ package uk.ac.lancs.ucrel.region;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import uk.ac.lancs.ucrel.dict.Dictionary;
 import uk.ac.lancs.ucrel.file.system.FileUtils;
 
-import java.io.BufferedOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -18,11 +17,11 @@ public class RegionBuilder {
     private static final Logger LOG = LogManager.getLogger(RegionBuilder.class);
 
     private Path regionPath;
-    private List<String> words, dictEntries, finalDictEntries;
-    private Map<String, Integer> dict;
+    private List<String> words, finalDictEntries;
+    private Dictionary d;
     private int[] data, wordCount, indexMapping, initToFinalMap;
     private List<List<Integer>> index;
-    private int typeCount, totalCount;
+    private int totalCount;
 
 
     public RegionBuilder(Path regionPath){
@@ -101,29 +100,22 @@ public class RegionBuilder {
 
     private void init(){
         data = new int[words.size()];
-        dict = new HashMap<String, Integer>();
-        typeCount = 0;
+        d = new Dictionary();
         totalCount = words.size();
     }
 
     private void assignInitNumericValues(){
         int i = 0;
         for(String word : words){
-            if(!dict.containsKey(word))
-                dict.put(word, typeCount++);
-            data[i] = dict.get(word);
+            data[i] = d.put(word);
             i++;
         }
     }
 
     private void generateInitToFinalMap(){
-        initToFinalMap = new int[dict.size()];
-        int i = 0;
-        dictEntries = new ArrayList<String>(dict.keySet());
-        Collections.sort(dictEntries);
-        for(String word : dictEntries){
-            initToFinalMap[dict.get(word)] = i++;
-        }
+        Dictionary df = Dictionary.sort(d);
+        initToFinalMap = Dictionary.map(d, df);
+        d = df;
     }
 
     private void assignFinalNumericValues(){
@@ -135,10 +127,10 @@ public class RegionBuilder {
     }
 
     private void initIndex(){
-        wordCount = new int[dict.size()];
-        indexMapping = new int[dict.size()];
-        index = new ArrayList<List<Integer>>(dict.size());
-        for(int i = 0; i < dict.size(); i++){
+        wordCount = new int[d.size()];
+        indexMapping = new int[d.size()];
+        index = new ArrayList<List<Integer>>(d.size());
+        for(int i = 0; i < d.size(); i++){
             index.add(new ArrayList<Integer>());
         }
     }
@@ -157,46 +149,8 @@ public class RegionBuilder {
 
     private void generateFinalDictionaryEntries(){
         finalDictEntries = new ArrayList<String>();
-        for(int i = 0; i < dictEntries.size(); i++){
-            finalDictEntries.add(dictEntries.get(i) + " " + wordCount[i]);
+        for(int i = 0; i < d.size(); i++){
+            finalDictEntries.add(d.get(i) + " " + wordCount[i]);
         }
     }
-
-    public String toString(){
-        StringBuilder sb = new StringBuilder();
-        sb.append("{");
-        sb.append("dict: ");
-        sb.append(dict.toString());
-        sb.append(", initToFinalMap: {");
-        if(initToFinalMap != null){
-            for(int n : initToFinalMap){
-                sb.append(n).append(", ");
-            }
-        }
-        sb.append("}, data: {");
-        if(data != null){
-            for(int n : data){
-                sb.append(n).append(", ");
-            }
-        }
-        sb.append("}, index: {");
-        if(index != null){
-            sb.append(index.toString());
-        }
-        sb.append("}, indexMapping: {");
-        if(indexMapping != null){
-            for(int n : indexMapping){
-                sb.append(n).append(", ");
-            }
-        }
-        sb.append("}, wordCount: {");
-        if(wordCount != null){
-            for(int n : wordCount){
-                sb.append(n).append(", ");
-            }
-        }
-        sb.append("}}");
-        return sb.toString();
-    }
-
 }
