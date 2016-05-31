@@ -3,24 +3,18 @@ package uk.ac.lancs.ucrel.server;
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
 import uk.ac.lancs.ucrel.file.system.FileUtils;
 import uk.ac.lancs.ucrel.parser.TextParser;
+import uk.ac.lancs.ucrel.peer.Peer;
 import uk.ac.lancs.ucrel.result.FullKwicResult;
 import uk.ac.lancs.ucrel.result.FullResult;
 import uk.ac.lancs.ucrel.rmi.result.InsertResult;
-import uk.ac.lancs.ucrel.rmi.result.KwicResult;
 import uk.ac.lancs.ucrel.rmi.result.Result;
 import uk.ac.lancs.ucrel.rmi.Server;
-import uk.ac.lancs.ucrel.sort.FrequencyComparator;
-import uk.ac.lancs.ucrel.sort.LexicalComparator;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.rmi.NotBoundException;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -38,97 +32,21 @@ public class ServerImpl implements Server {
     private ExecutorService es = Executors.newCachedThreadPool();
     private InsertResult lastInsert;
     private Path rawTempPath;
-    private Path rawToInsert;
-    private Properties props;
-    private Map<String, Server> peers;
-    private boolean available = false;
+    //private Path rawToInsert;
+    //private Map<String, Server> peers;
+    private Peer peerObject;
 
     private FullResult lastResult;
 
-    public ServerImpl(Properties props) {
+    public ServerImpl(String dataPath, Peer p){
         this.startTime = new Date();
-        this.props = props;
-        dataPath = props.getProperty("server.data.path");
-        peers = new HashMap<String, Server>();
-        es.execute(() -> connectToPeers());
+        this.dataPath = dataPath;
+        peerObject = p;
+        //peers = new HashMap<String, Server>();
         try {
             ca = new CorpusAccessor(Paths.get(dataPath));
         } catch (IOException e) {
             System.err.println(e.getMessage());
-        }
-    }
-
-    public void setAvailable(boolean available){
-        this.available = available;
-    }
-
-    public boolean isAvailable(){
-        return available;
-    }
-
-    public void notify(String server) throws RemoteException {
-        try {
-            System.out.println("Notification received: " + server);
-            if(!peers.keySet().contains(server))
-                connectToPeer(server, false);
-        } catch (Exception e){
-            System.err.println("Could not connect to peer " + server + ": " + e.getMessage());
-        }
-    }
-
-    private void connectToPeer(String server, boolean notify) throws RemoteException, NotBoundException {
-        String[] bits = server.split(":");
-        String host = bits[0];
-        int port = Integer.parseInt(bits[1]);
-        Registry r = LocateRegistry.getRegistry(host, port);
-        Remote tmp = r.lookup("serv");
-        Server s = null;
-        if (tmp instanceof Server)
-            s = (Server) tmp;
-        if (s != null) {
-            peers.put(server, s);
-            if(notify)
-                s.notify(props.getProperty("server.host") + ":" + props.getProperty("server.port"));
-            System.out.println("Connected to new peer: " + server);
-        }
-    }
-
-    private void connectToPeers() {
-        if(props.getProperty("server.peers") == null)
-            return;
-        String[] peerList = props.getProperty("server.peers").split(" ");
-        while(!available){
-            try {
-                Thread.sleep(1000);
-            } catch (Exception e){
-
-            }
-        }
-        for (String server : peerList) {
-            try {
-                connectToPeer(server, true);
-            } catch (Exception e) {
-                System.out.println("Could not connect to peer " + server);
-            }
-        }
-        while(available){
-            try {
-                Thread.sleep(5000);
-            } catch (Exception e){
-
-            }
-            for(String server : peers.keySet()){
-                Server s = peers.get(server);
-                try {
-                    if (!s.isAvailable()) {
-                        peers.remove(server);
-                        System.out.println(server + " no longer avaialbe.");
-                    }
-                } catch (Exception e){
-                    peers.remove(server);
-                    System.out.println("Connection to " + server + " lost.");
-                }
-            }
         }
     }
 
@@ -160,21 +78,7 @@ public class ServerImpl implements Server {
         es.shutdown();
     }
 
-    public void insertRun(Path p) {
-        System.out.println("Inserting from " + p.toString());
-        try {
-            lastInsert = new InsertResult(".", false);
-            long start = System.currentTimeMillis();
-            TextParser tp = new TextParser(Paths.get(dataPath));
-            tp.parse(p);
-            ca = new CorpusAccessor(Paths.get(dataPath));
-            long end = System.currentTimeMillis();
-            lastInsert = new InsertResult("\nInserted completed in " + (end - start) + "ms.", true);
-        } catch (Exception e) {
-            e.printStackTrace();
-            lastInsert = new InsertResult("\nInsert failed! " + e.getMessage(), true);
-        }
-    }
+
 
     public boolean sendRaw(String filename, byte[] data) throws RemoteException {
         if (rawTempPath == null)
@@ -182,11 +86,11 @@ public class ServerImpl implements Server {
         return writeRaw(filename, data, rawTempPath);
     }
 
-    public boolean sendRawToInsert(String filename, byte[] data) throws RemoteException {
+    /*public boolean sendRawToInsert(String filename, byte[] data) throws RemoteException {
         if(rawToInsert == null)
             rawToInsert = createTemp("discodb_to_insert");
         return writeRaw(filename, data, rawToInsert);
-    }
+    }*/
 
     public Path createTemp(String name){
         try{
@@ -212,12 +116,13 @@ public class ServerImpl implements Server {
             Files.walkFileTree(rawTempPath, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    String[] peerList = peers.keySet().toArray(new String[0]);
+                    Peer[] peerList = peerObject.getPeers().toArray(new Peer[0]);
+                    //String[] peerList = peerObject.getPeers()peers.keySet().toArray(new String[0]);
                     nextPeer++;
                     nextPeer = nextPeer % (peerList.length);
                     if (nextPeer < peerList.length) {
-                        Server s = peers.get(peerList[nextPeer]);
-                        s.sendRawToInsert(file.getFileName().toString(), Files.readAllBytes(file));
+                        Peer p = peerList[nextPeer];
+                        p.sendRawToInsert(file.getFileName().toString(), Files.readAllBytes(file));
                         Files.delete(file);
                     }
                     return FileVisitResult.CONTINUE;
@@ -230,21 +135,22 @@ public class ServerImpl implements Server {
     }
 
     public InsertResult insert() throws RemoteException {
-        for(String server : peers.keySet()){
-            peers.get(server).insertLocal();
+        for(Peer p : peerObject.getPeers()){
+            lastInsert = p.insertLocal();
         }
-        return lastInsert;
-    }
-
-    public InsertResult insertLocal() throws RemoteException {
-        System.out.println("Inserting local files");
-        es.execute(() -> insertRun(rawToInsert));
-        lastInsert = new InsertResult("\nInserting. Please wait...", false);
         return lastInsert;
     }
 
     public InsertResult lastInsert() throws RemoteException {
         return lastInsert;
+    }
+
+    public void refresh(){
+        try {
+            ca = new CorpusAccessor(Paths.get(dataPath));
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public Result kwic(String searchTerm, int context, int limit, int sortType, int sortPos, int order, int pageLength) throws RemoteException {
@@ -271,15 +177,5 @@ public class ServerImpl implements Server {
 
     public Result it() throws RemoteException {
         return lastResult.it(ca);
-    }
-
-    public Properties getProperties() throws RemoteException {
-        return props;
-    }
-
-    public boolean equals(Server s) throws RemoteException {
-        boolean sameHost = props.getProperty("server.host").equals(s.getProperties().getProperty("server.host"));
-        boolean samePort = props.getProperty("server.port").equals(s.getProperties().getProperty("server.port"));
-        return sameHost && samePort;
     }
 }

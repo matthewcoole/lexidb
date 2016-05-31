@@ -123,6 +123,8 @@ public class Dictionary {
     public static Dictionary sort(Dictionary d){
         Dictionary sorted = new Dictionary();
         Set<String> sortedKeys = new TreeSet<String>(d.stringToEntry.keySet());
+        //d.stringToEntry.keySet().stream().sorted().forEach((s) -> sorted.put(s, d.count(s)));
+        //sortedKeys.forEach((s) -> sorted.put(s, d.count(s)));
         for(String s : sortedKeys){
             sorted.put(s, d.count(s));
         }

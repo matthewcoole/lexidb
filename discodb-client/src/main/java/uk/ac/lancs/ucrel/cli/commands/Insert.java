@@ -49,6 +49,9 @@ public class Insert extends Command {
                 is.print();
                 is = s.lastInsert();
             }
+
+            s.refresh();
+
             this.setResult(is);
         } catch (Exception e){
             this.setResult(new Result("\nUnable to insert data: " + e.getMessage()));

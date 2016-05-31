@@ -48,7 +48,7 @@
         <directory>src/resources</directory>
         <includes>
           <include>log4j.properties</include>
-          <include>server.properties</include>
+          <include>node.properties</include>
         </includes>
       </resource>
     </resources>

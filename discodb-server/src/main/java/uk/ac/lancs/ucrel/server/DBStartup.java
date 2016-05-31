@@ -1,5 +1,6 @@
 package uk.ac.lancs.ucrel.server;
 
+import uk.ac.lancs.ucrel.node.Node;
 import uk.ac.lancs.ucrel.rmi.Server;
 
 import java.io.IOException;
@@ -14,24 +15,14 @@ import java.util.Properties;
 public class DBStartup {
 
     public static void main(String[] args) throws RemoteException, AlreadyBoundException, InterruptedException {
-        Properties  p = loadServerProperties();
-        Server s = new ServerImpl(p);
-        int port = Integer.parseInt(p.getProperty("server.port"));
-        Registry r = LocateRegistry.createRegistry(port);
-        Server stub = (Server) UnicastRemoteObject.exportObject(s, 0);
-        r.bind("serv", stub);
-        ((ServerImpl)s).setAvailable(true);
-        System.out.println("Waiting for connections on port " + port);
-        while(!s.isShutdown()) {
-            Thread.sleep(3000);
-        }
-        System.out.println("Shutting down...");
-        System.exit(0);
+        Properties  p = loadNodeProperties();
+        Node n = new Node(p);
+        n.start();
     }
 
-    private static Properties loadServerProperties(){
+    private static Properties loadNodeProperties(){
         Properties p = new Properties();
-        InputStream is = DBStartup.class.getClassLoader().getResourceAsStream("server.properties");
+        InputStream is = DBStartup.class.getClassLoader().getResourceAsStream("node.properties");
         try {
             p.load(is);
         } catch (IOException e) {
