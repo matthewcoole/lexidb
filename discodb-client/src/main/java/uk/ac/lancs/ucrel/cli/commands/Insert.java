@@ -3,6 +3,7 @@ package uk.ac.lancs.ucrel.cli.commands;
 import org.apache.commons.cli.CommandLine;
 import uk.ac.lancs.ucrel.rmi.Server;
 import uk.ac.lancs.ucrel.rmi.result.InsertResult;
+import uk.ac.lancs.ucrel.rmi.result.InsertResultImpl;
 import uk.ac.lancs.ucrel.rmi.result.Result;
 
 import java.io.IOException;
@@ -46,13 +47,13 @@ public class Insert extends Command {
 
             while(!is.isComplete()){
                 Thread.sleep(1000);
-                is.print();
+                System.out.println(is.status());
                 is = s.lastInsert();
             }
 
             s.refresh();
 
-            this.setResult(is);
+            //this.setResult(null);
         } catch (Exception e){
             this.setResult(new Result("\nUnable to insert data: " + e.getMessage()));
         }

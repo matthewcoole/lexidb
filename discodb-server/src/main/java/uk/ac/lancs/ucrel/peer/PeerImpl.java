@@ -3,6 +3,7 @@ package uk.ac.lancs.ucrel.peer;
 import uk.ac.lancs.ucrel.file.system.FileUtils;
 import uk.ac.lancs.ucrel.parser.TextParser;
 import uk.ac.lancs.ucrel.rmi.result.InsertResult;
+import uk.ac.lancs.ucrel.rmi.result.InsertResultImpl;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,6 +13,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,22 +67,21 @@ public class PeerImpl implements Peer {
     public void insertRun(Path p) {
         System.out.println("Inserting from " + p.toString());
         try {
-            lastInsert = new InsertResult(".", false);
             long start = System.currentTimeMillis();
             TextParser tp = new TextParser(Paths.get(dataPath));
             tp.parse(p);
             long end = System.currentTimeMillis();
-            lastInsert = new InsertResult("\nInserted completed in " + (end - start) + "ms.", true);
+            ((InsertResultImpl)lastInsert).setComplete(true);
         } catch (Exception e) {
             e.printStackTrace();
-            lastInsert = new InsertResult("\nInsert failed! " + e.getMessage(), true);
         }
     }
 
     public InsertResult insertLocal() throws RemoteException {
         System.out.println("Inserting local files");
+        lastInsert = new InsertResultImpl("\nInserting. Please wait...");
+        UnicastRemoteObject.exportObject(lastInsert, 0);
         es.execute(() -> insertRun(rawToInsert));
-        lastInsert = new InsertResult("\nInserting. Please wait...", false);
         return lastInsert;
     }
 

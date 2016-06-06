@@ -147,7 +147,7 @@ public class Dictionary {
                 d.put(word, count);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
         return d;
     }

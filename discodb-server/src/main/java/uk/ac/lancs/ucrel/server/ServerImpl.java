@@ -2,11 +2,11 @@ package uk.ac.lancs.ucrel.server;
 
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
 import uk.ac.lancs.ucrel.file.system.FileUtils;
-import uk.ac.lancs.ucrel.parser.TextParser;
 import uk.ac.lancs.ucrel.peer.Peer;
 import uk.ac.lancs.ucrel.result.FullKwicResult;
 import uk.ac.lancs.ucrel.result.FullResult;
 import uk.ac.lancs.ucrel.rmi.result.InsertResult;
+import uk.ac.lancs.ucrel.rmi.result.InsertResultImpl;
 import uk.ac.lancs.ucrel.rmi.result.Result;
 import uk.ac.lancs.ucrel.rmi.Server;
 
@@ -15,6 +15,7 @@ import java.net.InetAddress;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -135,9 +136,11 @@ public class ServerImpl implements Server {
     }
 
     public InsertResult insert() throws RemoteException {
+        lastInsert = new InsertResultImpl("Inserting...");
         for(Peer p : peerObject.getPeers()){
-            lastInsert = p.insertLocal();
+            ((InsertResultImpl)lastInsert).addInsertion(p.insertLocal());
         }
+        UnicastRemoteObject.exportObject(lastInsert, 0);
         return lastInsert;
     }
 

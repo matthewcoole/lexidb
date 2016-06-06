@@ -18,15 +18,15 @@ public class Node {
 
     public Node(Properties p){
         this.p = p;
-        peerObject = new PeerImpl(p.getProperty("server.host"),
-                Integer.parseInt(p.getProperty("server.port")),
-                p.getProperty("server.data.path"),
-                p.getProperty("server.peers").split(" "));
-        serverObject = new ServerImpl(p.getProperty("server.data.path"), peerObject);
+        peerObject = new PeerImpl(p.getProperty("node.host"),
+                Integer.parseInt(p.getProperty("node.port")),
+                p.getProperty("node.data.path"),
+                p.getProperty("node.peers").split(" "));
+        serverObject = new ServerImpl(p.getProperty("node.data.path"), peerObject);
     }
 
     public void start(){
-        int port = Integer.parseInt(p.getProperty("server.port"));
+        int port = Integer.parseInt(p.getProperty("node.port"));
         try {
             Registry r = LocateRegistry.createRegistry(port);
 

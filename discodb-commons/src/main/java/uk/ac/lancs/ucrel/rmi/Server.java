@@ -1,11 +1,11 @@
 package uk.ac.lancs.ucrel.rmi;
 
 import uk.ac.lancs.ucrel.rmi.result.InsertResult;
+import uk.ac.lancs.ucrel.rmi.result.InsertResultImpl;
 import uk.ac.lancs.ucrel.rmi.result.Result;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.Properties;
 
 public interface Server extends Remote {
     void shutdown() throws RemoteException;
