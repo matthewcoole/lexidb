@@ -1,6 +1,8 @@
 package uk.ac.lancs.ucrel.peer;
 
 import uk.ac.lancs.ucrel.file.system.FileUtils;
+import uk.ac.lancs.ucrel.ops.LocalInsert;
+import uk.ac.lancs.ucrel.ops.LocalInsertImpl;
 import uk.ac.lancs.ucrel.parser.TextParser;
 import uk.ac.lancs.ucrel.rmi.result.InsertResult;
 import uk.ac.lancs.ucrel.rmi.result.InsertResultImpl;
@@ -83,6 +85,13 @@ public class PeerImpl implements Peer {
         UnicastRemoteObject.exportObject(lastInsert, 0);
         es.execute(() -> insertRun(rawToInsert));
         return lastInsert;
+    }
+
+    @Override
+    public LocalInsert insert() throws RemoteException {
+        LocalInsert li = new LocalInsertImpl(es, Paths.get(dataPath));
+        UnicastRemoteObject.exportObject(li, 0);
+        return li;
     }
 
     public Collection<Peer> getPeers(){

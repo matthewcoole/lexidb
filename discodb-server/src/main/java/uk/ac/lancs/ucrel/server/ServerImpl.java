@@ -2,6 +2,8 @@ package uk.ac.lancs.ucrel.server;
 
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
 import uk.ac.lancs.ucrel.file.system.FileUtils;
+import uk.ac.lancs.ucrel.ops.Insert;
+import uk.ac.lancs.ucrel.ops.InsertImpl;
 import uk.ac.lancs.ucrel.peer.Peer;
 import uk.ac.lancs.ucrel.result.FullKwicResult;
 import uk.ac.lancs.ucrel.result.FullResult;
@@ -135,13 +137,19 @@ public class ServerImpl implements Server {
         }
     }
 
-    public InsertResult insert() throws RemoteException {
+    /*public InsertResult insert() throws RemoteException {
         lastInsert = new InsertResultImpl("Inserting...");
         for(Peer p : peerObject.getPeers()){
             ((InsertResultImpl)lastInsert).addInsertion(p.insertLocal());
         }
         UnicastRemoteObject.exportObject(lastInsert, 0);
         return lastInsert;
+    }*/
+
+    public Insert insert() throws RemoteException {
+        Insert i = new InsertImpl(peerObject.getPeers());
+        UnicastRemoteObject.exportObject(i, 0);
+        return i;
     }
 
     public InsertResult lastInsert() throws RemoteException {

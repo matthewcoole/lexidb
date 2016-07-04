@@ -1,5 +1,6 @@
 package uk.ac.lancs.ucrel.peer;
 
+import uk.ac.lancs.ucrel.ops.LocalInsert;
 import uk.ac.lancs.ucrel.rmi.result.InsertResult;
 
 import java.rmi.Remote;
@@ -13,5 +14,6 @@ public interface Peer extends Remote {
     Collection<Peer> getPeers() throws RemoteException;
     boolean sendRawToInsert(String filename, byte[] data) throws RemoteException;
     InsertResult insertLocal() throws RemoteException;
+    LocalInsert insert() throws RemoteException;
 
 }
