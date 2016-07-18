@@ -22,6 +22,8 @@ public class CorpusAccessor extends Accessor {
 
     private static final Logger LOG = LogManager.getLogger(CorpusAccessor.class);
 
+    private static Map<String, CorpusAccessor> accessors = new HashMap<String, CorpusAccessor>();
+
     private Dictionary d;
     private int limit, context;
     private DecimalFormat regionNameFormatter;
@@ -30,6 +32,17 @@ public class CorpusAccessor extends Accessor {
         setPath(corpusPath);
         regionNameFormatter = new DecimalFormat("0000");
         d = Dictionary.load(Paths.get(getPath().toString(), "dict.disco"));
+    }
+
+    public static CorpusAccessor getAccessor(Path dataPath) throws IOException {
+        if(!accessors.containsKey(dataPath.toString()))
+            accessors.put(dataPath.toString(), new CorpusAccessor(dataPath));
+        return accessors.get(dataPath.toString());
+    }
+
+    public static void invalidate(Path dataPath){
+        if(accessors.containsKey(dataPath.toString()))
+            accessors.remove(dataPath.toString());
     }
 
     public int getWordCount(){

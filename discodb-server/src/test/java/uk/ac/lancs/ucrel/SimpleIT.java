@@ -38,11 +38,11 @@ public class SimpleIT {
     @Ignore
     @Test
     public void basicLookup() throws IOException {
-        Result r = s.kwic("and", 5, 3, 0, 0, 0, 20);
+        /*Result r = s.kwic("and", 5, 3, 0, 0, 0, 20);
         KwicResult kr = null;
         if(r instanceof KwicResult)
             kr = (KwicResult)r;
         List<String> results = kr.getPage();
-        assertThat(results, IsIterableContainingInOrder.contains(expectedResults));
+        assertThat(results, IsIterableContainingInOrder.contains(expectedResults));*/
     }
 }

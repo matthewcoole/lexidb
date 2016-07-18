@@ -2,7 +2,6 @@ package uk.ac.lancs.ucrel.ops;
 
 import uk.ac.lancs.ucrel.file.system.FileUtils;
 import uk.ac.lancs.ucrel.parser.TextParser;
-import uk.ac.lancs.ucrel.rmi.result.InsertResultImpl;
 
 import java.io.IOException;
 import java.nio.file.Files;

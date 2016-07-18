@@ -1,8 +1,10 @@
 package uk.ac.lancs.ucrel.server;
 
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
+import uk.ac.lancs.ucrel.ops.DistKwicImpl;
 import uk.ac.lancs.ucrel.ops.Insert;
-import uk.ac.lancs.ucrel.ops.DistributedInsertImpl;
+import uk.ac.lancs.ucrel.ops.DistInsertImpl;
+import uk.ac.lancs.ucrel.ops.Kwic;
 import uk.ac.lancs.ucrel.peer.Peer;
 import uk.ac.lancs.ucrel.result.FullKwicResult;
 import uk.ac.lancs.ucrel.result.FullResult;
@@ -63,27 +65,15 @@ public class ServerImpl implements Server {
     }
 
     public Insert insert() throws RemoteException {
-        Insert i = new DistributedInsertImpl(peerObject.getPeers());
+        Insert i = new DistInsertImpl(peerObject.getPeers());
         UnicastRemoteObject.exportObject(i, 0);
         return i;
     }
 
-    public Result kwic(String searchTerm, int context, int limit, int sortType, int sortPos, int order, int pageLength) throws RemoteException {
-        System.out.println("Search for " + searchTerm);
-        try {
-            long start = System.currentTimeMillis();
-            FullKwicResult fkr = ca.kwic(searchTerm, context, limit);
-            lastResult = fkr;
-            fkr.sort(sortType, sortPos, order);
-            fkr.setPageLength(pageLength);
-            long end = System.currentTimeMillis();
-            fkr.setTime(end - start);
-            return lastResult.it(ca);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new Result("Failed to find \"" + searchTerm + "\": " + e.getMessage());
-        }
+    public Kwic kwic() throws RemoteException {
+        Kwic k = new DistKwicImpl(peerObject.getPeers());
+        UnicastRemoteObject.exportObject(k, 0);
+        return k;
     }
 
     public Result list(String searchTerm) throws RemoteException {

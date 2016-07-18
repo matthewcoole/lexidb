@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DistributedInsertImpl implements Insert {
+public class DistInsertImpl implements Insert {
 
     private List<Insert> inserts = new ArrayList<Insert>();
     private int next = 0;
     private int fileCount = 0;
 
-    public DistributedInsertImpl(Collection<Peer> peers) throws RemoteException {
+    public DistInsertImpl(Collection<Peer> peers) throws RemoteException {
         for (Peer p : peers) {
             inserts.add(p.insert());
         }

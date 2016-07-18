@@ -1,7 +1,9 @@
 package uk.ac.lancs.ucrel.peer;
 
 import uk.ac.lancs.ucrel.ops.Insert;
+import uk.ac.lancs.ucrel.ops.Kwic;
 import uk.ac.lancs.ucrel.ops.LocalInsertImpl;
+import uk.ac.lancs.ucrel.ops.LocalKwicImpl;
 
 import java.nio.file.Paths;
 import java.rmi.NotBoundException;
@@ -38,6 +40,13 @@ public class PeerImpl implements Peer {
         Insert li = new LocalInsertImpl(es, Paths.get(dataPath));
         UnicastRemoteObject.exportObject(li, 0);
         return li;
+    }
+
+    @Override
+    public Kwic kwic() throws RemoteException {
+        Kwic lk = new LocalKwicImpl(es, Paths.get(dataPath));
+        UnicastRemoteObject.exportObject(lk, 0);
+        return lk;
     }
 
     public Collection<Peer> getPeers() {

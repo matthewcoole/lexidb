@@ -2,7 +2,8 @@ package uk.ac.lancs.ucrel.cli.commands;
 
 import org.apache.commons.cli.CommandLine;
 import uk.ac.lancs.ucrel.rmi.Server;
-import uk.ac.lancs.ucrel.rmi.result.Result;
+
+import java.rmi.RemoteException;
 
 public class Kwic extends Command {
 
@@ -24,28 +25,27 @@ public class Kwic extends Command {
     }
 
     public void invoke(CommandLine line){
-        if(line.hasOption("h")){
-            this.printHelp();
-            this.setResult(null);
-            return;
-        }
         try {
+            uk.ac.lancs.ucrel.ops.Kwic k = s.kwic();
+
             int context = (line.hasOption("c"))? Integer.parseInt(line.getOptionValue("c")) : this.context;
             int limit = (line.hasOption("l"))? Integer.parseInt(line.getOptionValue("l")) : this.limit;
             int sortType = (line.hasOption("s"))? Integer.parseInt(line.getOptionValue("s")) : this.sortType;
             int sortPos = (line.hasOption("sp"))? Integer.parseInt(line.getOptionValue("sp")) : this.sortPos;
             int page = (line.hasOption("p"))? Integer.parseInt(line.getOptionValue("p")) : this.page;
             int order = (line.hasOption("r"))? -1 : 1;
-            Result r = s.kwic(line.getArgs()[1],
+
+            k.search(line.getArgs()[1],
                     context,
                     limit,
                     sortType,
                     sortPos,
                     order,
                     page);
-            this.setResult(r);
-        } catch (Exception e){
-            this.setResult(new Result("kwic failed " + e.getMessage()));
+
+            this.setResult(k.it());
+        } catch (RemoteException e) {
+            e.printStackTrace();
         }
     }
 }
