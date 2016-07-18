@@ -22,7 +22,7 @@ public class Node {
                 Integer.parseInt(p.getProperty("node.port")),
                 p.getProperty("node.data.path"),
                 p.getProperty("node.peers").split(" "));
-        serverObject = new ServerImpl(p.getProperty("node.data.path"), peerObject);
+        serverObject = new ServerImpl(peerObject);
     }
 
     public void start(){

@@ -1,21 +1,15 @@
 package uk.ac.lancs.ucrel.server;
 
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
-import uk.ac.lancs.ucrel.file.system.FileUtils;
 import uk.ac.lancs.ucrel.ops.Insert;
-import uk.ac.lancs.ucrel.ops.InsertImpl;
+import uk.ac.lancs.ucrel.ops.DistributedInsertImpl;
 import uk.ac.lancs.ucrel.peer.Peer;
 import uk.ac.lancs.ucrel.result.FullKwicResult;
 import uk.ac.lancs.ucrel.result.FullResult;
-import uk.ac.lancs.ucrel.rmi.result.InsertResult;
-import uk.ac.lancs.ucrel.rmi.result.InsertResultImpl;
 import uk.ac.lancs.ucrel.rmi.result.Result;
 import uk.ac.lancs.ucrel.rmi.Server;
 
-import java.io.IOException;
 import java.net.InetAddress;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.text.DateFormat;
@@ -29,28 +23,15 @@ public class ServerImpl implements Server {
 
     public boolean shutdown = false;
     private Date startTime;
-    private String dataPath;
     private CorpusAccessor ca;
-    private int nextPeer;
     private ExecutorService es = Executors.newCachedThreadPool();
-    private InsertResult lastInsert;
-    private Path rawTempPath;
-    //private Path rawToInsert;
-    //private Map<String, Server> peers;
     private Peer peerObject;
 
     private FullResult lastResult;
 
-    public ServerImpl(String dataPath, Peer p){
+    public ServerImpl(Peer p){
         this.startTime = new Date();
-        this.dataPath = dataPath;
         peerObject = p;
-        //peers = new HashMap<String, Server>();
-        try {
-            ca = new CorpusAccessor(Paths.get(dataPath));
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
     }
 
     public Result status() throws RemoteException {
@@ -81,87 +62,10 @@ public class ServerImpl implements Server {
         es.shutdown();
     }
 
-
-
-    public boolean sendRaw(String filename, byte[] data) throws RemoteException {
-        if (rawTempPath == null)
-            rawTempPath = createTemp("discodb_raw");
-        return writeRaw(filename, data, rawTempPath);
-    }
-
-    /*public boolean sendRawToInsert(String filename, byte[] data) throws RemoteException {
-        if(rawToInsert == null)
-            rawToInsert = createTemp("discodb_to_insert");
-        return writeRaw(filename, data, rawToInsert);
-    }*/
-
-    public Path createTemp(String name){
-        try{
-            return Files.createTempDirectory(name);
-        } catch (Exception e){
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public boolean writeRaw(String filename, byte[] data, Path dir){
-        try {
-            FileUtils.write(Paths.get(dir.toString(), filename), data);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public boolean distributeRaw() throws RemoteException {
-        try {
-            Files.walkFileTree(rawTempPath, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Peer[] peerList = peerObject.getPeers().toArray(new Peer[0]);
-                    //String[] peerList = peerObject.getPeers()peers.keySet().toArray(new String[0]);
-                    nextPeer++;
-                    nextPeer = nextPeer % (peerList.length);
-                    if (nextPeer < peerList.length) {
-                        Peer p = peerList[nextPeer];
-                        p.sendRawToInsert(file.getFileName().toString(), Files.readAllBytes(file));
-                        Files.delete(file);
-                    }
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-            return true;
-        } catch (Exception e){
-            return false;
-        }
-    }
-
-    /*public InsertResult insert() throws RemoteException {
-        lastInsert = new InsertResultImpl("Inserting...");
-        for(Peer p : peerObject.getPeers()){
-            ((InsertResultImpl)lastInsert).addInsertion(p.insertLocal());
-        }
-        UnicastRemoteObject.exportObject(lastInsert, 0);
-        return lastInsert;
-    }*/
-
     public Insert insert() throws RemoteException {
-        Insert i = new InsertImpl(peerObject.getPeers());
+        Insert i = new DistributedInsertImpl(peerObject.getPeers());
         UnicastRemoteObject.exportObject(i, 0);
         return i;
-    }
-
-    public InsertResult lastInsert() throws RemoteException {
-        return lastInsert;
-    }
-
-    public void refresh(){
-        try {
-            ca = new CorpusAccessor(Paths.get(dataPath));
-        } catch (Exception e){
-            e.printStackTrace();
-        }
     }
 
     public Result kwic(String searchTerm, int context, int limit, int sortType, int sortPos, int order, int pageLength) throws RemoteException {

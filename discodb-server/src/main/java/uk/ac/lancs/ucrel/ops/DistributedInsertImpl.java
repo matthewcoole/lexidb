@@ -7,13 +7,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class InsertImpl implements Insert {
+public class DistributedInsertImpl implements Insert {
 
-    private List<LocalInsert> inserts = new ArrayList<LocalInsert>();
+    private List<Insert> inserts = new ArrayList<Insert>();
     private int next = 0;
     private int fileCount = 0;
 
-    public InsertImpl(Collection<Peer> peers) throws RemoteException {
+    public DistributedInsertImpl(Collection<Peer> peers) throws RemoteException {
         for (Peer p : peers) {
             inserts.add(p.insert());
         }
@@ -29,14 +29,14 @@ public class InsertImpl implements Insert {
 
     @Override
     public void insert() throws RemoteException {
-        for(LocalInsert li : inserts){
+        for(Insert li : inserts){
             li.insert();
         }
     }
 
     @Override
     public boolean isComplete() throws RemoteException {
-        for(LocalInsert li : inserts){
+        for(Insert li : inserts){
             if(!li.isComplete())
                 return false;
         }

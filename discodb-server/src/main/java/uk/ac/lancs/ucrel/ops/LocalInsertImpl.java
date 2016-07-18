@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 import java.rmi.RemoteException;
 import java.util.concurrent.ExecutorService;
 
-public class LocalInsertImpl implements LocalInsert {
+public class LocalInsertImpl implements Insert {
 
     private ExecutorService es;
     private Path dataPath;

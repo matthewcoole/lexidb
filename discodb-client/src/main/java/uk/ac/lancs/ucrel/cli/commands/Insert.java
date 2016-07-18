@@ -39,26 +39,6 @@ public class Insert extends Command {
                 Thread.sleep(1000);
             }
 
-            System.out.println("Insert finished!");
-
-            /*
-            System.out.println("Transferred " + fileCount + " files to server for insertion");
-
-            s.distributeRaw();
-
-            System.out.println("Files distributed between all servers");
-
-            is = s.insert();
-
-            while(!is.isComplete()){
-                Thread.sleep(1000);
-                System.out.println(is.status());
-                is = s.lastInsert();
-            }
-
-            s.refresh();
-*/
-            //this.setResult(null);
         } catch (Exception e){
             this.setResult(new Result("\nUnable to insert data: " + e.getMessage()));
         }
