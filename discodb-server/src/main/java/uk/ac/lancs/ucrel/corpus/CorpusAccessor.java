@@ -121,7 +121,7 @@ public class CorpusAccessor extends Accessor {
     private List<Integer> getNumericValues(List<String> words) {
         List<Integer> numericValues = new ArrayList<Integer>();
         for(String w : words){
-            numericValues.add(d.get(w));
+            numericValues.addAll(d.getWords(w));
         }
         return numericValues;
     }
@@ -129,7 +129,7 @@ public class CorpusAccessor extends Accessor {
     public String getLineAsString(int[] line){
         StringBuilder sb = new StringBuilder();
         for(Integer i : line){
-            sb.append(d.get(i)).append(' ');
+            sb.append("[").append(d.get(i)).append("] ");
         }
         return sb.toString().trim();
     }

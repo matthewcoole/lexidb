@@ -90,9 +90,9 @@ public class CorpusBuilder {
                     int region = Integer.parseInt(f.getParentFile().getName());
                     List<String> words = Files.readAllLines(file, StandardCharsets.UTF_8);
                     for(String w : words){
-                        String[] ent = w.split(" ");
-                        String word = ent[0];
-                        int count = Integer.parseInt(ent[1]);
+                        String[] ent = w.split("\t");
+                        String word = w.substring(0, w.lastIndexOf("\t"));
+                        int count = Integer.parseInt(ent[ent.length - 1]);
                         if(!index.containsKey(word)) {
                             index.put(word, new ArrayList<Integer>());
                         }

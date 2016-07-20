@@ -1,7 +1,11 @@
 package uk.ac.lancs.ucrel.dict;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DictionaryEntry {
     private String word;
+    private List<String> tags = new ArrayList<String>();
     private int value;
     private int count;
 
@@ -30,6 +34,18 @@ public class DictionaryEntry {
 
     public void increment(){
         count++;
+    }
+
+    public void addTag(String tag){
+        tags.add(tag);
+    }
+
+    public void addTags(List<String> tags){
+        this.tags.addAll(tags);
+    }
+
+    public List<String> getTags(){
+        return tags;
     }
 
     public void addToCount(int n){

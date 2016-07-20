@@ -12,6 +12,7 @@ import java.util.*;
 public class Dictionary {
 
     private Map<String, DictionaryEntry> stringToEntry = new HashMap<String, DictionaryEntry>();
+    private Map<String, List<String>> wordToString = new HashMap<String, List<String>>();
     private DictionaryEntry[] valueToEntry;
     private boolean finalised = false;
 
@@ -23,8 +24,13 @@ public class Dictionary {
     public int put(String s) {
         if(finalised)
             throwRuntimeException();
-        if (!stringToEntry.containsKey(s))
+        if (!stringToEntry.containsKey(s)) {
             stringToEntry.put(s, new DictionaryEntry(s, stringToEntry.size()));
+            String word = s.split("\t")[0].trim().toLowerCase();
+            if(!wordToString.containsKey(word))
+                wordToString.put(word, new ArrayList<String>());
+            wordToString.get(word).add(s);
+        }
         DictionaryEntry de = stringToEntry.get(s);
         de.increment();
         return de.getValue();
@@ -39,6 +45,10 @@ public class Dictionary {
 
     private void put(String s, int count){
         stringToEntry.put(s, new DictionaryEntry(s, stringToEntry.size(), count));
+        String word = s.split("\t")[0].trim().toLowerCase();
+        if(!wordToString.containsKey(word))
+            wordToString.put(word, new ArrayList<String>());
+        wordToString.get(word).add(s);
     }
 
     /**
@@ -68,6 +78,16 @@ public class Dictionary {
         if(!stringToEntry.containsKey(s))
             return -1;
         return stringToEntry.get(s).getValue();
+    }
+
+    public List<Integer> getWords(String s){
+        List<Integer> li = new ArrayList<Integer>();
+        if(wordToString.containsKey(s)){
+            for (String word : wordToString.get(s)) {
+                li.add(get(word));
+            }
+        }
+        return li;
     }
 
     /**
@@ -141,9 +161,9 @@ public class Dictionary {
         try {
             List<String> words = Files.readAllLines(p, StandardCharsets.UTF_8);
             for(String s : words){
-                String[] bits = s.split(" ");
-                String word = bits[0];
-                int count = Integer.parseInt(bits[1]);
+                String[] bits = s.split("\t");
+                String word = s.substring(0, s.lastIndexOf("\t"));
+                int count = Integer.parseInt(bits[bits.length - 1]);
                 d.put(word, count);
             }
         } catch (IOException e) {
@@ -155,7 +175,7 @@ public class Dictionary {
     public void save(Path p){
         List<String> lines = new ArrayList<String>();
         for(int i = 0; i < size(); i++){
-            lines.add(get(i) + " " + count(i));
+            lines.add(get(i) + "\t" + count(i));
         }
         try {
             Files.write(p, lines, StandardCharsets.UTF_8);
