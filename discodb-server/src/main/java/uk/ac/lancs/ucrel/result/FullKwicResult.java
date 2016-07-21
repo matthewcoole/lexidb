@@ -1,5 +1,6 @@
 package uk.ac.lancs.ucrel.result;
 
+import uk.ac.lancs.ucrel.conc.ConcordanceLine;
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
 import uk.ac.lancs.ucrel.rmi.result.KwicResult;
 import uk.ac.lancs.ucrel.rmi.result.Result;
@@ -51,7 +52,16 @@ public class FullKwicResult implements FullResult {
             Collections.reverse(results);
     }
 
-    public Result it(CorpusAccessor ca){
+    public List<ConcordanceLine> it(CorpusAccessor ca){
+        List<ConcordanceLine> lines = new ArrayList<ConcordanceLine>();
+        for (int i = position; i < results.size() && i < (position + pageLength); i++) {
+            lines.add(ca.getLine(results.get(i)));
+        }
+        position += pageLength;
+        return lines;
+    }
+
+    /*public Result it(CorpusAccessor ca){
         List<String> page = new ArrayList<String>();
         for (int i = position; i < results.size() && i < (position + pageLength); i++) {
             page.add(ca.getLineAsString(results.get(i)));
@@ -61,7 +71,7 @@ public class FullKwicResult implements FullResult {
         header += getRegexString();
         header += getSortString();
         return new KwicResult(header, time, page, (position - pageLength + 1), position, results.size(), context);
-    }
+    }*/
 
     private String getRegexString() {
         StringBuilder sb = new StringBuilder();

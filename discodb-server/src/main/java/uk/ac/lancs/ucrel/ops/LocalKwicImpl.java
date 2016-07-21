@@ -1,11 +1,13 @@
 package uk.ac.lancs.ucrel.ops;
 
+import uk.ac.lancs.ucrel.conc.ConcordanceLine;
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
 import uk.ac.lancs.ucrel.result.FullKwicResult;
 import uk.ac.lancs.ucrel.rmi.result.Result;
 
 import java.nio.file.Path;
 import java.rmi.RemoteException;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 public class LocalKwicImpl implements Kwic {
@@ -37,7 +39,7 @@ public class LocalKwicImpl implements Kwic {
     }
 
     @Override
-    public Result it() throws RemoteException {
+    public List<ConcordanceLine> it() throws RemoteException {
         try {
             return fkr.it(CorpusAccessor.getAccessor(dataPath));
         } catch (Exception e){

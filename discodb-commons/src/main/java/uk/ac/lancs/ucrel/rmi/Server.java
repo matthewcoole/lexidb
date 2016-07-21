@@ -12,7 +12,6 @@ public interface Server extends Remote {
     Insert insert() throws RemoteException;
     Kwic kwic() throws RemoteException;
     Result list(String searchTerm) throws RemoteException;
-    Result it() throws RemoteException;
     Result status() throws RemoteException;
 
 }

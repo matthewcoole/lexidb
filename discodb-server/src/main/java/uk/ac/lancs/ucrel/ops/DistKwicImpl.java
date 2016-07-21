@@ -1,5 +1,6 @@
 package uk.ac.lancs.ucrel.ops;
 
+import uk.ac.lancs.ucrel.conc.ConcordanceLine;
 import uk.ac.lancs.ucrel.peer.Peer;
 import uk.ac.lancs.ucrel.rmi.result.Result;
 
@@ -26,8 +27,8 @@ public class DistKwicImpl implements Kwic {
     }
 
     @Override
-    public Result it() throws RemoteException {
-        Result r = kwics.get(next).it();
+    public List<ConcordanceLine> it() throws RemoteException {
+        List<ConcordanceLine> r = kwics.get(next).it();
         next = (next + 1) % kwics.size();
         return r;
     }

@@ -1,5 +1,6 @@
 package uk.ac.lancs.ucrel.server;
 
+import uk.ac.lancs.ucrel.conc.ConcordanceLine;
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
 import uk.ac.lancs.ucrel.ops.DistKwicImpl;
 import uk.ac.lancs.ucrel.ops.Insert;
@@ -28,8 +29,6 @@ public class ServerImpl implements Server {
     private CorpusAccessor ca;
     private ExecutorService es = Executors.newCachedThreadPool();
     private Peer peerObject;
-
-    private FullResult lastResult;
 
     public ServerImpl(Peer p){
         this.startTime = new Date();
@@ -78,9 +77,5 @@ public class ServerImpl implements Server {
 
     public Result list(String searchTerm) throws RemoteException {
         return null;
-    }
-
-    public Result it() throws RemoteException {
-        return lastResult.it(ca);
     }
 }

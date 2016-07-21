@@ -3,6 +3,8 @@ package uk.ac.lancs.ucrel.corpus;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import uk.ac.lancs.ucrel.access.Accessor;
+import uk.ac.lancs.ucrel.conc.ConcordanceLine;
+import uk.ac.lancs.ucrel.conc.Word;
 import uk.ac.lancs.ucrel.dict.*;
 import uk.ac.lancs.ucrel.dict.Dictionary;
 import uk.ac.lancs.ucrel.index.IndexEntry;
@@ -124,6 +126,24 @@ public class CorpusAccessor extends Accessor {
             numericValues.addAll(d.getWords(w));
         }
         return numericValues;
+    }
+
+    public Word getWord(int i){
+        String s = d.get(i);
+        String[] parts = s.split("\t");
+        Word w = new Word(parts[0]);
+        for(int n = 1; n < parts.length; n++){
+            w.addTag(parts[n]);
+        }
+        return w;
+    }
+
+    public ConcordanceLine getLine(int[] line){
+        ConcordanceLine l = new ConcordanceLine();
+        for(int i : line){
+            l.add(getWord(i));
+        }
+        return l;
     }
 
     public String getLineAsString(int[] line){

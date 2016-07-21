@@ -15,7 +15,7 @@ public class It extends Command {
 
     public void invoke(CommandLine line){
         try {
-            this.setResult(s.it());
+            //this.setResult(s.it());
         } catch (Exception e){
             this.setResult(new Result("Could not iterate results " + e.getMessage()));
         }

@@ -1,6 +1,7 @@
 package uk.ac.lancs.ucrel.ops;
 
 import uk.ac.lancs.ucrel.file.system.FileUtils;
+import uk.ac.lancs.ucrel.parser.TSVParser;
 import uk.ac.lancs.ucrel.parser.TextParser;
 
 import java.io.IOException;
@@ -50,7 +51,7 @@ public class LocalInsertImpl implements Insert {
 
     private void insertRunner(){
         try {
-            TextParser tp = new TextParser(dataPath);
+            TSVParser tp = new TSVParser(dataPath);
             tp.parse(temp);
         } catch (Exception e) {
             e.printStackTrace();

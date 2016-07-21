@@ -98,6 +98,8 @@ public class Dictionary {
     public String get(int i) {
         if (!finalised)
             finalise();
+        if(i == -1)
+            return "";
         return valueToEntry[i].getWord();
     }
 

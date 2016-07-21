@@ -103,6 +103,7 @@ public class RegionAccessor extends Accessor {
                 try {
                     line[j] = regionToCorpusMap[ib.get(n++)];
                 } catch (IndexOutOfBoundsException e){
+                    line[j] = -1;
                     //ignore if we fall off the end of the region
                 }
             }
