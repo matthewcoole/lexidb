@@ -23,10 +23,15 @@ public class Client {
     private Server s;
     private Map<String, Command> commands;
     private DefaultParser parser = new DefaultParser();
+    private Command lastCommand;
 
     public static void main(String[] args) {
         Client c = new Client();
         c.run();
+    }
+
+    public Command getLastCommand(){
+        return lastCommand;
     }
 
     private ConsoleReader getConsole(){
@@ -61,7 +66,7 @@ public class Client {
             if (tmp instanceof Server)
                 s = (Server) tmp;
             commands = new HashMap<String, Command>();
-            for(Command c : Command.getDefaultCommands(s)){
+            for(Command c : Command.getDefaultCommands(s, this)){
                 commands.put(c.getUsage().split(" ")[0], c);
             }
             console = getConsole();
@@ -92,7 +97,9 @@ public class Client {
                 if(line == null)
                     return;
                 c.invoke(line);
-                c.getResult().print();
+                //c.getResult().print();
+                if(!(c instanceof It))
+                    lastCommand = c;
             } else {
                 System.err.println("Command not found!");
             }

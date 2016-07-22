@@ -18,6 +18,11 @@ public class Kwic extends Command {
     private int context = 5;
     private int limit, sortType, sortPos = 0;
     private int page = 20;
+    private Map<String, Ansi.Color> printColors = new HashMap<String, Ansi.Color>();
+    private Ansi.Color[] cs = Ansi.Color.values();
+    private int currentPrintColor = 0;
+    private uk.ac.lancs.ucrel.ops.Kwic k;
+    private boolean details;
 
     public Kwic(Server s) {
         super("kwic [TERM]", "Perform a keyword-in-context search for [TERM] ([TERM] may be a regular expression).");
@@ -34,7 +39,7 @@ public class Kwic extends Command {
 
     public void invoke(CommandLine line) {
         try {
-            uk.ac.lancs.ucrel.ops.Kwic k = s.kwic();
+            k = s.kwic();
 
             int context = (line.hasOption("c")) ? Integer.parseInt(line.getOptionValue("c")) : this.context;
             int limit = (line.hasOption("l")) ? Integer.parseInt(line.getOptionValue("l")) : this.limit;
@@ -42,6 +47,7 @@ public class Kwic extends Command {
             int sortPos = (line.hasOption("sp")) ? Integer.parseInt(line.getOptionValue("sp")) : this.sortPos;
             int page = (line.hasOption("p")) ? Integer.parseInt(line.getOptionValue("p")) : this.page;
             int order = (line.hasOption("r")) ? -1 : 1;
+            details = line.hasOption("d");
 
             k.search(line.getArgs()[1],
                     context,
@@ -51,49 +57,75 @@ public class Kwic extends Command {
                     order,
                     page);
 
-            List<ConcordanceLine> lines = k.it();
-
-            if(line.hasOption("d")) {
-                for (ConcordanceLine l : lines) {
-                    System.out.println(l.details());
-                }
-            } else
-                print(lines);
+            it();
 
         } catch (RemoteException e) {
             e.printStackTrace();
         }
     }
 
+    public void it() {
+        try {
+            List<ConcordanceLine> lines = k.it();
+            print(lines);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     public void print(List<ConcordanceLine> lines){
-        Map<String, Ansi.Color> colors = new HashMap<String, Ansi.Color>();
-        int i = 0;
-        Ansi.Color[] cs = Ansi.Color.values();
         for(ConcordanceLine l : lines){
             for(Word w : l.getWords()){
                 String pos = w.getTags().get(1);
-                if(!colors.containsKey(pos)){
-                    colors.put(pos, cs[i]);
-                    i = (i+1) % cs.length;
+                if(!printColors.containsKey(pos)){
+                    printColors.put(pos, cs[currentPrintColor]);
+                    currentPrintColor = (currentPrintColor +1) % cs.length;
                 }
             }
         }
+
+        int preWordCount = (lines.get(0).getWords().size() - 1)/2;
+        int longestPreLength = 0;
+        for(ConcordanceLine l : lines){
+            int length = 0;
+            for(int i = 0; i < preWordCount; i++){
+                length += l.getWords().get(i).toString().length();
+            }
+            if(length > longestPreLength)
+                longestPreLength = length;
+        }
+
         AnsiConsole.systemInstall();
         System.out.println("");
-        for(String pos : colors.keySet()){
-            System.out.print(Ansi.ansi().fg(colors.get(pos)).a(pos).reset());
+        for(String pos : printColors.keySet()){
+            System.out.print(Ansi.ansi().fg(printColors.get(pos)).a(pos).reset());
             System.out.print(" ");
         }
         System.out.println("\n");
         for(ConcordanceLine l : lines){
+            System.out.print(getPadding(l, longestPreLength, preWordCount));
             for(Word w : l.getWords()){
                 String pos = w.getTags().get(1);
-                System.out.print(Ansi.ansi().fg(colors.get(pos)).a(w.toString()).reset());
+                String word = details ? w.details() : w.toString();
+                System.out.print(Ansi.ansi().fg(printColors.get(pos)).a(word).reset());
                 System.out.print(" ");
             }
             System.out.println("");
         }
         System.out.println("");
         AnsiConsole.systemUninstall();
+    }
+
+    private String getPadding(ConcordanceLine l, int longestPreLength, int preWordCount){
+        StringBuilder sb = new StringBuilder();
+        int length = 0;
+        for(int i =0; i < preWordCount; i++){
+            length += l.getWords().get(i).toString().length();
+        }
+        int padding = longestPreLength - length;
+        for(int j = 0; j < padding; j++){
+            sb.append(" ");
+        }
+        return sb.toString();
     }
 }

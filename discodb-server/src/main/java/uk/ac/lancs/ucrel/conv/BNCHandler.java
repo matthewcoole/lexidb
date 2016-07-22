@@ -22,7 +22,7 @@ public class BNCHandler extends DefaultHandler {
 
     public void startElement(String uri, String localName,String qName,
                              Attributes attributes) throws SAXException {
-        if(qName.equals("stext")) {
+        if(qName.equals("stext") || qName.equals("wtext")) {
             text = true;
         }
         if(text && qName.equals("w")){
@@ -37,7 +37,7 @@ public class BNCHandler extends DefaultHandler {
 
     public void endElement(String uri, String localName,
                            String qName) throws SAXException {
-        if(qName.equals("stext")) {
+        if(qName.equals("stext") || qName.equals("wtext")) {
             text = false;
         }
         if(text && qName.equals("w")){

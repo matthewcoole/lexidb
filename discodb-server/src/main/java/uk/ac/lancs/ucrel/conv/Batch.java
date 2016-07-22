@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Batch {
 
-    public static final Path OUT = Paths.get("/home/mpc/Desktop/bnc_s_tag");
+    public static final Path OUT = Paths.get("/home/mpc/Desktop/bnc_tag");
     public static int LIMIT = 1000000;
     public static DecimalFormat df;
     public static List<String> lines = new ArrayList<String>();
@@ -17,7 +17,7 @@ public class Batch {
 
     public static void main(String[] args) throws IOException {
         Files.createDirectories(OUT);
-        Path in = Paths.get("/home/mpc/Desktop/bnc_s_tagged");
+        Path in = Paths.get("/home/mpc/Desktop/bnc_tagged");
         df = new DecimalFormat("0000");
         Files.walkFileTree(in,new SimpleFileVisitor<Path>(){
             @Override

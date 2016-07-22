@@ -3,6 +3,7 @@ package uk.ac.lancs.ucrel.cli.commands;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import uk.ac.lancs.ucrel.cli.Client;
 import uk.ac.lancs.ucrel.rmi.Server;
 import uk.ac.lancs.ucrel.rmi.result.Result;
 import java.util.ArrayList;
@@ -30,14 +31,14 @@ public abstract class Command implements Comparable<Command> {
         this.ops = new Options();
     }
 
-    public static List<Command> getDefaultCommands(Server s){
+    public static List<Command> getDefaultCommands(Server s, Client c){
         defaultCommands = new ArrayList<Command>();
         defaultCommands.add(new Help(defaultCommands));
         defaultCommands.add(new Shutdown(s));
         defaultCommands.add(new Exit());
         defaultCommands.add(new Insert(s));
         defaultCommands.add(new Kwic(s));
-        defaultCommands.add(new It(s));
+        defaultCommands.add(new It(c));
         defaultCommands.add(new Status(s));
         Collections.sort(defaultCommands);
         return defaultCommands;
@@ -72,6 +73,10 @@ public abstract class Command implements Comparable<Command> {
 
     public void invoke(CommandLine line){
         System.err.println("Unimplemented command!");
+    }
+
+    public void it(){
+        System.err.println("Cannot iterate!");
     }
 
     public int compareTo(Command cmd){

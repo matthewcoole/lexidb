@@ -12,7 +12,7 @@ import java.util.List;
 public class BNCConv {
 
     public static final SAXParserFactory factory = SAXParserFactory.newInstance();
-    public static final Path OUT = Paths.get("/home/mpc/Desktop/bnc_s_tagged");
+    public static final Path OUT = Paths.get("/home/mpc/Desktop/bnc_tagged");
 
     public static void main(String[] args) throws Exception {
         Files.createDirectories(OUT);
