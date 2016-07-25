@@ -1,8 +1,7 @@
 package uk.ac.lancs.ucrel.cli.commands;
 
 import org.apache.commons.cli.CommandLine;
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.AnsiConsole;
+import uk.ac.lancs.ucrel.cli.console.ANSICol;
 import uk.ac.lancs.ucrel.conc.ConcordanceLine;
 import uk.ac.lancs.ucrel.conc.Word;
 import uk.ac.lancs.ucrel.rmi.Server;
@@ -11,16 +10,15 @@ import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class Kwic extends Command {
 
     private Server s;
     private int context = 5;
-    private int limit, sortType, sortPos = 0;
+    private int sortPos, limit, sortType = 0;
     private int page = 20;
-    private Map<String, Ansi.Color> printColors = new HashMap<String, Ansi.Color>();
-    private Ansi.Color[] cs = Ansi.Color.values();
-    private int currentPrintColor = 0;
+    private Map<String, Integer> printColors = new HashMap<String, Integer>();;
     private uk.ac.lancs.ucrel.ops.Kwic k;
     private boolean details;
 
@@ -78,8 +76,7 @@ public class Kwic extends Command {
             for(Word w : l.getWords()){
                 String pos = w.getTags().get(1);
                 if(!printColors.containsKey(pos)){
-                    printColors.put(pos, cs[currentPrintColor]);
-                    currentPrintColor = (currentPrintColor +1) % cs.length;
+                    printColors.put(pos, new Random().nextInt(256));
                 }
             }
         }
@@ -95,10 +92,9 @@ public class Kwic extends Command {
                 longestPreLength = length;
         }
 
-        AnsiConsole.systemInstall();
         System.out.println("");
         for(String pos : printColors.keySet()){
-            System.out.print(Ansi.ansi().fg(printColors.get(pos)).a(pos).reset());
+            System.out.print(ANSICol.c(pos, printColors.get(pos)));
             System.out.print(" ");
         }
         System.out.println("\n");
@@ -107,13 +103,12 @@ public class Kwic extends Command {
             for(Word w : l.getWords()){
                 String pos = w.getTags().get(1);
                 String word = details ? w.details() : w.toString();
-                System.out.print(Ansi.ansi().fg(printColors.get(pos)).a(word).reset());
+                System.out.print(ANSICol.c(word, printColors.get(pos)));
                 System.out.print(" ");
             }
             System.out.println("");
         }
         System.out.println("");
-        AnsiConsole.systemUninstall();
     }
 
     private String getPadding(ConcordanceLine l, int longestPreLength, int preWordCount){
