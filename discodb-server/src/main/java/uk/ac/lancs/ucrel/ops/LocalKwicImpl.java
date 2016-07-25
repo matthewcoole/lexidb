@@ -15,6 +15,7 @@ public class LocalKwicImpl implements Kwic {
     private ExecutorService es;
     private Path dataPath;
     private FullKwicResult fkr;
+    private long time;
 
     public LocalKwicImpl(ExecutorService es, Path dataPath){
         this.es = es;
@@ -31,6 +32,7 @@ public class LocalKwicImpl implements Kwic {
             fkr.sort(sortType, sortPos, order);
             fkr.setPageLength(pageLength);
             long end = System.currentTimeMillis();
+            time = end - start;
             fkr.setTime(end - start);
         } catch (Exception e){
             e.printStackTrace();
@@ -46,5 +48,14 @@ public class LocalKwicImpl implements Kwic {
             e.printStackTrace();
             throw new RemoteException(e.toString());
         }
+    }
+
+    public long getTime(){
+        return time;
+    }
+
+    @Override
+    public int getLength() throws RemoteException {
+        return fkr.getResults().size();
     }
 }

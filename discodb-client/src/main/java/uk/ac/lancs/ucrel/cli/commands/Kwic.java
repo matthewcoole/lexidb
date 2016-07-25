@@ -55,6 +55,8 @@ public class Kwic extends Command {
                     order,
                     page);
 
+            System.out.println("\n" + k.getLength() + " results for \"" + line.getArgs()[1] + "\" in " + k.getTime() + "ms.\n");
+
             it();
 
         } catch (RemoteException e) {
@@ -74,9 +76,11 @@ public class Kwic extends Command {
     public void print(List<ConcordanceLine> lines){
         for(ConcordanceLine l : lines){
             for(Word w : l.getWords()){
-                String pos = w.getTags().get(1);
-                if(!printColors.containsKey(pos)){
-                    printColors.put(pos, new Random().nextInt(256));
+                if(w.getTags() != null && w.getTags().size() >= 2){
+                    String pos = w.getTags().get(1);
+                    if(!printColors.containsKey(pos)){
+                        printColors.put(pos, new Random().nextInt(256));
+                    }
                 }
             }
         }
@@ -101,9 +105,13 @@ public class Kwic extends Command {
         for(ConcordanceLine l : lines){
             System.out.print(getPadding(l, longestPreLength, preWordCount));
             for(Word w : l.getWords()){
-                String pos = w.getTags().get(1);
                 String word = details ? w.details() : w.toString();
-                System.out.print(ANSICol.c(word, printColors.get(pos)));
+                if(w.getTags() != null && w.getTags().size() >= 2) {
+                    String pos = w.getTags().get(1);
+                    System.out.print(ANSICol.c(word, printColors.get(pos)));
+                } else {
+                    System.out.print(word);
+                }
                 System.out.print(" ");
             }
             System.out.println("");

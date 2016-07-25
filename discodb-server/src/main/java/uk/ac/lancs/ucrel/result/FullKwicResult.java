@@ -60,36 +60,4 @@ public class FullKwicResult implements FullResult {
         position += pageLength;
         return lines;
     }
-
-    /*public Result it(CorpusAccessor ca){
-        List<String> page = new ArrayList<String>();
-        for (int i = position; i < results.size() && i < (position + pageLength); i++) {
-            page.add(ca.getLineAsString(results.get(i)));
-        }
-        position += pageLength;
-        String header = "Found " + NumberFormat.getInstance().format(results.size()) + " results for \"" + searchTerm + "\"";
-        header += getRegexString();
-        header += getSortString();
-        return new KwicResult(header, time, page, (position - pageLength + 1), position, results.size(), context);
-    }*/
-
-    private String getRegexString() {
-        StringBuilder sb = new StringBuilder();
-        if (regexMatches > 0)
-            sb.append(" (regex matched ").append(regexMatches).append(" word types)");
-        return sb.toString();
-    }
-
-    private String getSortString() {
-        StringBuilder sb = new StringBuilder();
-        if (sortType == 0)
-            return sb.toString();
-        sb.append(" (sorted ");
-        if (sortType == 1)
-            sb.append("lexically ");
-        else if (sortType == 2)
-            sb.append("by frequency ");
-        sb.append("on position ").append(sortPos).append(")");
-        return sb.toString();
-    }
 }

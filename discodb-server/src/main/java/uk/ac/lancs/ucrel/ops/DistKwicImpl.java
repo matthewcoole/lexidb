@@ -12,6 +12,7 @@ import java.util.List;
 public class DistKwicImpl implements Kwic {
 
     private List<Kwic> kwics = new ArrayList<Kwic>();
+    private long time;
     private int next = 0;
 
     public DistKwicImpl(Collection<Peer> peers) throws RemoteException {
@@ -21,9 +22,24 @@ public class DistKwicImpl implements Kwic {
     }
 
     public void search(String searchTerm, int context, int limit, int sortType, int sortPos, int order, int pageLength) throws RemoteException {
+        long start = System.currentTimeMillis();
         for(Kwic k : kwics){
             k.search(searchTerm, context, limit, sortType, sortPos, order, pageLength);
         }
+        long end = System.currentTimeMillis();
+        time = end - start;
+    }
+
+    public int getLength() throws RemoteException {
+        int length = 0;
+        for(Kwic k : kwics){
+            length += k.getLength();
+        }
+        return length;
+    }
+
+    public long getTime() throws RemoteException {
+        return time;
     }
 
     @Override

@@ -1,14 +1,11 @@
 package uk.ac.lancs.ucrel.server;
 
-import uk.ac.lancs.ucrel.conc.ConcordanceLine;
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
 import uk.ac.lancs.ucrel.ops.DistKwicImpl;
 import uk.ac.lancs.ucrel.ops.Insert;
 import uk.ac.lancs.ucrel.ops.DistInsertImpl;
 import uk.ac.lancs.ucrel.ops.Kwic;
 import uk.ac.lancs.ucrel.peer.Peer;
-import uk.ac.lancs.ucrel.result.FullKwicResult;
-import uk.ac.lancs.ucrel.result.FullResult;
 import uk.ac.lancs.ucrel.rmi.result.Result;
 import uk.ac.lancs.ucrel.rmi.Server;
 

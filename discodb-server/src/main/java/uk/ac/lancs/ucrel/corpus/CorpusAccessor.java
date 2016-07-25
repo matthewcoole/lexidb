@@ -63,8 +63,9 @@ public class CorpusAccessor extends Accessor {
         Pattern p = Pattern.compile(regex);
         List<String> matches = new ArrayList<String>();
         for(String word : d.getEntries()){
-            if(p.matcher(word).matches()) {
-                matches.add(word);
+            String[] bits = word.split("\t");
+            if(p.matcher(bits[0]).matches()) {
+                matches.add(bits[0]);
             }
         }
         return matches;
