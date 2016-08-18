@@ -2,10 +2,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>uk.ac.lancs.ucrel</groupId>
-  <artifactId>discodb-commons</artifactId>
+  <artifactId>lexidb-commons</artifactId>
   <packaging>jar</packaging>
   <version>0.1-SNAPSHOT</version>
-  <name>discoDB commons</name>
+  <name>lexidb commons</name>
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>

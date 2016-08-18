@@ -5,14 +5,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>uk.ac.lancs.ucrel</groupId>
-  <artifactId>discodb-parent</artifactId>
+  <artifactId>lexidb-parent</artifactId>
   <version>0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
  
   <modules>
-    <module>discodb-commons</module>
-    <module>discodb-server</module>
-    <module>discodb-client</module>
+    <module>lexidb-commons</module>
+    <module>lexidb-server</module>
+    <module>lexidb-client</module>
   </modules>
 
   <build>
