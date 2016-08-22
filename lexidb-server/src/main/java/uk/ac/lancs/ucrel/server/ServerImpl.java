@@ -1,10 +1,7 @@
 package uk.ac.lancs.ucrel.server;
 
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
-import uk.ac.lancs.ucrel.ops.DistKwicImpl;
-import uk.ac.lancs.ucrel.ops.Insert;
-import uk.ac.lancs.ucrel.ops.DistInsertImpl;
-import uk.ac.lancs.ucrel.ops.Kwic;
+import uk.ac.lancs.ucrel.ops.*;
 import uk.ac.lancs.ucrel.peer.Peer;
 import uk.ac.lancs.ucrel.rmi.result.Result;
 import uk.ac.lancs.ucrel.rmi.Server;
@@ -70,6 +67,12 @@ public class ServerImpl implements Server {
         Kwic k = new DistKwicImpl(peerObject.getPeers());
         UnicastRemoteObject.exportObject(k, 0);
         return k;
+    }
+
+    public Ngram ngram() throws RemoteException {
+        Ngram n = new DistNgramImpl(peerObject.getPeers());
+        UnicastRemoteObject.exportObject(n, 0);
+        return n;
     }
 
     public Result list(String searchTerm) throws RemoteException {

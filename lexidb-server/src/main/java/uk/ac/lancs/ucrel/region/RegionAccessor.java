@@ -14,7 +14,6 @@ import java.util.*;
 public class RegionAccessor extends Accessor {
 
     private static final Logger LOG = LogManager.getLogger(RegionAccessor.class);
-    private int context = 5;
 
     private int[] corpusToRegionMap;
     private int[] regionToCorpusMap;
@@ -23,19 +22,12 @@ public class RegionAccessor extends Accessor {
         setPath(regionPath);
     }
 
-    public List<int[]> search(int word, int context, int limit) throws IOException {
-        List<Integer> words = new ArrayList<Integer>();
-        words.add(word);
-        return search(words, context, limit);
-    }
-
-    public List<int[]> search(List<Integer> words, int context, int limit) throws IOException {
-        this.context = context;
+    public List<int[]> contextSearch(List<Integer> words, int left, int right) throws IOException {
         regenerateCorpusToRegionMap();
         List<Integer> numericValues = getNumericValues(words);
         List<IndexEntry> indexEntries = getIndexPositions(numericValues);
         getIndexEntryValues(indexEntries);
-        return getConcordanceLines(indexEntries, limit);
+        return getContexts(getIndexValues(indexEntries), left, right);
     }
 
     private void getIndexEntryValues(List<IndexEntry> indexEntries) throws IOException {
@@ -76,40 +68,30 @@ public class RegionAccessor extends Accessor {
         }
     }
 
-    private List<int[]> getConcordanceLines(List<IndexEntry> indexEntries, int limit) throws IOException {
-        List<int[]> concLines = new ArrayList<int[]>();
+    private List<Integer> getIndexValues(List<IndexEntry> indexEntries){
         List<Integer> allIndexValues = new ArrayList<Integer>();
-        int count = 0;
         for(IndexEntry ie : indexEntries){
             allIndexValues.addAll(ie.getIndexValuesAsList());
-            count += ie.getCount();
         }
-        concLines.addAll(getConcordanceLines(allIndexValues, count, limit));
-        return concLines;
+        return allIndexValues;
     }
 
-    private List<int[]> getConcordanceLines(List<Integer> indexValues, int count, int limit) throws IOException {
+    private List<int[]> getContexts(List<Integer> indexValues, int left, int right) throws IOException{
         Path dataFile = Paths.get(getPath().toString(), "data.disco");
         IntBuffer ib = FileUtils.readAllInts(dataFile);
-
-        limit = (limit > count || limit < 1) ? count : limit;
-
-        List<int[]> concLines = new ArrayList<int[]>();
-
-        for(int i = 0; i < limit; i++){
-            int[] line = new int[(context * 2) + 1];
-            int n = indexValues.get(i) - context;
-            for(int j = 0; j < line.length; j++){
+        List<int[]> contexts = new ArrayList<int[]>();
+        for(int i : indexValues){
+            int[] context = new int[left + right + 1];
+            int n = i - left;
+            for(int j = 0; j < context.length; j++){
                 try {
-                    line[j] = regionToCorpusMap[ib.get(n++)];
+                    context[j] = regionToCorpusMap[ib.get(n++)];
                 } catch (IndexOutOfBoundsException e){
-                    line[j] = -1;
-                    //ignore if we fall off the end of the region
+                    context[j] = -1;
                 }
             }
-            concLines.add(line);
+            contexts.add(context);
         }
-
-        return concLines;
+        return contexts;
     }
 }

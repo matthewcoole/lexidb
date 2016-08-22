@@ -1,9 +1,6 @@
 package uk.ac.lancs.ucrel.peer;
 
-import uk.ac.lancs.ucrel.ops.Insert;
-import uk.ac.lancs.ucrel.ops.Kwic;
-import uk.ac.lancs.ucrel.ops.LocalInsertImpl;
-import uk.ac.lancs.ucrel.ops.LocalKwicImpl;
+import uk.ac.lancs.ucrel.ops.*;
 
 import java.nio.file.Paths;
 import java.rmi.NotBoundException;
@@ -47,6 +44,13 @@ public class PeerImpl implements Peer {
         Kwic lk = new LocalKwicImpl(es, Paths.get(dataPath));
         UnicastRemoteObject.exportObject(lk, 0);
         return lk;
+    }
+
+    @Override
+    public Ngram ngram() throws RemoteException {
+        Ngram ln = new LocalNgramImpl(es, Paths.get(dataPath));
+        UnicastRemoteObject.exportObject(ln, 0);
+        return ln;
     }
 
     public Collection<Peer> getPeers() {

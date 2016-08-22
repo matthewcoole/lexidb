@@ -103,6 +103,10 @@ public class CorpusAccessor extends Accessor {
         return new FullKwicResult(searchTerm, words.size(), context, lines);
     }
 
+    public void ngram(String searchTerm, int n){
+
+    }
+
     private boolean isRegex(String s) {
         return s.matches("^.*[^a-zA-Z ].*$");
     }
@@ -166,10 +170,12 @@ public class CorpusAccessor extends Accessor {
         for(int i : regions){
             String region = regionNameFormatter.format(i);
             RegionAccessor ra = new RegionAccessor(Paths.get(getPath().toString(), region));
-            lines.addAll(ra.search(numericValues, context, limit));
+            lines.addAll(ra.contextSearch(numericValues, context, context));
             if(lines.size() >= limit && limit > 0)
                 break;
         }
+        if(lines.size() >= limit && limit > 0)
+            return lines.subList(0, limit);
         return lines;
     }
 }
