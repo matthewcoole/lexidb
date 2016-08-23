@@ -41,7 +41,7 @@ public class PeerImpl implements Peer {
 
     @Override
     public Kwic kwic() throws RemoteException {
-        Kwic lk = new LocalKwicImpl(es, Paths.get(dataPath));
+        Kwic lk = new LocalKwicImpl(Paths.get(dataPath));
         UnicastRemoteObject.exportObject(lk, 0);
         return lk;
     }

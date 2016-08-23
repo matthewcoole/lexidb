@@ -38,7 +38,7 @@ public class SimpleIT {
     @Ignore
     @Test
     public void basicLookup() throws IOException {
-        /*Result r = s.kwic("and", 5, 3, 0, 0, 0, 20);
+        /*Result r = s.context("and", 5, 3, 0, 0, 0, 20);
         KwicResult kr = null;
         if(r instanceof KwicResult)
             kr = (KwicResult)r;

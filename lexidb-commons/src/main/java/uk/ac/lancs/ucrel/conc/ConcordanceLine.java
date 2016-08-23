@@ -1,5 +1,7 @@
 package uk.ac.lancs.ucrel.conc;
 
+import uk.ac.lancs.ucrel.Word;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;

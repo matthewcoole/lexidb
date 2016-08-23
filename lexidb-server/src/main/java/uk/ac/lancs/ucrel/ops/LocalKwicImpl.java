@@ -2,23 +2,24 @@ package uk.ac.lancs.ucrel.ops;
 
 import uk.ac.lancs.ucrel.conc.ConcordanceLine;
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
-import uk.ac.lancs.ucrel.result.FullKwicResult;
-import uk.ac.lancs.ucrel.rmi.result.Result;
+import uk.ac.lancs.ucrel.sort.FrequencyComparator;
+import uk.ac.lancs.ucrel.sort.LexicalComparator;
 
 import java.nio.file.Path;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 public class LocalKwicImpl implements Kwic {
 
-    private ExecutorService es;
     private Path dataPath;
-    private FullKwicResult fkr;
+    private List<int[]> contexts;
+    private List<String> words;
     private long time;
+    private int position, pageLength;
 
-    public LocalKwicImpl(ExecutorService es, Path dataPath){
-        this.es = es;
+    public LocalKwicImpl(Path dataPath) {
         this.dataPath = dataPath;
     }
 
@@ -27,14 +28,14 @@ public class LocalKwicImpl implements Kwic {
         try {
             System.out.println("Search for " + searchTerm);
             long start = System.currentTimeMillis();
+            this.pageLength = pageLength;
             CorpusAccessor ca = CorpusAccessor.getAccessor(dataPath);
-            fkr = ca.kwic(searchTerm, context, limit);
-            fkr.sort(sortType, sortPos, order);
-            fkr.setPageLength(pageLength);
+            words = ca.getWords(searchTerm);
+            contexts = ca.context(words, context, context, limit);
+            sort(sortType, sortPos, order, context);
             long end = System.currentTimeMillis();
             time = end - start;
-            fkr.setTime(end - start);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw new RemoteException(e.toString());
         }
@@ -43,19 +44,37 @@ public class LocalKwicImpl implements Kwic {
     @Override
     public List<ConcordanceLine> it() throws RemoteException {
         try {
-            return fkr.it(CorpusAccessor.getAccessor(dataPath));
-        } catch (Exception e){
+            CorpusAccessor ca = CorpusAccessor.getAccessor(dataPath);
+            List<ConcordanceLine> lines = new ArrayList<ConcordanceLine>();
+            for (int i = position; i < contexts.size() && i < (position + pageLength); i++) {
+                lines.add(ca.getLine(contexts.get(i)));
+            }
+            position += pageLength;
+            return lines;
+        } catch (Exception e) {
             e.printStackTrace();
             throw new RemoteException(e.toString());
         }
     }
 
-    public long getTime(){
+    public long getTime() {
         return time;
     }
 
     @Override
     public int getLength() throws RemoteException {
-        return fkr.getResults().size();
+        return contexts.size();
+    }
+
+    public void sort(int type, int pos, int order, int context) {
+        if (type == 0)
+            return;
+        else if (type == 1) {
+            Collections.sort(contexts, new LexicalComparator(context, pos));
+        } else if (type == 2) {
+            Collections.sort(contexts, new FrequencyComparator(context, pos, contexts));
+        }
+        if (order < 0)
+            Collections.reverse(contexts);
     }
 }

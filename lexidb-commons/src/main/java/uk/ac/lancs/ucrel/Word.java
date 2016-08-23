@@ -1,4 +1,4 @@
-package uk.ac.lancs.ucrel.conc;
+package uk.ac.lancs.ucrel;
 
 import java.io.Serializable;
 import java.util.ArrayList;

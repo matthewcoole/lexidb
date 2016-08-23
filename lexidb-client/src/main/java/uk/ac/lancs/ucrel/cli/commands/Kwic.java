@@ -3,7 +3,7 @@ package uk.ac.lancs.ucrel.cli.commands;
 import org.apache.commons.cli.CommandLine;
 import uk.ac.lancs.ucrel.cli.console.ANSICol;
 import uk.ac.lancs.ucrel.conc.ConcordanceLine;
-import uk.ac.lancs.ucrel.conc.Word;
+import uk.ac.lancs.ucrel.Word;
 import uk.ac.lancs.ucrel.rmi.Server;
 
 import java.rmi.RemoteException;
