@@ -1,4 +1,4 @@
-package uk.ac.lancs.ucrel.sort;
+package uk.ac.lancs.ucrel.sort.kwic;
 
 import java.util.Comparator;
 

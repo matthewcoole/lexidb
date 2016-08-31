@@ -1,6 +1,6 @@
 package uk.ac.lancs.ucrel.ops;
 
-import uk.ac.lancs.ucrel.conc.ConcordanceLine;
+import uk.ac.lancs.ucrel.ngram.NGram;
 import uk.ac.lancs.ucrel.peer.Peer;
 
 import java.rmi.RemoteException;
@@ -19,12 +19,12 @@ public class DistNgramImpl implements Ngram {
     }
 
     @Override
-    public void search(String searchTerm, int n) throws RemoteException {
+    public void search(String searchTerm, int n, int pos, int pageLength) throws RemoteException {
 
     }
 
     @Override
-    public List<ConcordanceLine> it() throws RemoteException {
+    public List<NGram> it() throws RemoteException {
         return null;
     }
 

@@ -2,8 +2,8 @@ package uk.ac.lancs.ucrel.ops;
 
 import uk.ac.lancs.ucrel.conc.ConcordanceLine;
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
-import uk.ac.lancs.ucrel.sort.FrequencyComparator;
-import uk.ac.lancs.ucrel.sort.LexicalComparator;
+import uk.ac.lancs.ucrel.sort.kwic.FrequencyComparator;
+import uk.ac.lancs.ucrel.sort.kwic.LexicalComparator;
 
 import java.nio.file.Path;
 import java.rmi.RemoteException;
@@ -26,7 +26,7 @@ public class LocalKwicImpl implements Kwic {
     @Override
     public void search(String searchTerm, int context, int limit, int sortType, int sortPos, int order, int pageLength) throws RemoteException {
         try {
-            System.out.println("Search for " + searchTerm);
+            System.out.println("kwic for " + searchTerm);
             long start = System.currentTimeMillis();
             this.pageLength = pageLength;
             CorpusAccessor ca = CorpusAccessor.getAccessor(dataPath);

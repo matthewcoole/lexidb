@@ -29,7 +29,7 @@ public class Words {
 
         @Override
         public String toString(){
-            return word + "[" + count + "]";
+            return word/* + "[" + count + "]"*/;
         }
     }
 
@@ -65,16 +65,27 @@ public class Words {
     }
 
     public static void main(String[] args) throws IOException {
-        Words w = new Words(Paths.get("/home/mpc/bnc_spoken"));
+        Words w = new Words(Paths.get("/home/mpc/Desktop/lob/src"));
 
         System.out.println("mean word length: " + w.mean());
-        System.out.println("top: " + w.topWords(10));
+        /*System.out.println("top: " + w.topWords(10));
         System.out.println("91+: " + w.getWords(99, 91, 10));
         System.out.println("81+: " + w.getWords(90, 81, 10));
         System.out.println("71+: " + w.getWords(80, 71, 10));
         System.out.println("61+: " + w.getWords(70, 61, 10));
         System.out.println("51+: " + w.getWords(60, 51, 10));
-        System.out.println("1+: " + w.getWords(50, 1, 50));
+        System.out.println("1+: " + w.getWords(50, 1, 50));*/
+        List<String> words = new ArrayList<String>();
+        words.addAll(w.topWords(10));
+        words.addAll(w.getWords(99, 91, 10));
+        words.addAll(w.getWords(90, 81, 10));
+        words.addAll(w.getWords(80, 71, 10));
+        words.addAll(w.getWords(70, 61, 10));
+        words.addAll(w.getWords(60, 51, 10));
+        words.addAll(w.getWords(50, 1, 10));
+        for(String s : words){
+            System.out.println(s);
+        }
     }
 
     public int mean(){

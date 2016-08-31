@@ -57,7 +57,7 @@ public class CorpusAccessor extends Accessor {
         return d.size();
     }
 
-    public List<String> regex(String regex) throws IOException {
+    private List<String> regex(String regex) throws IOException {
         Pattern p = Pattern.compile(regex);
         List<String> matches = new ArrayList<String>();
         for (String word : d.getEntries()) {

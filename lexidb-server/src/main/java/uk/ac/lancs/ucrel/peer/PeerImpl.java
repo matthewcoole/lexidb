@@ -48,7 +48,7 @@ public class PeerImpl implements Peer {
 
     @Override
     public Ngram ngram() throws RemoteException {
-        Ngram ln = new LocalNgramImpl(es, Paths.get(dataPath));
+        Ngram ln = new LocalNgramImpl(Paths.get(dataPath));
         UnicastRemoteObject.exportObject(ln, 0);
         return ln;
     }
