@@ -1,8 +1,6 @@
 package uk.ac.lancs.ucrel.parser;
 
 import org.junit.Test;
-import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
-import uk.ac.lancs.ucrel.result.FullKwicResult;
 
 import java.io.IOException;
 import java.nio.file.Path;

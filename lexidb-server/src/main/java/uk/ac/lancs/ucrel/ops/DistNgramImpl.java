@@ -10,7 +10,9 @@ import java.util.List;
 
 public class DistNgramImpl implements Ngram {
 
-    List<Ngram> ngrams = new ArrayList<Ngram>();
+    private List<Ngram> ngrams = new ArrayList<Ngram>();
+    private int next = 0;
+    private long time;
 
     public DistNgramImpl(Collection<Peer> peers) throws RemoteException {
         for(Peer p : peers){
@@ -20,21 +22,32 @@ public class DistNgramImpl implements Ngram {
 
     @Override
     public void search(String searchTerm, int n, int pos, int pageLength) throws RemoteException {
-
+        long start = System.currentTimeMillis();
+        for(Ngram ng : ngrams){
+            ng.search(searchTerm, n, pos, pageLength);
+        }
+        long end = System.currentTimeMillis();
+        time = end - start;
     }
 
     @Override
     public List<NGram> it() throws RemoteException {
-        return null;
+        List<NGram> r = ngrams.get(next).it();
+        next = (next + 1) % ngrams.size();
+        return r;
     }
 
     @Override
     public int getLength() throws RemoteException {
-        return 0;
+        int length = 0;
+        for(Ngram ng : ngrams){
+            length += ng.getLength();
+        }
+        return length;
     }
 
     @Override
     public long getTime() throws RemoteException {
-        return 0;
+        return time;
     }
 }

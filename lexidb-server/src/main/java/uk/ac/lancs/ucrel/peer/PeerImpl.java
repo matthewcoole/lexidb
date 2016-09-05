@@ -53,6 +53,14 @@ public class PeerImpl implements Peer {
         return ln;
     }
 
+    @Override
+    public Collocate collocate() throws RemoteException {
+        Collocate c = new LocalCollocateImpl(Paths.get(dataPath));
+        UnicastRemoteObject.exportObject(c, 0);
+        return c;
+    }
+
+
     public Collection<Peer> getPeers() {
         return connectedPeers.values();
     }

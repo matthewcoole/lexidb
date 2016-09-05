@@ -75,6 +75,12 @@ public class ServerImpl implements Server {
         return n;
     }
 
+    public Collocate collocate() throws RemoteException{
+        Collocate c = new DistCollocationImpl(peerObject.getPeers());
+        UnicastRemoteObject.exportObject(c, 0);
+        return c;
+    }
+
     public Result list(String searchTerm) throws RemoteException {
         return null;
     }
