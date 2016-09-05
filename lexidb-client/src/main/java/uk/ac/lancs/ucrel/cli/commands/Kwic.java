@@ -2,15 +2,12 @@ package uk.ac.lancs.ucrel.cli.commands;
 
 import org.apache.commons.cli.CommandLine;
 import uk.ac.lancs.ucrel.cli.console.ANSICol;
+import uk.ac.lancs.ucrel.cli.console.AlignKwic;
 import uk.ac.lancs.ucrel.conc.ConcordanceLine;
-import uk.ac.lancs.ucrel.Word;
 import uk.ac.lancs.ucrel.rmi.Server;
 
 import java.rmi.RemoteException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 public class Kwic extends Command {
 
@@ -18,7 +15,6 @@ public class Kwic extends Command {
     private int context = 5;
     private int sortPos, limit, sortType = 0;
     private int page = 20;
-    //private Map<String, Integer> printColors = new HashMap<String, Integer>();;
     private uk.ac.lancs.ucrel.ops.Kwic k;
     private boolean details;
 
@@ -68,54 +64,26 @@ public class Kwic extends Command {
         try {
             List<ConcordanceLine> lines = k.it();
             print(lines);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void print(List<ConcordanceLine> lines){
+    public void print(List<ConcordanceLine> lines) {
         ANSICol ansi = new ANSICol();
 
-        for(ConcordanceLine l : lines){
+        for (ConcordanceLine l : lines) {
             ansi.generateCols(l.getWords());
         }
 
-        int preWordCount = (lines.get(0).getWords().size() - 1)/2;
-        int longestPreLength = 0;
-        for(ConcordanceLine l : lines){
-            int length = 0;
-            for(int i = 0; i < preWordCount; i++){
-                length += l.getWords().get(i).toString().length();
-            }
-            if(length > longestPreLength)
-                longestPreLength = length;
-        }
-        System.out.println("");
+        AlignKwic align = new AlignKwic(lines);
 
+        System.out.println("");
         ansi.printCols();
         System.out.println("\n");
 
-        for(ConcordanceLine l : lines){
-            System.out.print(getPadding(l, longestPreLength, preWordCount));
-            for(Word w : l.getWords()){
-                String word = ansi.c(w);
-                System.out.print(word + " ");
-            }
-            System.out.println("");
+        for (ConcordanceLine l : lines) {
+            System.out.println(align.pad(l, ansi));
         }
-        System.out.println("");
-    }
-
-    private String getPadding(ConcordanceLine l, int longestPreLength, int preWordCount){
-        StringBuilder sb = new StringBuilder();
-        int length = 0;
-        for(int i =0; i < preWordCount; i++){
-            length += l.getWords().get(i).toString().length();
-        }
-        int padding = longestPreLength - length;
-        for(int j = 0; j < padding; j++){
-            sb.append(" ");
-        }
-        return sb.toString();
     }
 }
