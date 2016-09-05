@@ -6,9 +6,7 @@ import uk.ac.lancs.ucrel.ngram.NGram;
 import uk.ac.lancs.ucrel.rmi.Server;
 
 import java.rmi.RemoteException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Ngram extends Command {
 
@@ -32,7 +30,7 @@ public class Ngram extends Command {
         try {
             ng = s.ngram();
 
-            int pos = (line.hasOption("sp")) ? Integer.parseInt(line.getOptionValue("s")) : this.pos;
+            int pos = (line.hasOption("sp")) ? Integer.parseInt(line.getOptionValue("sp")) : this.pos;
             int page = (line.hasOption("p")) ? Integer.parseInt(line.getOptionValue("p")) : this.page;
             int order = (line.hasOption("r")) ? -1 : 1;
             details = line.hasOption("d");
@@ -52,22 +50,23 @@ public class Ngram extends Command {
         try {
             List<NGram> ngs = ng.it();
             print(ngs);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void print(List<NGram> ngrams){
-        for(NGram ng : ngrams){
-            ANSICol.generateCols(ng.getWords());
+    public void print(List<NGram> ngrams) {
+        ANSICol ansi = new ANSICol();
+        for (NGram ng : ngrams) {
+            ansi.generateCols(ng.getWords());
         }
 
         System.out.println("");
-        ANSICol.printCols();
+        ansi.printCols();
         System.out.println("\n");
 
-        for(NGram ng : ngrams){
-            System.out.println(ng.getCount() + "\t" + ANSICol.c(ng.getWords()));
+        for (NGram ng : ngrams) {
+            System.out.println(ng.getCount() + "\t" + ansi.c(ng.getWords()));
         }
         System.out.println("");
     }

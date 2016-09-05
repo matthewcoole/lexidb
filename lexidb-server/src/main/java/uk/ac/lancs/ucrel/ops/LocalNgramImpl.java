@@ -17,7 +17,7 @@ public class LocalNgramImpl implements Ngram {
     Map<String, NGram> ngramsMap = new HashMap<String, NGram>();
     List<NGram> ngrams = new ArrayList<NGram>();
 
-    public LocalNgramImpl(Path dataPath){
+    public LocalNgramImpl(Path dataPath) {
         this.dataPath = dataPath;
     }
 
@@ -30,19 +30,22 @@ public class LocalNgramImpl implements Ngram {
             CorpusAccessor ca = CorpusAccessor.getAccessor(dataPath);
             words = ca.getWords(searchTerm);
             List<int[]> contexts;
-            if(pos == 0){
+
+            /*TODO: This can be improved by working out how big the context needs to be to capture all ngrams in one
+            search and then simply shifting through each context to extract each ngram*/
+            if (pos == 0) {
                 contexts = new ArrayList<int[]>();
-                for(int i = 0; i < n; i++){
-                    contexts.addAll(ca.context(words, i, n-(i+1), 0));
+                for (int i = 0; i < n; i++) {
+                    contexts.addAll(ca.context(words, i, n - (i + 1), 0));
                 }
             } else {
-                contexts = ca.context(words, pos-1, n - (pos - 1), 0);
+                contexts = ca.context(words, pos - 1, n - (pos - 1), 0);
             }
-            for(int[] context : contexts){
+            for (int[] context : contexts) {
                 String k = getKey(context);
-                if(!ngramsMap.containsKey(k)){
+                if (!ngramsMap.containsKey(k)) {
                     NGram ng = new NGram();
-                    for(int i : context){
+                    for (int i : context) {
                         ng.add(ca.getWord(i));
                     }
                     ngramsMap.put(k, ng);
@@ -61,9 +64,9 @@ public class LocalNgramImpl implements Ngram {
         }
     }
 
-    private String getKey(int[] context){
+    private String getKey(int[] context) {
         StringBuilder sb = new StringBuilder();
-        for(int i : context){
+        for (int i : context) {
             sb.append(i).append(",");
         }
         sb.deleteCharAt(sb.lastIndexOf(","));
@@ -73,7 +76,7 @@ public class LocalNgramImpl implements Ngram {
     @Override
     public List<NGram> it() throws RemoteException {
         List<NGram> page = new ArrayList<NGram>();
-        for(int i = currentPos + pageLength; currentPos < i; currentPos++){
+        for (int i = currentPos + pageLength; currentPos < i; currentPos++) {
             page.add(ngrams.get(currentPos));
         }
         return page;
@@ -81,7 +84,7 @@ public class LocalNgramImpl implements Ngram {
 
     @Override
     public int getLength() throws RemoteException {
-        return 0;
+        return ngrams.size();
     }
 
     @Override

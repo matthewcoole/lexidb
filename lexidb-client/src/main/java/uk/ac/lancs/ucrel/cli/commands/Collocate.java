@@ -3,7 +3,6 @@ package uk.ac.lancs.ucrel.cli.commands;
 import org.apache.commons.cli.CommandLine;
 import uk.ac.lancs.ucrel.Word;
 import uk.ac.lancs.ucrel.cli.console.ANSICol;
-import uk.ac.lancs.ucrel.ngram.NGram;
 import uk.ac.lancs.ucrel.rmi.Server;
 
 import java.rmi.RemoteException;
@@ -35,7 +34,7 @@ public class Collocate extends Command {
             col = s.collocate();
             int cl = (line.hasOption("cl")) ? Integer.parseInt(line.getOptionValue("cl")) : this.cl;
             int cr = (line.hasOption("cr")) ? Integer.parseInt(line.getOptionValue("cr")) : this.pos;
-            if(line.hasOption("c")){
+            if (line.hasOption("c")) {
                 cl = Integer.parseInt(line.getOptionValue("c"));
                 cr = cl;
             }
@@ -59,24 +58,25 @@ public class Collocate extends Command {
         try {
             List<uk.ac.lancs.ucrel.col.Collocate> cols = col.it();
             print(cols);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void print(List<uk.ac.lancs.ucrel.col.Collocate> cols){
+    public void print(List<uk.ac.lancs.ucrel.col.Collocate> cols) {
         List<Word> words = new ArrayList<Word>();
-        for(uk.ac.lancs.ucrel.col.Collocate col : cols){
+        ANSICol ansi = new ANSICol();
+        for (uk.ac.lancs.ucrel.col.Collocate col : cols) {
             words.add(col.getWord());
         }
-        ANSICol.generateCols(words);
+        ansi.generateCols(words);
 
         System.out.println("");
-        ANSICol.printCols();
+        ansi.printCols();
         System.out.println("\n");
 
-        for(uk.ac.lancs.ucrel.col.Collocate c : cols){
-            System.out.println(c.getCount() + "\t" + ANSICol.c(c.getWord()));
+        for (uk.ac.lancs.ucrel.col.Collocate c : cols) {
+            System.out.println(c.getCount() + "\t" + ansi.c(c.getWord()));
         }
         System.out.println("");
     }

@@ -18,7 +18,7 @@ public class Kwic extends Command {
     private int context = 5;
     private int sortPos, limit, sortType = 0;
     private int page = 20;
-    private Map<String, Integer> printColors = new HashMap<String, Integer>();;
+    //private Map<String, Integer> printColors = new HashMap<String, Integer>();;
     private uk.ac.lancs.ucrel.ops.Kwic k;
     private boolean details;
 
@@ -74,15 +74,10 @@ public class Kwic extends Command {
     }
 
     public void print(List<ConcordanceLine> lines){
+        ANSICol ansi = new ANSICol();
+
         for(ConcordanceLine l : lines){
-            for(Word w : l.getWords()){
-                if(w.getTags() != null && w.getTags().size() >= 2){
-                    String pos = w.getTags().get(1);
-                    if(!printColors.containsKey(pos)){
-                        printColors.put(pos, new Random().nextInt(256));
-                    }
-                }
-            }
+            ansi.generateCols(l.getWords());
         }
 
         int preWordCount = (lines.get(0).getWords().size() - 1)/2;
@@ -95,24 +90,16 @@ public class Kwic extends Command {
             if(length > longestPreLength)
                 longestPreLength = length;
         }
-
         System.out.println("");
-        for(String pos : printColors.keySet()){
-            System.out.print(ANSICol.c(pos, printColors.get(pos)));
-            System.out.print(" ");
-        }
+
+        ansi.printCols();
         System.out.println("\n");
+
         for(ConcordanceLine l : lines){
             System.out.print(getPadding(l, longestPreLength, preWordCount));
             for(Word w : l.getWords()){
-                String word = details ? w.details() : w.toString();
-                if(w.getTags() != null && w.getTags().size() >= 2) {
-                    String pos = w.getTags().get(1);
-                    System.out.print(ANSICol.c(word, printColors.get(pos)));
-                } else {
-                    System.out.print(word);
-                }
-                System.out.print(" ");
+                String word = ansi.c(w);
+                System.out.print(word + " ");
             }
             System.out.println("");
         }
