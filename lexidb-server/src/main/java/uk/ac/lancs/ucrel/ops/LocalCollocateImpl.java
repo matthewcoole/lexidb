@@ -3,6 +3,7 @@ package uk.ac.lancs.ucrel.ops;
 import uk.ac.lancs.ucrel.Word;
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
 import uk.ac.lancs.ucrel.ngram.NGram;
+import uk.ac.lancs.ucrel.sort.col.FrequencyComparator;
 
 import java.nio.file.Path;
 import java.rmi.RemoteException;
@@ -40,8 +41,12 @@ public class LocalCollocateImpl implements Collocate{
                     collocatesMap.get(w.toString()).increment();
                 }
             }
+            for(String s : words){
+                collocatesMap.remove(s);
+            }
             collocates = new ArrayList<uk.ac.lancs.ucrel.col.Collocate>();
             collocates.addAll(collocatesMap.values());
+            Collections.sort(collocates, new FrequencyComparator());
             long end = System.currentTimeMillis();
             time = end - start;
         } catch (Exception e){

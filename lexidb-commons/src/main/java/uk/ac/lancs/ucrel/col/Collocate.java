@@ -2,7 +2,9 @@ package uk.ac.lancs.ucrel.col;
 
 import uk.ac.lancs.ucrel.Word;
 
-public class Collocate {
+import java.io.Serializable;
+
+public class Collocate implements Serializable {
     private Word collocate;
     private String searchTerm;
     int count;
@@ -22,5 +24,13 @@ public class Collocate {
 
     public void increment(){
         count++;
+    }
+
+    public Word getWord(){
+        return collocate;
+    }
+
+    public int getCount(){
+        return count;
     }
 }

@@ -38,15 +38,21 @@ public class ANSICol {
         }
     }
 
+    public static String c(Word w){
+        StringBuilder sb = new StringBuilder();
+        if(w.getTags() != null && w.getTags().size() >= 2) {
+            String pos = w.getTags().get(1);
+            sb.append(c(w.toString(), cols.get(pos)));
+        } else {
+            sb.append(w.toString());
+        }
+        return sb.toString();
+    }
+
     public static String c(Collection<Word> words){
         StringBuilder sb = new StringBuilder();
         for(Word w : words){
-            if(w.getTags() != null && w.getTags().size() >= 2) {
-                String pos = w.getTags().get(1);
-                sb.append(c(w.toString(), cols.get(pos)));
-            } else {
-                sb.append(w.toString());
-            }
+            sb.append(c(w));
             sb.append(" ");
         }
         return sb.toString();

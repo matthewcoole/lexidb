@@ -50,8 +50,8 @@ public class Ngram extends Command {
 
     public void it() {
         try {
-            List<NGram> lines = ng.it();
-            print(lines);
+            List<NGram> ngs = ng.it();
+            print(ngs);
         } catch (Exception e){
             e.printStackTrace();
         }
