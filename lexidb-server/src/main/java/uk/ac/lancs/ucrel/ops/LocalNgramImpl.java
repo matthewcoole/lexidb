@@ -14,8 +14,6 @@ public class LocalNgramImpl implements Ngram {
     private int pageLength, currentPos;
     private List<String> words;
     private long time;
-    private
-    List<int[]> contexts;
     Map<String, NGram> ngramsMap = new HashMap<String, NGram>();
     List<NGram> ngrams = new ArrayList<NGram>();
 
@@ -26,11 +24,12 @@ public class LocalNgramImpl implements Ngram {
     @Override
     public void search(String searchTerm, int n, int pos, int pageLength) throws RemoteException {
         try {
-            System.out.println("kwic for " + searchTerm);
+            System.out.println("ngram for " + searchTerm);
             long start = System.currentTimeMillis();
             this.pageLength = pageLength;
             CorpusAccessor ca = CorpusAccessor.getAccessor(dataPath);
             words = ca.getWords(searchTerm);
+            List<int[]> contexts;
             if(pos == 0){
                 contexts = new ArrayList<int[]>();
                 for(int i = 0; i < n; i++){
@@ -58,7 +57,7 @@ public class LocalNgramImpl implements Ngram {
             time = end - start;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RemoteException(e.toString());
+            throw new RemoteException(e.getMessage());
         }
     }
 
