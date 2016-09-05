@@ -41,14 +41,6 @@ public class FileUtils {
         return readAll(file).asIntBuffer();
     }
 
-    public static CharBuffer readChars(Path file, int pos, int length, Charset cs) throws IOException {
-        return cs.decode(read(file, pos, length));
-    }
-
-    public static CharBuffer readAllChars(Path file, Charset cs) throws IOException {
-        return cs.decode(readAll(file));
-    }
-
     public static void write(Path file, byte[] data) throws IOException {
         FileChannel fc = getNewFileChannel(file, "rw");
         MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_WRITE, 0, data.length);
@@ -67,11 +59,11 @@ public class FileUtils {
         FileChannel fc = getNewFileChannel(file, "rw");
         StringBuilder sb = new StringBuilder();
         int size = 0;
-        for(String s : data){
+        for (String s : data) {
             size += s.length() + 1;
         }
         CharBuffer cb = CharBuffer.allocate(size);
-        for(String s : data){
+        for (String s : data) {
             cb.append(s);
             cb.append('\n');
         }
@@ -83,7 +75,7 @@ public class FileUtils {
     public static void write(Path file, int[] data) throws IOException {
         FileChannel fc = getNewFileChannel(file, "rw");
         IntBuffer ib = fc.map(FileChannel.MapMode.READ_WRITE, 0, data.length * 4).asIntBuffer();
-        for(int i : data){
+        for (int i : data) {
             ib.put(i);
         }
         fc.close();

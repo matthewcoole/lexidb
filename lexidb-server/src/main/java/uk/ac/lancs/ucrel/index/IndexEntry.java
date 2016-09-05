@@ -10,7 +10,7 @@ public class IndexEntry {
     private int[] indexValues;
     private List<Integer> indexValuesAsList;
 
-    public IndexEntry(int indexPos, int count){
+    public IndexEntry(int indexPos, int count) {
         this.indexPos = indexPos;
         this.count = count;
     }
@@ -27,14 +27,14 @@ public class IndexEntry {
         return indexValues;
     }
 
-    public List<Integer> getIndexValuesAsList(){
-        return indexValuesAsList;
-    }
-
     public void setIndexValues(int[] indexValues) {
         this.indexValues = indexValues;
         indexValuesAsList = new ArrayList<Integer>();
-        for(int i : indexValues)
+        for (int i : indexValues)
             indexValuesAsList.add(i);
+    }
+
+    public List<Integer> getIndexValuesAsList() {
+        return indexValuesAsList;
     }
 }

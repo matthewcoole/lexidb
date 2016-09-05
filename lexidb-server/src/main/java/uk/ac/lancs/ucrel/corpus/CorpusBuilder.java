@@ -12,7 +12,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CorpusBuilder {
 
@@ -61,11 +64,11 @@ public class CorpusBuilder {
         LOG.info("Corpus written in " + (end - start) + "ms");
     }
 
-    private int[] getIndexEntries(){
+    private int[] getIndexEntries() {
         int[] entries = new int[totalCount];
         int i = 0;
-        for(String s : d.getEntries()){
-            for(int n : index.get(s)){
+        for (String s : d.getEntries()) {
+            for (int n : index.get(s)) {
                 entries[i++] = n;
             }
         }
@@ -86,14 +89,14 @@ public class CorpusBuilder {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 File f = file.toFile();
-                if(f.getName().equals("dict.disco")){
+                if (f.getName().equals("dict.disco")) {
                     int region = Integer.parseInt(f.getParentFile().getName());
                     List<String> words = Files.readAllLines(file, StandardCharsets.UTF_8);
-                    for(String w : words){
+                    for (String w : words) {
                         String[] ent = w.split("\t");
                         String word = w.substring(0, w.lastIndexOf("\t"));
                         int count = Integer.parseInt(ent[ent.length - 1]);
-                        if(!index.containsKey(word)) {
+                        if (!index.containsKey(word)) {
                             index.put(word, new ArrayList<Integer>());
                         }
                         index.get(word).add(region);
@@ -106,10 +109,10 @@ public class CorpusBuilder {
         d = Dictionary.sort(d);
     }
 
-    private void generateIndexMappings(){
+    private void generateIndexMappings() {
         indexMapping = new int[index.size()];
         int pos = 0;
-        for(int i = 0; i < indexMapping.length; i++){
+        for (int i = 0; i < indexMapping.length; i++) {
             indexMapping[i] = pos;
             pos += index.get(d.get(i)).size();
         }
@@ -117,7 +120,7 @@ public class CorpusBuilder {
     }
 
     private void generateCorpusToRegionMappings() throws IOException {
-        for(int i = 0; i < regionCount; i++){
+        for (int i = 0; i < regionCount; i++) {
             Dictionary rd = Dictionary.load(Paths.get(corpusPath.toString(), regionNameFormatter.format(i), "dict.disco"));
             int[] map = Dictionary.map(d, rd);
             FileUtils.write(Paths.get(corpusPath.toString(), regionNameFormatter.format(i), "map.disco"), map);
@@ -125,16 +128,16 @@ public class CorpusBuilder {
     }
 
     private void delete() throws IOException {
-        Files.walkFileTree(corpusPath, new SimpleFileVisitor<Path>(){
+        Files.walkFileTree(corpusPath, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Files.deleteIfExists(file);
                 return FileVisitResult.CONTINUE;
             }
+
             @Override
             public FileVisitResult postVisitDirectory(Path dir, IOException e)
-                    throws IOException
-            {
+                    throws IOException {
                 Files.deleteIfExists(dir);
                 return FileVisitResult.CONTINUE;
             }

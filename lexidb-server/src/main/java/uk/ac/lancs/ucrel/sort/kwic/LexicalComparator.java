@@ -4,7 +4,8 @@ import java.util.Comparator;
 
 public class LexicalComparator implements Comparator<int[]> {
     private int pos;
-    public LexicalComparator(int context, int pos){
+
+    public LexicalComparator(int context, int pos) {
         this.pos = context + pos;
     }
 

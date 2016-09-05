@@ -1,17 +1,16 @@
 package uk.ac.lancs.ucrel.file.system;
 
-import static org.junit.Assert.*;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
 import java.nio.IntBuffer;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.NumberFormat;
 import java.util.Random;
+
+import static org.junit.Assert.assertEquals;
 
 public class FileUtilsIT {
 
@@ -30,7 +29,7 @@ public class FileUtilsIT {
         long mid = System.currentTimeMillis();
         IntBuffer ib = FileUtils.readAllInts(fp);
         int count = 0;
-        while(ib.hasRemaining()){
+        while (ib.hasRemaining()) {
             assertEquals(ints[count], ib.get());
             count++;
         }
@@ -38,12 +37,12 @@ public class FileUtilsIT {
         System.out.println(ints.length + " ints - Write: " + (mid - start) + "ms, Read: " + (end - mid) + "ms");
     }
 
-    private int[] generateRandomNumbers(){
+    private int[] generateRandomNumbers() {
         int size = 2000000;
         int[] ints = new int[size];
         Random r = new Random();
 
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             ints[i] = r.nextInt(100);
         }
         return ints;

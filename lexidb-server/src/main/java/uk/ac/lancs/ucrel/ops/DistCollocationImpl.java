@@ -1,5 +1,6 @@
 package uk.ac.lancs.ucrel.ops;
 
+import uk.ac.lancs.ucrel.ds.Collocate;
 import uk.ac.lancs.ucrel.peer.Peer;
 
 import java.rmi.RemoteException;
@@ -7,31 +8,31 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DistCollocationImpl implements Collocate {
+public class DistCollocationImpl implements CollocateOperation {
 
-    private List<Collocate> cols = new ArrayList<Collocate>();
+    private List<CollocateOperation> cols = new ArrayList<CollocateOperation>();
     private int next = 0;
     private long time;
 
     public DistCollocationImpl(Collection<Peer> peers) throws RemoteException {
-        for(Peer p : peers){
+        for (Peer p : peers) {
             cols.add(p.collocate());
         }
     }
 
     @Override
-    public void search(String searchTerm, int contextLeft, int contextRight, int pageLength) throws RemoteException {
+    public void search(String searchTerm, int contextLeft, int contextRight, int pageLength, boolean reverseOrder) throws RemoteException {
         long start = System.currentTimeMillis();
-        for(Collocate ng : cols){
-            ng.search(searchTerm, contextLeft, contextRight, pageLength);
+        for (CollocateOperation c : cols) {
+            c.search(searchTerm, contextLeft, contextRight, pageLength, reverseOrder);
         }
         long end = System.currentTimeMillis();
         time = end - start;
     }
 
     @Override
-    public List<uk.ac.lancs.ucrel.col.Collocate> it() throws RemoteException {
-        List<uk.ac.lancs.ucrel.col.Collocate> r = cols.get(next).it();
+    public List<Collocate> it() throws RemoteException {
+        List<Collocate> r = cols.get(next).it();
         next = (next + 1) % cols.size();
         return r;
     }
@@ -39,7 +40,7 @@ public class DistCollocationImpl implements Collocate {
     @Override
     public int getLength() throws RemoteException {
         int length = 0;
-        for(Collocate c : cols){
+        for (CollocateOperation c : cols) {
             length += c.getLength();
         }
         return length;

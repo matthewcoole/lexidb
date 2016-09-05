@@ -32,34 +32,49 @@ public class PeerImpl implements Peer {
         available = true;
     }
 
+    private static String getHost(String serverString) {
+        return split(serverString)[0];
+    }
+
+    private static int getPort(String serverString) {
+        return Integer.parseInt(split(serverString)[1]);
+    }
+
+    private static String[] split(String serverString) {
+        return serverString.split(":");
+    }
+
+    private static String getServerString(String host, int port) {
+        return new StringBuilder().append(host).append(port).toString();
+    }
+
     @Override
-    public Insert insert() throws RemoteException {
-        Insert li = new LocalInsertImpl(es, Paths.get(dataPath));
+    public InsertOperation insert() throws RemoteException {
+        InsertOperation li = new LocalInsertOperationImpl(es, Paths.get(dataPath));
         UnicastRemoteObject.exportObject(li, 0);
         return li;
     }
 
     @Override
-    public Kwic kwic() throws RemoteException {
-        Kwic lk = new LocalKwicImpl(Paths.get(dataPath));
+    public KwicOperation kwic() throws RemoteException {
+        KwicOperation lk = new LocalKwicOperationImpl(Paths.get(dataPath));
         UnicastRemoteObject.exportObject(lk, 0);
         return lk;
     }
 
     @Override
-    public Ngram ngram() throws RemoteException {
-        Ngram ln = new LocalNgramImpl(Paths.get(dataPath));
+    public NgramOperation ngram() throws RemoteException {
+        NgramOperation ln = new LocalNgramOperationImpl(Paths.get(dataPath));
         UnicastRemoteObject.exportObject(ln, 0);
         return ln;
     }
 
     @Override
-    public Collocate collocate() throws RemoteException {
-        Collocate c = new LocalCollocateImpl(Paths.get(dataPath));
+    public CollocateOperation collocate() throws RemoteException {
+        CollocateOperation c = new LocalCollocateOperationImpl(Paths.get(dataPath));
         UnicastRemoteObject.exportObject(c, 0);
         return c;
     }
-
 
     public Collection<Peer> getPeers() {
         return connectedPeers.values();
@@ -138,21 +153,5 @@ public class PeerImpl implements Peer {
 
     public void shutdown() {
         es.shutdown();
-    }
-
-    private static String getHost(String serverString) {
-        return split(serverString)[0];
-    }
-
-    private static int getPort(String serverString) {
-        return Integer.parseInt(split(serverString)[1]);
-    }
-
-    private static String[] split(String serverString) {
-        return serverString.split(":");
-    }
-
-    private static String getServerString(String host, int port) {
-        return new StringBuilder().append(host).append(port).toString();
     }
 }

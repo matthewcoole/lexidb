@@ -2,10 +2,10 @@ package uk.ac.lancs.ucrel.corpus;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import uk.ac.lancs.ucrel.Word;
 import uk.ac.lancs.ucrel.access.Accessor;
-import uk.ac.lancs.ucrel.conc.ConcordanceLine;
 import uk.ac.lancs.ucrel.dict.Dictionary;
+import uk.ac.lancs.ucrel.ds.Kwic;
+import uk.ac.lancs.ucrel.ds.Word;
 import uk.ac.lancs.ucrel.index.IndexEntry;
 import uk.ac.lancs.ucrel.region.RegionAccessor;
 
@@ -136,8 +136,8 @@ public class CorpusAccessor extends Accessor {
         return w;
     }
 
-    public ConcordanceLine getLine(int[] line) {
-        ConcordanceLine l = new ConcordanceLine();
+    public Kwic getLine(int[] line) {
+        Kwic l = new Kwic();
         for (int i : line) {
             l.add(getWord(i));
         }

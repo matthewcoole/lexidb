@@ -1,19 +1,16 @@
 package uk.ac.lancs.ucrel;
 
-import static org.junit.Assert.*;
-import org.hamcrest.collection.IsIterableContainingInOrder;
-import org.junit.*;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import uk.ac.lancs.ucrel.parser.TextParser;
 import uk.ac.lancs.ucrel.rmi.Server;
-import uk.ac.lancs.ucrel.rmi.result.KwicResult;
-import uk.ac.lancs.ucrel.rmi.result.Result;
-import uk.ac.lancs.ucrel.server.ServerImpl;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Properties;
 
 public class SimpleIT {

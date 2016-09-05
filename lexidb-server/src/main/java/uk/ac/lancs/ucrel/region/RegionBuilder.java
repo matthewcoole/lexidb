@@ -9,7 +9,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RegionBuilder {
 
@@ -23,16 +24,16 @@ public class RegionBuilder {
     private int totalCount;
 
 
-    public RegionBuilder(Path regionPath){
+    public RegionBuilder(Path regionPath) {
         this.regionPath = regionPath;
         words = new ArrayList<String>();
     }
 
-    public void add(List<String> words){
+    public void add(List<String> words) {
         this.words.addAll(words);
     }
 
-    public void build(){
+    public void build() {
         init();
         assignInitNumericValues();
         generateInitToFinalMap();
@@ -56,11 +57,11 @@ public class RegionBuilder {
         return filePath;
     }
 
-    private int[] getIndexEntries(){
+    private int[] getIndexEntries() {
         int[] entries = new int[totalCount];
         int i = 0;
-        for(List<Integer> wordEntries : index){
-            for(Integer n : wordEntries){
+        for (List<Integer> wordEntries : index) {
+            for (Integer n : wordEntries) {
                 entries[i] = n;
                 i++;
             }
@@ -68,48 +69,48 @@ public class RegionBuilder {
         return entries;
     }
 
-    private void init(){
+    private void init() {
         data = new int[words.size()];
         d = new Dictionary();
         totalCount = words.size();
     }
 
-    private void assignInitNumericValues(){
+    private void assignInitNumericValues() {
         int i = 0;
-        for(String word : words){
+        for (String word : words) {
             data[i] = d.put(word);
             i++;
         }
     }
 
-    private void generateInitToFinalMap(){
+    private void generateInitToFinalMap() {
         Dictionary df = Dictionary.sort(d);
         initToFinalMap = Dictionary.map(d, df);
         d = df;
     }
 
-    private void assignFinalNumericValues(){
-        for(int i = 0; i < data.length; i++){
+    private void assignFinalNumericValues() {
+        for (int i = 0; i < data.length; i++) {
             data[i] = initToFinalMap[data[i]];
             addIndexEntry(data[i], i);
         }
     }
 
-    private void initIndex(){
+    private void initIndex() {
         indexMapping = new int[d.size()];
         index = new ArrayList<List<Integer>>(d.size());
-        for(int i = 0; i < d.size(); i++){
+        for (int i = 0; i < d.size(); i++) {
             index.add(new ArrayList<Integer>());
         }
     }
 
-    private void addIndexEntry(int numericValue, int pos){
+    private void addIndexEntry(int numericValue, int pos) {
         index.get(numericValue).add(pos);
     }
 
-    private void generateIndexMapping(){
+    private void generateIndexMapping() {
         int pos = 0;
-        for(int i = 0; i < indexMapping.length; i++){
+        for (int i = 0; i < indexMapping.length; i++) {
             indexMapping[i] = pos;
             pos += d.count(i);
         }

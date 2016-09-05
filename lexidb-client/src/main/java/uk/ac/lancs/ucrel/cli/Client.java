@@ -8,13 +8,15 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import uk.ac.lancs.ucrel.cli.commands.*;
+import uk.ac.lancs.ucrel.cli.command.Command;
+import uk.ac.lancs.ucrel.cli.command.ItCommand;
 import uk.ac.lancs.ucrel.rmi.Server;
 
 import java.rmi.Remote;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Client {
 
@@ -25,23 +27,39 @@ public class Client {
     private DefaultParser parser = new DefaultParser();
     private Command lastCommand;
 
+    private Client() {
+        try {
+            r = LocateRegistry.getRegistry(1289);
+            Remote tmp = r.lookup("serv");
+            if (tmp instanceof Server)
+                s = (Server) tmp;
+            commands = new HashMap<String, Command>();
+            for (Command c : Command.getDefaultCommands(s, this)) {
+                commands.put(c.getUsage().split(" ")[0], c);
+            }
+            console = getConsole();
+        } catch (Exception e) {
+            System.err.println("Could not connect to server: " + e.getMessage());
+        }
+    }
+
     public static void main(String[] args) {
         Client c = new Client();
         c.run();
     }
 
-    public Command getLastCommand(){
+    public Command getLastCommand() {
         return lastCommand;
     }
 
-    private ConsoleReader getConsole(){
+    private ConsoleReader getConsole() {
         ConsoleReader c = null;
         try {
             c = new ConsoleReader();
             c.addCompleter(new ArgumentCompleter(new StringsCompleter(Command.getDefaultCommandsList()), new FileNameCompleter()));
             c.setPrompt("discoDB> ");
             c.clearScreen();
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return c;
@@ -54,28 +72,12 @@ public class Client {
                 runCommand(cmd.trim());
                 pause();
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private Client() {
-        try {
-            r = LocateRegistry.getRegistry(1289);
-            Remote tmp = r.lookup("serv");
-            if (tmp instanceof Server)
-                s = (Server) tmp;
-            commands = new HashMap<String, Command>();
-            for(Command c : Command.getDefaultCommands(s, this)){
-                commands.put(c.getUsage().split(" ")[0], c);
-            }
-            console = getConsole();
-        } catch(Exception e){
-            System.err.println("Could not connect to server: " + e.getMessage());
-        }
-    }
-
-    private void pause(){
+    private void pause() {
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
@@ -83,35 +85,34 @@ public class Client {
         }
     }
 
-    private void runCommand(String cmd){
+    private void runCommand(String cmd) {
         try {
             CommandLine line = parser.parse(new Options(), cmd.split(" "), true);
             String op = line.getArgs()[0];
-            if(op.equals("clear")){
+            if (op.equals("clear")) {
                 console.clearScreen();
                 return;
             }
-            if (commands.containsKey(op)){
+            if (commands.containsKey(op)) {
                 Command c = commands.get(op);
                 line = getCommandLine(c, cmd);
-                if(line == null)
+                if (line == null)
                     return;
                 c.invoke(line);
-                //c.getResult().print();
-                if(!(c instanceof It))
+                if (!(c instanceof ItCommand))
                     lastCommand = c;
             } else {
                 System.err.println("Command not found!");
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Command failed!: " + e.getMessage());
         }
     }
 
-    private CommandLine getCommandLine(Command c, String cmd){
+    private CommandLine getCommandLine(Command c, String cmd) {
         try {
-            return  parser.parse(c.getOptions(), cmd.split(" "));
+            return parser.parse(c.getOptions(), cmd.split(" "));
         } catch (ParseException e) {
             System.err.println(e.getMessage());
             c.printHelp();

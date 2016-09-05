@@ -1,16 +1,17 @@
 package uk.ac.lancs.ucrel.dict;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.Matchers.*;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class DictionaryTests {
 
     private Dictionary d;
 
     @Before
-    public void setup(){
+    public void setup() {
         d = new Dictionary();
         d.put("a \tAT0\tART\ta");
         d.put("to \tPRP\tPREP");
@@ -18,19 +19,19 @@ public class DictionaryTests {
     }
 
     @Test
-    public void testPut(){
+    public void testPut() {
         assertThat(d.put("a \tAT0\tART\ta"), is(0));
         assertThat(d.put("to \tPRP\tPREP"), is(1));
     }
 
     @Test
-    public void testGet(){
+    public void testGet() {
         assertThat(d.get(0), is("a \tAT0\tART\ta"));
         assertThat(d.get(1), is("to \tPRP\tPREP"));
     }
 
     @Test
-    public void testMap(){
+    public void testMap() {
         Dictionary d1 = new Dictionary();
         d1.put("to \tPRP\tPREP");
         d1.put("a \tAT0\tART\ta");
@@ -40,7 +41,7 @@ public class DictionaryTests {
     }
 
     @Test
-    public void testSort(){
+    public void testSort() {
         Dictionary d1 = Dictionary.sort(d);
         assertThat(d1.get("a \tAT0\tART\ta"), is(0));
         assertThat(d1.get("and \tCJC\tCONJ\tand"), is(1));
@@ -48,7 +49,7 @@ public class DictionaryTests {
     }
 
     @Test
-    public void testCount(){
+    public void testCount() {
         d.put("to \tPRP\tPREP");
         assertThat(d.count("a \tAT0\tART\ta"), is(1));
         assertThat(d.count("to \tPRP\tPREP"), is(2));
@@ -56,7 +57,7 @@ public class DictionaryTests {
     }
 
     @Test
-    public void testGetWord(){
+    public void testGetWord() {
         assertThat(d.getWords("a").get(0), is(0));
     }
 }

@@ -9,52 +9,52 @@ public class DictionaryEntry {
     private int value;
     private int count;
 
-    public DictionaryEntry(String word, int value){
+    public DictionaryEntry(String word, int value) {
         this.word = word;
         this.value = value;
     }
 
-    protected DictionaryEntry(String word, int value, int count){
+    protected DictionaryEntry(String word, int value, int count) {
         this.word = word;
         this.value = value;
         this.count = count;
     }
 
-    public String getWord(){
+    public String getWord() {
         return word;
     }
 
-    public int getValue(){
+    public int getValue() {
         return value;
     }
 
-    public int getCount(){
+    public int getCount() {
         return count;
     }
 
-    public void increment(){
+    public void increment() {
         count++;
     }
 
-    public void addTag(String tag){
+    public void addTag(String tag) {
         tags.add(tag);
     }
 
-    public void addTags(List<String> tags){
+    public void addTags(List<String> tags) {
         this.tags.addAll(tags);
     }
 
-    public List<String> getTags(){
+    public List<String> getTags() {
         return tags;
     }
 
-    public void addToCount(int n){
+    public void addToCount(int n) {
         count += n;
     }
 
-    public boolean equals(Object o){
-        if(o instanceof DictionaryEntry)
-            return ((DictionaryEntry)o).getWord().equals(word);
+    public boolean equals(Object o) {
+        if (o instanceof DictionaryEntry)
+            return ((DictionaryEntry) o).getWord().equals(word);
         return false;
     }
 }

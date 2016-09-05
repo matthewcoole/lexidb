@@ -13,7 +13,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 public class TSVParser {
 
@@ -24,7 +23,7 @@ public class TSVParser {
     private List<String> currentWords;
     private CorpusBuilder cb;
 
-    public TSVParser(Path dataPath){
+    public TSVParser(Path dataPath) {
         this.dataPath = dataPath;
     }
 
@@ -32,18 +31,18 @@ public class TSVParser {
         long start = System.currentTimeMillis();
         cb = new CorpusBuilder(dataPath);
         currentWords = new ArrayList<String>();
-        Files.walkFileTree(src, new SimpleFileVisitor<Path>(){
+        Files.walkFileTree(src, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 currentWords.addAll(Files.readAllLines(file, StandardCharsets.UTF_8));
-                if(currentWords.size() >= REGION_SIZE){
+                if (currentWords.size() >= REGION_SIZE) {
                     cb.addRegion(currentWords);
                     currentWords = new ArrayList<String>();
                 }
                 return FileVisitResult.CONTINUE;
             }
         });
-        if(currentWords.size() > 0){
+        if (currentWords.size() > 0) {
             cb.addRegion(currentWords);
         }
         cb.build();

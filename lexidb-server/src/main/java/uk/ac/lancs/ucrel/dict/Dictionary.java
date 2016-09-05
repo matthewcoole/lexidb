@@ -17,17 +17,72 @@ public class Dictionary {
     private boolean finalised = false;
 
     /**
+     * Maps one dictionary onto another. The returned array will be the size of dictionary a and the index
+     * for the string a will contain it's value in b. If a contians a string not present in b then the index will
+     * contain -1.
+     *
+     * @param a
+     * @param b
+     * @return
+     */
+    public static int[] map(Dictionary a, Dictionary b) {
+        int[] map = new int[a.size()];
+        for (String s : a.stringToEntry.keySet()) {
+            map[a.get(s)] = b.get(s);
+        }
+        return map;
+    }
+
+    /**
+     * Generates a new dictionary that contains all strings in d but the values are lexically sorted.
+     *
+     * @param d
+     * @return
+     */
+    public static Dictionary sort(Dictionary d) {
+        Dictionary sorted = new Dictionary();
+        Set<String> sortedKeys = new TreeSet<String>(d.stringToEntry.keySet());
+        for (String s : sortedKeys) {
+            sorted.put(s, d.count(s));
+        }
+        return sorted;
+    }
+
+    /**
+     * Generates a dictionary from the file specified by p.
+     *
+     * @param p
+     * @return
+     */
+    public static Dictionary load(Path p) {
+        Dictionary d = new Dictionary();
+        try {
+            List<String> words = Files.readAllLines(p, StandardCharsets.UTF_8);
+            for (String s : words) {
+                String[] bits = s.split("\t");
+                String word = s.substring(0, s.lastIndexOf("\t"));
+                int count = Integer.parseInt(bits[bits.length - 1]);
+                d.put(word, count);
+            }
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+        return d;
+    }
+
+    /**
      * Adds a string to the dictionary and returns a numeric value for the string.
+     *
      * @param s
      * @return
      */
     public int put(String s) {
-        if(finalised)
+        if (finalised)
             throwRuntimeException();
         if (!stringToEntry.containsKey(s)) {
             stringToEntry.put(s, new DictionaryEntry(s, stringToEntry.size()));
             String word = s.split("\t")[0].trim().toLowerCase();
-            if(!wordToString.containsKey(word))
+            if (!wordToString.containsKey(word))
                 wordToString.put(word, new ArrayList<String>());
             wordToString.get(word).add(s);
         }
@@ -36,27 +91,28 @@ public class Dictionary {
         return de.getValue();
     }
 
-    public int putMany(String s, int n){
+    public int putMany(String s, int n) {
         put(s);
         DictionaryEntry de = stringToEntry.get(s);
         de.addToCount(n - 1);
         return de.getValue();
     }
 
-    private void put(String s, int count){
+    private void put(String s, int count) {
         stringToEntry.put(s, new DictionaryEntry(s, stringToEntry.size(), count));
         String word = s.split("\t")[0].trim().toLowerCase();
-        if(!wordToString.containsKey(word))
+        if (!wordToString.containsKey(word))
             wordToString.put(word, new ArrayList<String>());
         wordToString.get(word).add(s);
     }
 
     /**
      * Puts a collection of strings into the dictionary.
+     *
      * @param cs
      */
-    public void putAll(Collection<String> cs){
-        for(String s : cs){
+    public void putAll(Collection<String> cs) {
+        for (String s : cs) {
             put(s);
         }
     }
@@ -71,18 +127,19 @@ public class Dictionary {
 
     /**
      * Return the numeric value for the string s. Return -1 if the dictionary does not contain the string s.
+     *
      * @param s
      * @return
      */
-    public int get(String s){
-        if(!stringToEntry.containsKey(s))
+    public int get(String s) {
+        if (!stringToEntry.containsKey(s))
             return -1;
         return stringToEntry.get(s).getValue();
     }
 
-    public List<Integer> getWords(String s){
+    public List<Integer> getWords(String s) {
         List<Integer> li = new ArrayList<Integer>();
-        if(wordToString.containsKey(s)){
+        if (wordToString.containsKey(s)) {
             for (String word : wordToString.get(s)) {
                 li.add(get(word));
             }
@@ -92,91 +149,40 @@ public class Dictionary {
 
     /**
      * Returns the string value for the numeric value i.
+     *
      * @param i
      * @return
      */
     public String get(int i) {
         if (!finalised)
             finalise();
-        if(i == -1)
+        if (i == -1)
             return "";
         return valueToEntry[i].getWord();
     }
 
-    public int count(String s){
+    public int count(String s) {
         return stringToEntry.get(s).getCount();
     }
 
-    public int count(int i){
-        if(!finalised)
+    public int count(int i) {
+        if (!finalised)
             finalise();
         return valueToEntry[i].getCount();
     }
 
     /**
      * The number of entries in the dictionary.
+     *
      * @return
      */
     public int size() {
         return stringToEntry.size();
     }
 
-    /**
-     * Maps one dictionary onto another. The returned array will be the size of dictionary a and the index
-     * for the string a will contain it's value in b. If a contians a string not present in b then the index will
-     * contain -1.
-     * @param a
-     * @param b
-     * @return
-     */
-    public static int[] map(Dictionary a, Dictionary b) {
-        int[] map = new int[a.size()];
-        for(String s : a.stringToEntry.keySet()){
-            map[a.get(s)] = b.get(s);
-        }
-        return map;
-    }
-
-    /**
-     * Generates a new dictionary that contains all strings in d but the values are lexically sorted.
-     * @param d
-     * @return
-     */
-    public static Dictionary sort(Dictionary d){
-        Dictionary sorted = new Dictionary();
-        Set<String> sortedKeys = new TreeSet<String>(d.stringToEntry.keySet());
-        //d.stringToEntry.keySet().stream().sorted().forEach((s) -> sorted.put(s, d.count(s)));
-        //sortedKeys.forEach((s) -> sorted.put(s, d.count(s)));
-        for(String s : sortedKeys){
-            sorted.put(s, d.count(s));
-        }
-        return sorted;
-    }
-
-    /**
-     * Generates a dictionary from the file specified by p.
-     * @param p
-     * @return
-     */
-    public static Dictionary load(Path p){
-        Dictionary d = new Dictionary();
-        try {
-            List<String> words = Files.readAllLines(p, StandardCharsets.UTF_8);
-            for(String s : words){
-                String[] bits = s.split("\t");
-                String word = s.substring(0, s.lastIndexOf("\t"));
-                int count = Integer.parseInt(bits[bits.length - 1]);
-                d.put(word, count);
-            }
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
-        return d;
-    }
-
-    public void save(Path p){
+    public void save(Path p) {
         List<String> lines = new ArrayList<String>();
-        for(int i = 0; i < size(); i++){
+        for (int i = 0; i < size(); i++) {
             lines.add(get(i) + "\t" + count(i));
         }
         try {
@@ -186,15 +192,16 @@ public class Dictionary {
         }
     }
 
-    private void throwRuntimeException(){
+    private void throwRuntimeException() {
         throw new RuntimeException("Dictionary already finalised!");
     }
 
     /**
      * Returns a list contain all the entries in the dictionary as strings.
+     *
      * @return
      */
-    public List<String> getEntries(){
+    public List<String> getEntries() {
         List<String> entries = new ArrayList<String>(stringToEntry.keySet());
         Collections.sort(entries);
         return entries;

@@ -16,7 +16,7 @@ public class Node {
     private Server serverObject;
     private Peer peerObject;
 
-    public Node(Properties p){
+    public Node(Properties p) {
         this.p = p;
         peerObject = new PeerImpl(p.getProperty("node.host"),
                 Integer.parseInt(p.getProperty("node.port")),
@@ -25,7 +25,7 @@ public class Node {
         serverObject = new ServerImpl(peerObject);
     }
 
-    public void start(){
+    public void start() {
         int port = Integer.parseInt(p.getProperty("node.port"));
         try {
             Registry r = LocateRegistry.createRegistry(port);
@@ -33,22 +33,22 @@ public class Node {
             Server serverStub = (Server) UnicastRemoteObject.exportObject(serverObject, 0);
             r.bind("serv", serverStub);
 
-            Peer peerStub = (Peer)UnicastRemoteObject.exportObject(peerObject, 0);
+            Peer peerStub = (Peer) UnicastRemoteObject.exportObject(peerObject, 0);
             r.bind("peer", peerStub);
 
-            ((PeerImpl)peerObject).connectToPeers();
+            ((PeerImpl) peerObject).connectToPeers();
 
             System.out.println("Waiting for connections on port " + port);
 
-            while(!((ServerImpl)serverObject).isShutdown()) {
+            while (!((ServerImpl) serverObject).isShutdown()) {
                 Thread.sleep(3000);
             }
 
-            ((PeerImpl)peerObject).shutdown();
+            ((PeerImpl) peerObject).shutdown();
 
             System.out.println("Shutting down...");
 
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

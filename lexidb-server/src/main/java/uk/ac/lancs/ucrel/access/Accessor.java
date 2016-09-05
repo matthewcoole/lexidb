@@ -12,12 +12,12 @@ public abstract class Accessor {
 
     private Path p;
 
-    public void setPath(Path p){
-        this.p = p;
+    public Path getPath() {
+        return p;
     }
 
-    public Path getPath(){
-        return p;
+    public void setPath(Path p) {
+        this.p = p;
     }
 
     public void getIndexEntryValues(IndexEntry ie) throws IOException {
@@ -33,7 +33,7 @@ public abstract class Accessor {
         IntBuffer ib = FileUtils.readInts(indexPosFile, numericValue, 2);
         int a = ib.get(0);
         int b = ib.get(1);
-        return new IndexEntry(a, b-a);
+        return new IndexEntry(a, b - a);
     }
 
 }

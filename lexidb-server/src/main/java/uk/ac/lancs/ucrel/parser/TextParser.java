@@ -24,7 +24,7 @@ public class TextParser {
     private List<String> currentWords;
     private CorpusBuilder cb;
 
-    public TextParser(Path dataPath){
+    public TextParser(Path dataPath) {
         this.dataPath = dataPath;
     }
 
@@ -32,24 +32,24 @@ public class TextParser {
         long start = System.currentTimeMillis();
         cb = new CorpusBuilder(dataPath);
         currentWords = new ArrayList<String>();
-        Files.walkFileTree(src, new SimpleFileVisitor<Path>(){
+        Files.walkFileTree(src, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 List<String> lines = Files.readAllLines(file, StandardCharsets.UTF_8);
-                for(String s : lines){
+                for (String s : lines) {
                     StringTokenizer st = new StringTokenizer(s);
-                    while(st.hasMoreTokens()){
+                    while (st.hasMoreTokens()) {
                         currentWords.add(st.nextToken());
                     }
                 }
-                if(currentWords.size() >= REGION_SIZE){
+                if (currentWords.size() >= REGION_SIZE) {
                     cb.addRegion(currentWords);
                     currentWords = new ArrayList<String>();
                 }
                 return FileVisitResult.CONTINUE;
             }
         });
-        if(currentWords.size() > 0){
+        if (currentWords.size() > 0) {
             cb.addRegion(currentWords);
         }
         cb.build();

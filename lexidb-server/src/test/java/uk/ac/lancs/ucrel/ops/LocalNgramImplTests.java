@@ -1,7 +1,7 @@
 package uk.ac.lancs.ucrel.ops;
 
 import org.junit.Test;
-import uk.ac.lancs.ucrel.ngram.NGram;
+import uk.ac.lancs.ucrel.ds.Ngram;
 
 import java.nio.file.Paths;
 import java.rmi.RemoteException;
@@ -11,10 +11,10 @@ public class LocalNgramImplTests {
 
     @Test
     public void test() throws RemoteException {
-        LocalNgramImpl ng = new LocalNgramImpl(Paths.get("/home/mpc/data"));
-        ng.search("the", 2, 0, 10);
-        List<NGram> results = ng.it();
-        for(NGram ngg : results){
+        LocalNgramOperationImpl ng = new LocalNgramOperationImpl(Paths.get("/home/mpc/data"));
+        ng.search("the", 2, 0, 10, false);
+        List<Ngram> results = ng.it();
+        for (Ngram ngg : results) {
             System.out.println(ngg);
         }
         System.out.println(ng.getTime());
