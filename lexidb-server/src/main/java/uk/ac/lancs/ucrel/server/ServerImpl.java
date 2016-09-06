@@ -54,4 +54,10 @@ public class ServerImpl implements Server {
         UnicastRemoteObject.exportObject(c, 0);
         return c;
     }
+
+    public ListOperation list() throws RemoteException {
+        ListOperation l = new DistListOperationImpl(peerObject.getPeers());
+        UnicastRemoteObject.exportObject(l, 0);
+        return l;
+    }
 }

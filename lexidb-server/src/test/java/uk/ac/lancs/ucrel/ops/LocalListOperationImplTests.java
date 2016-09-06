@@ -14,7 +14,7 @@ public class LocalListOperationImplTests {
         LocalListOperationImpl l = new LocalListOperationImpl(Paths.get("/home/mpc/data"));
         l.search(".*", 20, false);
         List<WordListEntry> results = l.it();
-        for(WordListEntry e : results){
+        for (WordListEntry e : results) {
             System.out.println(e);
         }
     }

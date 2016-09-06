@@ -7,7 +7,10 @@ import uk.ac.lancs.ucrel.sort.list.FrequencyComparator;
 
 import java.nio.file.Path;
 import java.rmi.RemoteException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class LocalListOperationImpl implements ListOperation {
 
@@ -34,7 +37,7 @@ public class LocalListOperationImpl implements ListOperation {
             //TODO
             Map<Integer, Integer> wordlistVals = ca.list(words);
             wordlist = new ArrayList<WordListEntry>();
-            for(int i : wordlistVals.keySet()){
+            for (int i : wordlistVals.keySet()) {
                 Word w = ca.getWord(i);
                 int count = wordlistVals.get(i);
                 wordlist.add(new WordListEntry(w, count));
@@ -56,7 +59,7 @@ public class LocalListOperationImpl implements ListOperation {
         List<WordListEntry> page = new ArrayList<WordListEntry>();
         for (int i = currentPos + pageLength; currentPos < i; currentPos++) {
             page.add(wordlist.get(currentPos));
-            if(currentPos == wordlist.size() - 1)
+            if (currentPos == wordlist.size() - 1)
                 break;
         }
         return page;
