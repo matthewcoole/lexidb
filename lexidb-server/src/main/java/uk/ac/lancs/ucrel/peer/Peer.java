@@ -1,9 +1,6 @@
 package uk.ac.lancs.ucrel.peer;
 
-import uk.ac.lancs.ucrel.ops.CollocateOperation;
-import uk.ac.lancs.ucrel.ops.InsertOperation;
-import uk.ac.lancs.ucrel.ops.KwicOperation;
-import uk.ac.lancs.ucrel.ops.NgramOperation;
+import uk.ac.lancs.ucrel.ops.*;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -24,5 +21,7 @@ public interface Peer extends Remote {
     NgramOperation ngram() throws RemoteException;
 
     CollocateOperation collocate() throws RemoteException;
+
+    ListOperation list() throws RemoteException;
 
 }

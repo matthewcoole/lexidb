@@ -76,6 +76,13 @@ public class PeerImpl implements Peer {
         return c;
     }
 
+    @Override
+    public ListOperation list() throws RemoteException {
+        ListOperation l = new LocalListOperationImpl(Paths.get(dataPath));
+        UnicastRemoteObject.exportObject(l, 0);
+        return l;
+    }
+
     public Collection<Peer> getPeers() {
         return connectedPeers.values();
     }

@@ -50,7 +50,7 @@ public class ServerImpl implements Server {
     }
 
     public CollocateOperation collocate() throws RemoteException {
-        CollocateOperation c = new DistCollocationImpl(peerObject.getPeers());
+        CollocateOperation c = new DistCollocateOperationImpl(peerObject.getPeers());
         UnicastRemoteObject.exportObject(c, 0);
         return c;
     }

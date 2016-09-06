@@ -57,7 +57,7 @@ public class Client {
         try {
             c = new ConsoleReader();
             c.addCompleter(new ArgumentCompleter(new StringsCompleter(Command.getDefaultCommandsList()), new FileNameCompleter()));
-            c.setPrompt("discoDB> ");
+            c.setPrompt("lexidb> ");
             c.clearScreen();
         } catch (Exception e) {
             e.printStackTrace();

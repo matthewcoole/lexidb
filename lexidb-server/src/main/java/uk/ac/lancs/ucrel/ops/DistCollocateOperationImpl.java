@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DistCollocationImpl implements CollocateOperation {
+public class DistCollocateOperationImpl implements CollocateOperation {
 
     private List<CollocateOperation> cols = new ArrayList<CollocateOperation>();
     private int next = 0;
     private long time;
 
-    public DistCollocationImpl(Collection<Peer> peers) throws RemoteException {
+    public DistCollocateOperationImpl(Collection<Peer> peers) throws RemoteException {
         for (Peer p : peers) {
             cols.add(p.collocate());
         }
