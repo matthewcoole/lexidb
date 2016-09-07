@@ -9,13 +9,21 @@ public class DictionaryEntry {
     private int value;
     private int count;
 
-    public DictionaryEntry(String word, int value) {
-        this.word = word;
+    public DictionaryEntry(String tsv, int value) {
+        String[] tsvs = tsv.split("\t");
+        this.word = tsvs[0].trim();
+        for(int i = 1; i < tsvs.length; i++){
+            tags.add(tsvs[i].trim());
+        }
         this.value = value;
     }
 
-    protected DictionaryEntry(String word, int value, int count) {
-        this.word = word;
+    protected DictionaryEntry(String tsv, int value, int count) {
+        String[] tsvs = tsv.split("\t");
+        this.word = tsvs[0].trim();
+        for(int i = 1; i < tsvs.length; i++){
+            tags.add(tsvs[i].trim());
+        }
         this.value = value;
         this.count = count;
     }
@@ -56,5 +64,14 @@ public class DictionaryEntry {
         if (o instanceof DictionaryEntry)
             return ((DictionaryEntry) o).getWord().equals(word);
         return false;
+    }
+
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(word);
+        for(String tag : tags){
+            sb.append('\t').append(tag);
+        }
+        return sb.toString();
     }
 }

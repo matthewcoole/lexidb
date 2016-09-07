@@ -1,6 +1,7 @@
 package uk.ac.lancs.ucrel.dict;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
@@ -19,6 +20,14 @@ public class DictionaryTests {
     }
 
     @Test
+    public void testGetString(){
+        d.put("the \tAT0\tART\tthe");
+        Integer[] expected = {0, 3};
+        d.loadIndexTrees();
+        assertThat(d.get("AT0", 1), is(expected));
+    }
+
+    @Test
     public void testPut() {
         assertThat(d.put("a \tAT0\tART\ta"), is(0));
         assertThat(d.put("to \tPRP\tPREP"), is(1));
@@ -26,8 +35,8 @@ public class DictionaryTests {
 
     @Test
     public void testGet() {
-        assertThat(d.get(0), is("a \tAT0\tART\ta"));
-        assertThat(d.get(1), is("to \tPRP\tPREP"));
+        assertThat(d.get(0), is("a\tAT0\tART\ta"));
+        assertThat(d.get(1), is("to\tPRP\tPREP"));
     }
 
     @Test

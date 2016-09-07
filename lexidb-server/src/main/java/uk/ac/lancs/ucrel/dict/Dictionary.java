@@ -14,6 +14,7 @@ public class Dictionary {
     private Map<String, DictionaryEntry> stringToEntry = new HashMap<String, DictionaryEntry>();
     private Map<String, List<String>> wordToString = new HashMap<String, List<String>>();
     private DictionaryEntry[] valueToEntry;
+    private List<Map<String, List<DictionaryEntry>>> indexTrees = new ArrayList<Map<String, List<DictionaryEntry>>>();
     private boolean finalised = false;
 
     /**
@@ -68,6 +69,31 @@ public class Dictionary {
             System.err.println(e.getMessage());
         }
         return d;
+    }
+
+    /**
+     * Generates indexes for each column in the dictionary.
+     */
+    public void loadIndexTrees(){
+        int indexCount = stringToEntry.values().iterator().next().getTags().size() + 1;
+        for(int i = 0; i < indexCount; i++){
+            indexTrees.add(new HashMap<String, List<DictionaryEntry>>());
+        }
+        for(DictionaryEntry de : stringToEntry.values()){
+            Map<String, List<DictionaryEntry>> wordTree = indexTrees.get(0);
+            if(!wordTree.containsKey(de.getWord()))
+                wordTree.put(de.getWord(), new ArrayList<DictionaryEntry>());
+            wordTree.get(de.getWord()).add(de);
+
+            int i = 1;
+            for(String tag : de.getTags()){
+                Map<String, List<DictionaryEntry>> tree = indexTrees.get(i);
+                if(!tree.containsKey(tag))
+                    tree.put(tag, new ArrayList<DictionaryEntry>());
+                tree.get(tag).add(de);
+                i++;
+            }
+        }
     }
 
     /**
@@ -137,6 +163,17 @@ public class Dictionary {
         return stringToEntry.get(s).getValue();
     }
 
+    public Integer[] get(String s, int column){
+        List<DictionaryEntry> results = indexTrees.get(column).get(s);
+        List<Integer> list = new ArrayList<Integer>();
+        for(DictionaryEntry de : results){
+            list.add(de.getValue());
+        }
+        Integer[] nums = list.toArray(new Integer[0]);
+        Arrays.sort(nums);
+        return nums;
+    }
+
     public List<Integer> getWords(String s) {
         List<Integer> li = new ArrayList<Integer>();
         if (wordToString.containsKey(s)) {
@@ -158,7 +195,7 @@ public class Dictionary {
             finalise();
         if (i == -1)
             return "";
-        return valueToEntry[i].getWord();
+        return valueToEntry[i].toString();
     }
 
     public int count(String s) {
