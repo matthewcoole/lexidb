@@ -80,6 +80,8 @@ public class LocalNgramOperationImpl implements NgramOperation {
         List<Ngram> page = new ArrayList<Ngram>();
         for (int i = currentPos + pageLength; currentPos < i; currentPos++) {
             page.add(ngrams.get(currentPos));
+            if(currentPos == ngrams.size() - 1)
+                break;
         }
         return page;
     }

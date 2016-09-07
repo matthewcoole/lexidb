@@ -71,6 +71,9 @@ public class KwicCommand extends Command {
     }
 
     public void print(List<Kwic> lines) {
+        if(lines.size() == 0)
+            return;
+
         ANSIColourFormatter ansi = new ANSIColourFormatter();
 
         for (Kwic l : lines) {
@@ -86,5 +89,6 @@ public class KwicCommand extends Command {
         for (Kwic l : lines) {
             System.out.println(align.pad(l, ansi));
         }
+        System.out.println();
     }
 }
