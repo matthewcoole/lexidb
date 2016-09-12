@@ -7,6 +7,7 @@ import uk.ac.lancs.ucrel.ops.NgramOperation;
 import uk.ac.lancs.ucrel.rmi.Server;
 
 import java.rmi.RemoteException;
+import java.util.Arrays;
 import java.util.List;
 
 public class NgramCommand extends Command {
@@ -36,7 +37,20 @@ public class NgramCommand extends Command {
             boolean reverse = line.hasOption("r");
             details = line.hasOption("d");
 
-            ng.search(line.getArgs()[1], Integer.parseInt(line.getArgs()[2]), pos, page, reverse);
+            List<String> st = line.getArgList().subList(1, line.getArgList().size());
+
+            int n = Integer.parseInt(st.get(st.size() - 1));
+
+            st = st.subList(0, st.size() - 2);
+
+            String[] searchTerms = st.toArray(new String[0]);
+
+            for(int i = 0; i < searchTerms.length; i++){
+                if(searchTerms[i].equals("\\null"))
+                    searchTerms[i] = null;
+            }
+
+            ng.search(searchTerms, n, pos, page, reverse);
 
             System.out.println("\n" + ng.getLength() + " results for \"" + line.getArgs()[1] + "\" in " + ng.getTime() + "ms.\n");
 

@@ -7,6 +7,7 @@ import uk.ac.lancs.ucrel.ds.Kwic;
 import uk.ac.lancs.ucrel.ops.KwicOperation;
 import uk.ac.lancs.ucrel.rmi.Server;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class KwicCommand extends Command {
     private boolean details;
 
     public KwicCommand(Server s) {
-        super("kwic [TERM]", "Perform a keyword-in-context search for [TERM] ([TERM] may be a regular expression).");
+        super("kwic [TERM] [TAGS]...", "Perform a keyword-in-context search for [TERM] /w [TAGS]... ([TERM] & [TAGS] may be regular expressions).");
         this.s = s;
         this.ops.addOption("h", "help", false, "display help information");
         this.ops.addOption("l", "limit", true, "limit results returned, 0 returns all results - default " + limit);
@@ -44,7 +45,16 @@ public class KwicCommand extends Command {
             boolean reverse = line.hasOption("r");
             details = line.hasOption("d");
 
-            k.search(line.getArgs()[1],
+            List<String> st = line.getArgList().subList(1, line.getArgList().size());
+
+            String[] searchTerms = st.toArray(new String[0]);
+
+            for(int i = 0; i < searchTerms.length; i++){
+                if(searchTerms[i].equals("\\null"))
+                    searchTerms[i] = null;
+            }
+
+            k.search(searchTerms,
                     context,
                     limit,
                     sortType,

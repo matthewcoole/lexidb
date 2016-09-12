@@ -20,19 +20,10 @@ public class DistKwicOperationImpl implements KwicOperation {
         }
     }
 
-    public void search(String searchTerm, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) throws RemoteException {
+    public void search(String[] searchTerms, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) throws RemoteException {
         long start = System.currentTimeMillis();
         for (KwicOperation k : kwicOperations) {
-            k.search(searchTerm, context, limit, sortType, sortPos, reverseOrder, pageLength);
-        }
-        long end = System.currentTimeMillis();
-        time = end - start;
-    }
-
-    public void newSearch(String[] searchTerms, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) throws RemoteException {
-        long start = System.currentTimeMillis();
-        for (KwicOperation k : kwicOperations) {
-            k.newSearch(searchTerms, context, limit, sortType, sortPos, reverseOrder, pageLength);
+            k.search(searchTerms, context, limit, sortType, sortPos, reverseOrder, pageLength);
         }
         long end = System.currentTimeMillis();
         time = end - start;

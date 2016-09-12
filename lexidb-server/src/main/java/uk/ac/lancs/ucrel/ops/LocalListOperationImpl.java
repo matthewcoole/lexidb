@@ -1,16 +1,14 @@
 package uk.ac.lancs.ucrel.ops;
 
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
+import uk.ac.lancs.ucrel.dict.DictionaryEntry;
 import uk.ac.lancs.ucrel.ds.Word;
 import uk.ac.lancs.ucrel.ds.WordListEntry;
 import uk.ac.lancs.ucrel.sort.list.FrequencyComparator;
 
 import java.nio.file.Path;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class LocalListOperationImpl implements ListOperation {
 
@@ -26,13 +24,13 @@ public class LocalListOperationImpl implements ListOperation {
     }
 
     @Override
-    public void search(String searchTerm, int pageLength, boolean reverseOrder) throws RemoteException {
+    public void search(String[] searchTerms, int pageLength, boolean reverseOrder) throws RemoteException {
         try {
-            System.out.println("Collocation search for " + searchTerm);
+            System.out.println("Collocation search for " + searchTerms);
             this.pageLength = pageLength;
             long start = System.currentTimeMillis();
             CorpusAccessor ca = CorpusAccessor.getAccessor(dataPath);
-            List<String> words = ca.getWords(searchTerm);
+            List<DictionaryEntry> words = ca.getWords(Arrays.asList(searchTerms));
 
             //TODO
             Map<Integer, Integer> wordlistVals = ca.list(words);

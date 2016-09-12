@@ -21,10 +21,10 @@ public class DistListOperationImpl implements ListOperation {
     }
 
     @Override
-    public void search(String searchTerm, int pageLength, boolean reverseOrder) throws RemoteException {
+    public void search(String[] searchTerms, int pageLength, boolean reverseOrder) throws RemoteException {
         long start = System.currentTimeMillis();
         for (ListOperation l : lists) {
-            l.search(searchTerm, pageLength, reverseOrder);
+            l.search(searchTerms, pageLength, reverseOrder);
         }
         long end = System.currentTimeMillis();
         time = end - start;

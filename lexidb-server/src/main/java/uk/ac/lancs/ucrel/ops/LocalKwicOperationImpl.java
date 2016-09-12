@@ -22,7 +22,7 @@ public class LocalKwicOperationImpl implements KwicOperation {
     public LocalKwicOperationImpl(Path dataPath) {
         this.dataPath = dataPath;
     }
-
+/*
     @Override
     public void search(String searchTerm, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) throws RemoteException {
         try {
@@ -40,14 +40,14 @@ public class LocalKwicOperationImpl implements KwicOperation {
             throw new RemoteException(e.toString());
         }
     }
-
-    public void newSearch(String[] searchTerm, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) throws RemoteException {
+*/
+    public void search(String[] searchTerm, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) throws RemoteException {
         try {
             long start = System.currentTimeMillis();
             this.pageLength = pageLength;
             CorpusAccessor ca = CorpusAccessor.getAccessor(dataPath);
-            newWords = ca.getNewWords(Arrays.asList(searchTerm));
-            contexts = ca.newContext(newWords, context, context, limit);
+            newWords = ca.getWords(Arrays.asList(searchTerm));
+            contexts = ca.context(newWords, context, context, limit);
             sort(sortType, sortPos, reverseOrder, context);
             long end = System.currentTimeMillis();
             time = end -start;

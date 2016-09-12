@@ -21,10 +21,10 @@ public class DistNgramOperationImpl implements NgramOperation {
     }
 
     @Override
-    public void search(String searchTerm, int n, int pos, int pageLength, boolean reverseOrder) throws RemoteException {
+    public void search(String[] searchTerms, int n, int pos, int pageLength, boolean reverseOrder) throws RemoteException {
         long start = System.currentTimeMillis();
         for (NgramOperation ng : ngramOperations) {
-            ng.search(searchTerm, n, pos, pageLength, reverseOrder);
+            ng.search(searchTerms, n, pos, pageLength, reverseOrder);
         }
         long end = System.currentTimeMillis();
         time = end - start;

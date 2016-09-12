@@ -7,7 +7,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 public interface CollocateOperation extends Remote {
-    void search(String searchTerm, int contextLeft, int contextRight, int pageLength, boolean reverseOrder) throws RemoteException;
+    void search(String[] searchTerms, int contextLeft, int contextRight, int pageLength, boolean reverseOrder) throws RemoteException;
 
     List<Collocate> it() throws RemoteException;
 

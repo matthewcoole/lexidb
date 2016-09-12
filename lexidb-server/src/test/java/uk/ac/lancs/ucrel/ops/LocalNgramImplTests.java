@@ -12,7 +12,7 @@ public class LocalNgramImplTests {
     @Test
     public void test() throws RemoteException {
         LocalNgramOperationImpl ng = new LocalNgramOperationImpl(Paths.get("/home/mpc/data"));
-        ng.search("the", 2, 0, 10, false);
+        ng.search(new String[]{"the"}, 2, 0, 10, false);
         List<Ngram> results = ng.it();
         for (Ngram ngg : results) {
             System.out.println(ngg);

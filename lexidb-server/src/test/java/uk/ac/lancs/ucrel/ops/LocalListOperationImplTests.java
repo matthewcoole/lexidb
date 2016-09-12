@@ -12,7 +12,7 @@ public class LocalListOperationImplTests {
     @Test
     public void test() throws RemoteException {
         LocalListOperationImpl l = new LocalListOperationImpl(Paths.get("/home/mpc/data"));
-        l.search(".*", 20, false);
+        l.search(new String[]{".*"}, 20, false);
         List<WordListEntry> results = l.it();
         for (WordListEntry e : results) {
             System.out.println(e);

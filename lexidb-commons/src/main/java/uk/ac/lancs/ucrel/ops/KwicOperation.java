@@ -7,9 +7,9 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 public interface KwicOperation extends Remote {
-    void search(String searchTerm, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) throws RemoteException;
+    void search(String[] searchTerms, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) throws RemoteException;
 
-    void newSearch(String[] searchTerms, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) throws RemoteException;
+    //void newSearch(String[] searchTerms, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) throws RemoteException;
 
     List<Kwic> it() throws RemoteException;
 

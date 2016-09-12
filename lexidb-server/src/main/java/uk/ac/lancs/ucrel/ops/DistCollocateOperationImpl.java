@@ -21,10 +21,10 @@ public class DistCollocateOperationImpl implements CollocateOperation {
     }
 
     @Override
-    public void search(String searchTerm, int contextLeft, int contextRight, int pageLength, boolean reverseOrder) throws RemoteException {
+    public void search(String[] searchTerms, int contextLeft, int contextRight, int pageLength, boolean reverseOrder) throws RemoteException {
         long start = System.currentTimeMillis();
         for (CollocateOperation c : cols) {
-            c.search(searchTerm, contextLeft, contextRight, pageLength, reverseOrder);
+            c.search(searchTerms, contextLeft, contextRight, pageLength, reverseOrder);
         }
         long end = System.currentTimeMillis();
         time = end - start;

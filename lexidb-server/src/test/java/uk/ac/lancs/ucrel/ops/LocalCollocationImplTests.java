@@ -11,7 +11,7 @@ public class LocalCollocationImplTests {
     @Test
     public void test() throws RemoteException {
         LocalCollocateOperationImpl col = new LocalCollocateOperationImpl(Paths.get("/home/mpc/data"));
-        col.search("test", 1, 0, 10, false);
+        col.search(new String[]{"test"}, 1, 0, 10, false);
         List<Collocate> cols = col.it();
         for (Collocate c : cols) {
             System.out.println(c);

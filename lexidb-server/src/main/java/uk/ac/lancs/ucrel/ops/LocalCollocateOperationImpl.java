@@ -1,6 +1,7 @@
 package uk.ac.lancs.ucrel.ops;
 
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
+import uk.ac.lancs.ucrel.dict.DictionaryEntry;
 import uk.ac.lancs.ucrel.ds.Collocate;
 import uk.ac.lancs.ucrel.ds.Word;
 import uk.ac.lancs.ucrel.sort.col.FrequencyComparator;
@@ -24,13 +25,13 @@ public class LocalCollocateOperationImpl implements CollocateOperation {
     }
 
     @Override
-    public void search(String searchTerm, int leftContext, int rightContext, int pageLength, boolean reverseOrder) throws RemoteException {
+    public void search(String[] searchTerms, int leftContext, int rightContext, int pageLength, boolean reverseOrder) throws RemoteException {
         try {
-            System.out.println("Collocation search for " + searchTerm);
+            System.out.println("Collocation search for " + searchTerms);
             this.pageLength = pageLength;
             long start = System.currentTimeMillis();
             CorpusAccessor ca = CorpusAccessor.getAccessor(dataPath);
-            List<String> words = ca.getWords(searchTerm);
+            List<DictionaryEntry> words = ca.getWords(Arrays.asList(searchTerms));
             List<int[]> contexts = ca.context(words, leftContext, rightContext, 0);
             collocatesMap = new HashMap<String, Collocate>();
             for (int[] c : contexts) {
@@ -41,8 +42,8 @@ public class LocalCollocateOperationImpl implements CollocateOperation {
                     collocatesMap.get(w.toString()).increment();
                 }
             }
-            for (String s : words) {
-                collocatesMap.remove(s);
+            for (DictionaryEntry de : words) {
+                collocatesMap.remove(de.getWord());
             }
             collocates = new ArrayList<Collocate>();
             collocates.addAll(collocatesMap.values());

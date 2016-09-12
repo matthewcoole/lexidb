@@ -34,7 +34,16 @@ public class ListCommand extends Command {
             boolean reverseOrder = line.hasOption("r");
             details = line.hasOption("d");
 
-            lop.search(line.getArgs()[1], page, reverseOrder);
+            List<String> st = line.getArgList().subList(1, line.getArgList().size());
+
+            String[] searchTerms = st.toArray(new String[0]);
+
+            for(int i = 0; i < searchTerms.length; i++){
+                if(searchTerms[i].equals("\\null"))
+                    searchTerms[i] = null;
+            }
+
+            lop.search(searchTerms, page, reverseOrder);
 
             System.out.println("\n" + lop.getLength() + " results for \"" + line.getArgs()[1] + "\" in " + lop.getTime() + "ms.\n");
 

@@ -1,5 +1,8 @@
 package uk.ac.lancs.ucrel.corpus;
 
+import dk.brics.automaton.Automaton;
+import dk.brics.automaton.RegExp;
+import dk.brics.automaton.RunAutomaton;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import uk.ac.lancs.ucrel.access.Accessor;
@@ -61,7 +64,7 @@ public class CorpusAccessor extends Accessor {
         return d.size();
     }
 
-    private List<String> regex(String regex) throws IOException {
+    /*private List<String> regex(String regex) throws IOException {
         Pattern p = Pattern.compile(regex);
         List<String> matches = new ArrayList<String>();
         for (String word : d.getEntries()) {
@@ -71,15 +74,15 @@ public class CorpusAccessor extends Accessor {
             }
         }
         return matches;
-    }
+    }*/
 
-    public Map<Integer, Integer> list(String word) {
-        List<String> words = new ArrayList<>();
+    public Map<Integer, Integer> list(DictionaryEntry word) {
+        List<DictionaryEntry> words = new ArrayList<>();
         words.add(word);
         return list(words);
     }
 
-    public Map<Integer, Integer> list(List<String> words) {
+    public Map<Integer, Integer> list(List<DictionaryEntry> words) {
         Map<Integer, Integer> freq = new HashMap<Integer, Integer>();
         List<Integer> numericaValues = getNumericValues(words);
         for (int val : numericaValues) {
@@ -88,35 +91,35 @@ public class CorpusAccessor extends Accessor {
         return freq;
     }
 
-    public List<int[]> context(List<String> words, int leftContext, int rightContext, int limit) throws IOException {
+    /*public List<int[]> context(List<String> words, int leftContext, int rightContext, int limit) throws IOException {
+        List<Integer> numericValues = getNumericValues(words);
+        Map<Integer, IndexEntry> indexEntries = getIndexPositions(numericValues);
+        getIndexEntryValues(indexEntries);
+        return getContexts(indexEntries, leftContext, rightContext, limit);
+    }*/
+
+    public List<int[]> context(List<DictionaryEntry> words, int leftContext, int rightContext, int limit) throws IOException {
         List<Integer> numericValues = getNumericValues(words);
         Map<Integer, IndexEntry> indexEntries = getIndexPositions(numericValues);
         getIndexEntryValues(indexEntries);
         return getContexts(indexEntries, leftContext, rightContext, limit);
     }
 
-    public List<int[]> newContext(List<DictionaryEntry> words, int leftContext, int rightContext, int limit) throws IOException {
-        List<Integer> numericValues = newGetNumericValues(words);
-        Map<Integer, IndexEntry> indexEntries = getIndexPositions(numericValues);
-        getIndexEntryValues(indexEntries);
-        return getContexts(indexEntries, leftContext, rightContext, limit);
-    }
-
-    public List<String> getWords(String searchTerm) throws IOException {
+    /*public List<String> getWords(String searchTerm) throws IOException {
         List<String> words = new ArrayList<>();
         if (isRegex(searchTerm))
             words.addAll(regex(searchTerm));
         else
             words.add(searchTerm);
         return words;
-    }
+    }*/
 
-    public List<DictionaryEntry> getNewWords(List<String> searchTerm) throws IOException {
+    public List<DictionaryEntry> getWords(List<String> searchTerms) throws IOException {
         List<List<DictionaryEntry>> allWords = new ArrayList<List<DictionaryEntry>>();
-        for(int i = 0; i < searchTerm.size(); i++){
-            if(searchTerm == null)
+        for(int i = 0; i < searchTerms.size(); i++){
+            if(searchTerms.get(i) == null)
                 continue;
-            allWords.addAll(getNewWords(searchTerm.get(i), i));
+            allWords.addAll(getWords(searchTerms.get(i), i));
         }
         return intersect(allWords);
     }
@@ -139,22 +142,25 @@ public class CorpusAccessor extends Accessor {
         return smallest;
     }
 
-    public List<List<DictionaryEntry>> getNewWords(String searchTerm, int column){
+    public List<List<DictionaryEntry>> getWords(String searchTerm, int column){
         List<List<DictionaryEntry>> words = new ArrayList<List<DictionaryEntry>>();
         if(searchTerm == null)
             return words;
         if(isRegex(searchTerm))
-            words.add(newRegex(searchTerm, column));
+            words.add(regex(searchTerm, column));
         else
             words.add(d.getEntries(searchTerm, column));
         return words;
     }
 
-    public List<DictionaryEntry> newRegex(String regex, int column){
+    public List<DictionaryEntry> regex(String regex, int column){
+        RegExp re = new RegExp(regex);
+        Automaton a = re.toAutomaton();
+        RunAutomaton ra = new RunAutomaton(a);
         Pattern p = Pattern.compile(regex);
         List<DictionaryEntry> matches = new ArrayList<DictionaryEntry>();
         for (String key : d.getKeys(column)) {
-            if (p.matcher(key).matches()) {
+            if (ra.run(key)) {
                 matches.addAll(d.getEntries(key, column));
             }
         }
@@ -178,7 +184,7 @@ public class CorpusAccessor extends Accessor {
         }
         return indexEntries;
     }
-
+/*
     private List<Integer> getNumericValues(List<String> words) {
         List<Integer> numericValues = new ArrayList<Integer>();
         for (String w : words) {
@@ -186,8 +192,8 @@ public class CorpusAccessor extends Accessor {
         }
         return numericValues;
     }
-
-    private List<Integer> newGetNumericValues(List<DictionaryEntry> words){
+*/
+    private List<Integer> getNumericValues(List<DictionaryEntry> words){
         List<Integer> numericValues = new ArrayList<Integer>();
         for(DictionaryEntry de : words){
             numericValues.add(de.getValue());

@@ -1,6 +1,7 @@
 package uk.ac.lancs.ucrel.ops;
 
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
+import uk.ac.lancs.ucrel.dict.DictionaryEntry;
 import uk.ac.lancs.ucrel.ds.Ngram;
 import uk.ac.lancs.ucrel.sort.ngram.FrequencyComparator;
 
@@ -14,7 +15,7 @@ public class LocalNgramOperationImpl implements NgramOperation {
     List<Ngram> ngrams = new ArrayList<Ngram>();
     private Path dataPath;
     private int pageLength, currentPos;
-    private List<String> words;
+    private List<DictionaryEntry> words;
     private long time;
 
     public LocalNgramOperationImpl(Path dataPath) {
@@ -22,13 +23,13 @@ public class LocalNgramOperationImpl implements NgramOperation {
     }
 
     @Override
-    public void search(String searchTerm, int n, int pos, int pageLength, boolean reverseOrder) throws RemoteException {
+    public void search(String[] searchTerms, int n, int pos, int pageLength, boolean reverseOrder) throws RemoteException {
         try {
-            System.out.println("ngram for " + searchTerm);
+            System.out.println("ngram for " + searchTerms);
             long start = System.currentTimeMillis();
             this.pageLength = pageLength;
             CorpusAccessor ca = CorpusAccessor.getAccessor(dataPath);
-            words = ca.getWords(searchTerm);
+            words = ca.getWords(Arrays.asList(searchTerms));
             List<int[]> contexts;
 
             /*TODO: This can be improved by working out how big the context needs to be to capture all ngrams in one
