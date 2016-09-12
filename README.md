@@ -4,6 +4,11 @@ lexidb is a distributed corpus database. It's design is based on the output of C
 
 lexidb functionality;
 - Concordances (Keyword In Context)
-  - [Regular expressions](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html) supported.
-  - Sorting (lexically and by frequency).
+  - Sorting (lexically and by frequency)
+- Clusters (NGrams)
+  - Limitless values for n
+- Collocations
+  - Statistics window support only
 - Word lists
+
+Search terms may specify tags and support [Regular expressions](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html).
