@@ -1,21 +1,21 @@
 package uk.ac.lancs.ucrel.ops;
 
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
+import uk.ac.lancs.ucrel.dict.DictionaryEntry;
 import uk.ac.lancs.ucrel.ds.Kwic;
 import uk.ac.lancs.ucrel.sort.kwic.FrequencyComparator;
 import uk.ac.lancs.ucrel.sort.kwic.LexicalComparator;
 
 import java.nio.file.Path;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class LocalKwicOperationImpl implements KwicOperation {
 
     private Path dataPath;
     private List<int[]> contexts;
     private List<String> words;
+    private List<DictionaryEntry> newWords;
     private long time;
     private int position, pageLength;
 
@@ -36,6 +36,22 @@ public class LocalKwicOperationImpl implements KwicOperation {
             long end = System.currentTimeMillis();
             time = end - start;
         } catch (Exception e) {
+            e.printStackTrace();
+            throw new RemoteException(e.toString());
+        }
+    }
+
+    public void newSearch(String[] searchTerm, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) throws RemoteException {
+        try {
+            long start = System.currentTimeMillis();
+            this.pageLength = pageLength;
+            CorpusAccessor ca = CorpusAccessor.getAccessor(dataPath);
+            newWords = ca.getNewWords(Arrays.asList(searchTerm));
+            contexts = ca.newContext(newWords, context, context, limit);
+            sort(sortType, sortPos, reverseOrder, context);
+            long end = System.currentTimeMillis();
+            time = end -start;
+        } catch (Exception e){
             e.printStackTrace();
             throw new RemoteException(e.toString());
         }

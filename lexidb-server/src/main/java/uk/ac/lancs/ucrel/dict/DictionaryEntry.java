@@ -61,8 +61,17 @@ public class DictionaryEntry {
     }
 
     public boolean equals(Object o) {
-        if (o instanceof DictionaryEntry)
-            return ((DictionaryEntry) o).getWord().equals(word);
+        if (o instanceof DictionaryEntry){
+            DictionaryEntry de = (DictionaryEntry)o;
+            if(de.getWord().equals(word)){
+                if(de.getTags().size() == tags.size())
+                    for(int i = 0; i < tags.size(); i++){
+                        if(!de.getTags().get(i).equals(tags.get(i)))
+                            return false;
+                    }
+                return true;
+            }
+        }
         return false;
     }
 

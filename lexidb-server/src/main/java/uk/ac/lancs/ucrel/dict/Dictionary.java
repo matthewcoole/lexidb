@@ -12,6 +12,7 @@ import java.util.*;
 public class Dictionary {
 
     private Map<String, DictionaryEntry> stringToEntry = new HashMap<String, DictionaryEntry>();
+    private Map<DictionaryEntry, Integer> entryToValue = new HashMap<DictionaryEntry, Integer>();
     private Map<String, List<String>> wordToString = new HashMap<String, List<String>>();
     private DictionaryEntry[] valueToEntry;
     private List<Map<String, List<DictionaryEntry>>> indexTrees = new ArrayList<Map<String, List<DictionaryEntry>>>();
@@ -75,7 +76,12 @@ public class Dictionary {
      * Generates indexes for each column in the dictionary.
      */
     public void loadIndexTrees(){
-        int indexCount = stringToEntry.values().iterator().next().getTags().size() + 1;
+        int n = stringToEntry.values().size()/5;
+        Iterator<DictionaryEntry> it = stringToEntry.values().iterator();
+        for(int i = 0; i < n; i++){
+            it.next();
+        }
+        int indexCount = it.next().getTags().size() + 1;
         for(int i = 0; i < indexCount; i++){
             indexTrees.add(new HashMap<String, List<DictionaryEntry>>());
         }
@@ -146,7 +152,9 @@ public class Dictionary {
     private void finalise() {
         valueToEntry = new DictionaryEntry[stringToEntry.size()];
         for (String s : stringToEntry.keySet()) {
-            valueToEntry[stringToEntry.get(s).getValue()] = stringToEntry.get(s);
+            int val = stringToEntry.get(s).getValue();
+            valueToEntry[val] = stringToEntry.get(s);
+            entryToValue.put(stringToEntry.get(s), val);
         }
         finalised = true;
     }
@@ -180,6 +188,14 @@ public class Dictionary {
             for (String word : wordToString.get(s)) {
                 li.add(get(word));
             }
+        }
+        return li;
+    }
+
+    public List<Integer> getNumericValues(DictionaryEntry de){
+        List<Integer> li = new ArrayList<Integer>();
+        if (entryToValue.containsKey(de)) {
+            li.add(entryToValue.get(de));
         }
         return li;
     }
@@ -242,5 +258,18 @@ public class Dictionary {
         List<String> entries = new ArrayList<String>(stringToEntry.keySet());
         Collections.sort(entries);
         return entries;
+    }
+
+    public List<String> getKeys(int column){
+        List<String> entries = new ArrayList<String>();
+        entries.addAll(indexTrees.get(column).keySet());
+        return entries;
+    }
+
+    public List<DictionaryEntry> getEntries(String key, int column){
+        if(column < indexTrees.size() && indexTrees.get(column).containsKey(key))
+            return indexTrees.get(column).get(key);
+        else
+            return new ArrayList<DictionaryEntry>();
     }
 }

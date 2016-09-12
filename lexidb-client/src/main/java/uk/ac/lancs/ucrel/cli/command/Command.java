@@ -35,6 +35,7 @@ public abstract class Command implements Comparable<Command> {
         defaultCommands.add(new ExitCommand());
         defaultCommands.add(new InsertCommand(s));
         defaultCommands.add(new KwicCommand(s));
+        defaultCommands.add(new NewKwicCommand(s));
         defaultCommands.add(new NgramCommand(s));
         defaultCommands.add(new ColCommand(s));
         defaultCommands.add(new ListCommand(s));

@@ -4,6 +4,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import uk.ac.lancs.ucrel.access.Accessor;
 import uk.ac.lancs.ucrel.dict.Dictionary;
+import uk.ac.lancs.ucrel.dict.DictionaryEntry;
 import uk.ac.lancs.ucrel.ds.Kwic;
 import uk.ac.lancs.ucrel.ds.Word;
 import uk.ac.lancs.ucrel.index.IndexEntry;
@@ -13,10 +14,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class CorpusAccessor extends Accessor {
@@ -35,9 +33,15 @@ public class CorpusAccessor extends Accessor {
     }
 
     public static CorpusAccessor getAccessor(Path dataPath) throws IOException {
-        if (!accessors.containsKey(dataPath.toString()))
+        if (!accessors.containsKey(dataPath.toString())) {
             accessors.put(dataPath.toString(), new CorpusAccessor(dataPath));
+            accessors.get(dataPath.toString()).buildIndexes();
+        }
         return accessors.get(dataPath.toString());
+    }
+
+    private void buildIndexes(){
+        d.loadIndexTrees();
     }
 
     public static void invalidate(Path dataPath) {
@@ -91,6 +95,13 @@ public class CorpusAccessor extends Accessor {
         return getContexts(indexEntries, leftContext, rightContext, limit);
     }
 
+    public List<int[]> newContext(List<DictionaryEntry> words, int leftContext, int rightContext, int limit) throws IOException {
+        List<Integer> numericValues = newGetNumericValues(words);
+        Map<Integer, IndexEntry> indexEntries = getIndexPositions(numericValues);
+        getIndexEntryValues(indexEntries);
+        return getContexts(indexEntries, leftContext, rightContext, limit);
+    }
+
     public List<String> getWords(String searchTerm) throws IOException {
         List<String> words = new ArrayList<>();
         if (isRegex(searchTerm))
@@ -98,6 +109,56 @@ public class CorpusAccessor extends Accessor {
         else
             words.add(searchTerm);
         return words;
+    }
+
+    public List<DictionaryEntry> getNewWords(List<String> searchTerm) throws IOException {
+        List<List<DictionaryEntry>> allWords = new ArrayList<List<DictionaryEntry>>();
+        for(int i = 0; i < searchTerm.size(); i++){
+            if(searchTerm == null)
+                continue;
+            allWords.addAll(getNewWords(searchTerm.get(i), i));
+        }
+        return intersect(allWords);
+    }
+
+    private List<DictionaryEntry> intersect(List<List<DictionaryEntry>> entries){
+        List<DictionaryEntry> initial = removeSmallest(entries);
+        while(entries.size() > 0) {
+            initial.retainAll(removeSmallest(entries));
+        }
+        return initial;
+    }
+
+    private List<DictionaryEntry> removeSmallest(List<List<DictionaryEntry>> entries){
+        List<DictionaryEntry> smallest = null;
+        for(List<DictionaryEntry> lde : entries){
+            if(smallest == null || smallest.size() > lde.size())
+                smallest = lde;
+        }
+        entries.remove(smallest);
+        return smallest;
+    }
+
+    public List<List<DictionaryEntry>> getNewWords(String searchTerm, int column){
+        List<List<DictionaryEntry>> words = new ArrayList<List<DictionaryEntry>>();
+        if(searchTerm == null)
+            return words;
+        if(isRegex(searchTerm))
+            words.add(newRegex(searchTerm, column));
+        else
+            words.add(d.getEntries(searchTerm, column));
+        return words;
+    }
+
+    public List<DictionaryEntry> newRegex(String regex, int column){
+        Pattern p = Pattern.compile(regex);
+        List<DictionaryEntry> matches = new ArrayList<DictionaryEntry>();
+        for (String key : d.getKeys(column)) {
+            if (p.matcher(key).matches()) {
+                matches.addAll(d.getEntries(key, column));
+            }
+        }
+        return matches;
     }
 
     private boolean isRegex(String s) {
@@ -122,6 +183,14 @@ public class CorpusAccessor extends Accessor {
         List<Integer> numericValues = new ArrayList<Integer>();
         for (String w : words) {
             numericValues.addAll(d.getWords(w));
+        }
+        return numericValues;
+    }
+
+    private List<Integer> newGetNumericValues(List<DictionaryEntry> words){
+        List<Integer> numericValues = new ArrayList<Integer>();
+        for(DictionaryEntry de : words){
+            numericValues.add(de.getValue());
         }
         return numericValues;
     }
