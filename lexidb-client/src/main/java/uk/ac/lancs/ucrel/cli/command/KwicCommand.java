@@ -9,6 +9,7 @@ import uk.ac.lancs.ucrel.rmi.Server;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.util.Arrays;
 import java.util.List;
 
 public class KwicCommand extends Command {
@@ -62,7 +63,7 @@ public class KwicCommand extends Command {
                     reverse,
                     page);
 
-            System.out.println("\n" + k.getLength() + " results for \"" + line.getArgs()[1] + "\" in " + k.getTime() + "ms.\n");
+            System.out.println("\n" + k.getLength() + " concordance lines for \"" + Arrays.toString(searchTerms) + "\" retrieved in " + k.getTime() + "ms.\n");
 
             it();
 

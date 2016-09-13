@@ -1,5 +1,7 @@
 package uk.ac.lancs.ucrel.peer;
 
+import org.apache.log4j.Logger;
+import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
 import uk.ac.lancs.ucrel.ops.*;
 
 import java.nio.file.Paths;
@@ -17,6 +19,8 @@ import java.util.concurrent.Executors;
 
 public class PeerImpl implements Peer {
 
+    private static Logger LOG = Logger.getLogger(PeerImpl.class);
+
     private String host, dataPath;
     private int port;
     private String[] peers;
@@ -29,7 +33,18 @@ public class PeerImpl implements Peer {
         this.port = port;
         this.dataPath = dataPath;
         this.peers = peers;
+        loadDB(dataPath);
         available = true;
+    }
+
+    private static void loadDB(String dataPath){
+        try {
+            LOG.info("Loading database. Please wait...");
+            CorpusAccessor.getAccessor(Paths.get(dataPath));
+            LOG.info("Database loaded.");
+        } catch (Exception e){
+            LOG.error(e.getMessage());
+        }
     }
 
     private static String getHost(String serverString) {
@@ -45,7 +60,7 @@ public class PeerImpl implements Peer {
     }
 
     private static String getServerString(String host, int port) {
-        return new StringBuilder().append(host).append(port).toString();
+        return new StringBuilder().append(host).append(":").append(port).toString();
     }
 
     @Override
@@ -104,7 +119,7 @@ public class PeerImpl implements Peer {
             try {
                 connectToPeer(getHost(server), getPort(server), true);
             } catch (Exception e) {
-                System.out.println("Could not connect to peer " + server);
+                LOG.error("Failed to connect to peer " + server + " - " + e.getMessage());
             }
         }
         while (available) {
@@ -118,11 +133,11 @@ public class PeerImpl implements Peer {
                 try {
                     if (!s.isAvailable()) {
                         connectedPeers.remove(server);
-                        System.out.println(server + " no longer avaialbe.");
+                        LOG.info(server + " no longer available.");
                     }
                 } catch (Exception e) {
                     connectedPeers.remove(server);
-                    System.out.println("Connection to " + server + " lost.");
+                    LOG.error("Connection to " + server + " lost - " + e.getMessage());
                 }
             }
         }
@@ -138,7 +153,7 @@ public class PeerImpl implements Peer {
             connectedPeers.put(getServerString(host, port), p);
             if (notify)
                 p.notify(host, port);
-            System.out.println("Connected to new peer: " + getServerString(host, port));
+            LOG.info("Connected to new peer " + getServerString(host, port));
         }
     }
 
@@ -150,11 +165,11 @@ public class PeerImpl implements Peer {
     @Override
     public void notify(String host, int port) throws RemoteException {
         try {
-            System.out.println("Notification received: " + getServerString(host, port));
+            LOG.debug("Notification received from " + getServerString(host, port));
             if (!connectedPeers.keySet().contains(getServerString(host, port)))
                 connectToPeer(host, port, false);
         } catch (Exception e) {
-            System.err.println("Could not connect to peer " + getServerString(host, port) + ": " + e.getMessage());
+            LOG.error("Could not connect to peer " + getServerString(host, port) + " - " + e.getMessage());
         }
     }
 

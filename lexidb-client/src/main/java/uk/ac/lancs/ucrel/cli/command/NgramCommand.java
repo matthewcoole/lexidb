@@ -52,7 +52,7 @@ public class NgramCommand extends Command {
 
             ng.search(searchTerms, n, pos, page, reverse);
 
-            System.out.println("\n" + ng.getLength() + " results for \"" + line.getArgs()[1] + "\" in " + ng.getTime() + "ms.\n");
+            System.out.println("\n" + ng.getLength() + " " + n + "grams for \"" + Arrays.toString(searchTerms) + "\" retrieved in " + ng.getTime() + "ms.\n");
 
             it();
 

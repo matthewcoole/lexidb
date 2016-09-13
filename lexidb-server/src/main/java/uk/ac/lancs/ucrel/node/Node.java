@@ -1,5 +1,6 @@
 package uk.ac.lancs.ucrel.node;
 
+import org.apache.log4j.Logger;
 import uk.ac.lancs.ucrel.peer.Peer;
 import uk.ac.lancs.ucrel.peer.PeerImpl;
 import uk.ac.lancs.ucrel.rmi.Server;
@@ -15,6 +16,8 @@ public class Node {
     private Properties p;
     private Server serverObject;
     private Peer peerObject;
+
+    private static Logger LOG = Logger.getLogger(Node.class);
 
     public Node(Properties p) {
         this.p = p;
@@ -38,7 +41,7 @@ public class Node {
 
             ((PeerImpl) peerObject).connectToPeers();
 
-            System.out.println("Waiting for connections on port " + port);
+            LOG.info("Listening for peers on port " + port);
 
             while (!((ServerImpl) serverObject).isShutdown()) {
                 Thread.sleep(3000);
@@ -46,7 +49,7 @@ public class Node {
 
             ((PeerImpl) peerObject).shutdown();
 
-            System.out.println("Shutting down...");
+            LOG.info("Shuting down...");
 
         } catch (Exception e) {
             e.printStackTrace();

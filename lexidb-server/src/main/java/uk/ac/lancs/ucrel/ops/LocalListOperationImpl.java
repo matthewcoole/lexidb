@@ -1,5 +1,6 @@
 package uk.ac.lancs.ucrel.ops;
 
+import org.apache.log4j.Logger;
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
 import uk.ac.lancs.ucrel.dict.DictionaryEntry;
 import uk.ac.lancs.ucrel.ds.Word;
@@ -11,6 +12,8 @@ import java.rmi.RemoteException;
 import java.util.*;
 
 public class LocalListOperationImpl implements ListOperation {
+
+    private static Logger LOG = Logger.getLogger(LocalListOperationImpl.class);
 
     private Path dataPath;
     private long time;
@@ -26,13 +29,12 @@ public class LocalListOperationImpl implements ListOperation {
     @Override
     public void search(String[] searchTerms, int pageLength, boolean reverseOrder) throws RemoteException {
         try {
-            System.out.println("Collocation search for " + searchTerms);
+            LOG.debug("List search for " + Arrays.toString(searchTerms));
             this.pageLength = pageLength;
             long start = System.currentTimeMillis();
             CorpusAccessor ca = CorpusAccessor.getAccessor(dataPath);
             List<DictionaryEntry> words = ca.getWords(Arrays.asList(searchTerms));
 
-            //TODO
             Map<Integer, Integer> wordlistVals = ca.list(words);
             wordlist = new ArrayList<WordListEntry>();
             for (int i : wordlistVals.keySet()) {

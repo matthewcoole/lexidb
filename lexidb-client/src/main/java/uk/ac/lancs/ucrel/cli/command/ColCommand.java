@@ -9,6 +9,7 @@ import uk.ac.lancs.ucrel.rmi.Server;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ColCommand extends Command {
@@ -55,7 +56,7 @@ public class ColCommand extends Command {
 
             col.search(searchTerms, cl, cr, page, reverseOrder);
 
-            System.out.println("\n" + col.getLength() + " results for \"" + line.getArgs()[1] + "\" in " + col.getTime() + "ms.\n");
+            System.out.println("\n" + col.getLength() + " collocation results for \"" + Arrays.toString(searchTerms) + "\" retrieved in " + col.getTime() + "ms.\n");
 
             it();
 

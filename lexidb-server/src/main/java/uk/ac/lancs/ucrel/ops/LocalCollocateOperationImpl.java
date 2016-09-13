@@ -1,5 +1,6 @@
 package uk.ac.lancs.ucrel.ops;
 
+import org.apache.log4j.Logger;
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
 import uk.ac.lancs.ucrel.dict.DictionaryEntry;
 import uk.ac.lancs.ucrel.ds.Collocate;
@@ -11,6 +12,8 @@ import java.rmi.RemoteException;
 import java.util.*;
 
 public class LocalCollocateOperationImpl implements CollocateOperation {
+
+    private static Logger LOG = Logger.getLogger(LocalCollocateOperationImpl.class);
 
     private Path dataPath;
     private long time;
@@ -27,7 +30,7 @@ public class LocalCollocateOperationImpl implements CollocateOperation {
     @Override
     public void search(String[] searchTerms, int leftContext, int rightContext, int pageLength, boolean reverseOrder) throws RemoteException {
         try {
-            System.out.println("Collocation search for " + searchTerms);
+            LOG.debug("Collocation search for " + Arrays.toString(searchTerms));
             this.pageLength = pageLength;
             long start = System.currentTimeMillis();
             CorpusAccessor ca = CorpusAccessor.getAccessor(dataPath);

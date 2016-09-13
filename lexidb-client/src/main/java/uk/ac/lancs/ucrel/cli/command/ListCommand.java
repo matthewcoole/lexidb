@@ -9,6 +9,7 @@ import uk.ac.lancs.ucrel.rmi.Server;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ListCommand extends Command {
@@ -45,7 +46,7 @@ public class ListCommand extends Command {
 
             lop.search(searchTerms, page, reverseOrder);
 
-            System.out.println("\n" + lop.getLength() + " results for \"" + line.getArgs()[1] + "\" in " + lop.getTime() + "ms.\n");
+            System.out.println("\n" + lop.getLength() + " list results for \"" + Arrays.toString(searchTerms) + "\" retrieved in " + lop.getTime() + "ms.\n");
 
             it();
 

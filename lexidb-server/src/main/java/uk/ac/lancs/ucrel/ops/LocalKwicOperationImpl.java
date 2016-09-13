@@ -1,5 +1,6 @@
 package uk.ac.lancs.ucrel.ops;
 
+import org.apache.log4j.Logger;
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
 import uk.ac.lancs.ucrel.dict.DictionaryEntry;
 import uk.ac.lancs.ucrel.ds.Kwic;
@@ -12,42 +13,26 @@ import java.util.*;
 
 public class LocalKwicOperationImpl implements KwicOperation {
 
+    private static Logger LOG = Logger.getLogger(LocalKwicOperationImpl.class);
+
     private Path dataPath;
     private List<int[]> contexts;
-    private List<String> words;
-    private List<DictionaryEntry> newWords;
+    private List<DictionaryEntry> words;
     private long time;
     private int position, pageLength;
 
     public LocalKwicOperationImpl(Path dataPath) {
         this.dataPath = dataPath;
     }
-/*
-    @Override
-    public void search(String searchTerm, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) throws RemoteException {
+
+    public void search(String[] searchTerms, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) throws RemoteException {
         try {
-            System.out.println("kwic for " + searchTerm);
+            LOG.debug("Kwic search for " + Arrays.toString(searchTerms));
             long start = System.currentTimeMillis();
             this.pageLength = pageLength;
             CorpusAccessor ca = CorpusAccessor.getAccessor(dataPath);
-            words = ca.getWords(searchTerm);
+            words = ca.getWords(Arrays.asList(searchTerms));
             contexts = ca.context(words, context, context, limit);
-            sort(sortType, sortPos, reverseOrder, context);
-            long end = System.currentTimeMillis();
-            time = end - start;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RemoteException(e.toString());
-        }
-    }
-*/
-    public void search(String[] searchTerm, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) throws RemoteException {
-        try {
-            long start = System.currentTimeMillis();
-            this.pageLength = pageLength;
-            CorpusAccessor ca = CorpusAccessor.getAccessor(dataPath);
-            newWords = ca.getWords(Arrays.asList(searchTerm));
-            contexts = ca.context(newWords, context, context, limit);
             sort(sortType, sortPos, reverseOrder, context);
             long end = System.currentTimeMillis();
             time = end -start;

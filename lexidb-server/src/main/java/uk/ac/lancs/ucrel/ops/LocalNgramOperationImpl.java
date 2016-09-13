@@ -1,5 +1,6 @@
 package uk.ac.lancs.ucrel.ops;
 
+import org.apache.log4j.Logger;
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
 import uk.ac.lancs.ucrel.dict.DictionaryEntry;
 import uk.ac.lancs.ucrel.ds.Ngram;
@@ -11,8 +12,10 @@ import java.util.*;
 
 public class LocalNgramOperationImpl implements NgramOperation {
 
-    Map<String, Ngram> ngramsMap = new HashMap<String, Ngram>();
-    List<Ngram> ngrams = new ArrayList<Ngram>();
+    private Logger LOG = Logger.getLogger(LocalNgramOperationImpl.class);
+
+    private Map<String, Ngram> ngramsMap = new HashMap<String, Ngram>();
+    private List<Ngram> ngrams = new ArrayList<Ngram>();
     private Path dataPath;
     private int pageLength, currentPos;
     private List<DictionaryEntry> words;
@@ -25,7 +28,7 @@ public class LocalNgramOperationImpl implements NgramOperation {
     @Override
     public void search(String[] searchTerms, int n, int pos, int pageLength, boolean reverseOrder) throws RemoteException {
         try {
-            System.out.println("ngram for " + Arrays.toString(searchTerms));
+            LOG.debug("ngram search for " + Arrays.toString(searchTerms));
             long start = System.currentTimeMillis();
             this.pageLength = pageLength;
             CorpusAccessor ca = CorpusAccessor.getAccessor(dataPath);
