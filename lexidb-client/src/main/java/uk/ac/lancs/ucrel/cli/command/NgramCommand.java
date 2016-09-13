@@ -41,7 +41,7 @@ public class NgramCommand extends Command {
 
             int n = Integer.parseInt(st.get(st.size() - 1));
 
-            st = st.subList(0, st.size() - 2);
+            st = st.subList(0, st.size() - 1);
 
             String[] searchTerms = st.toArray(new String[0]);
 

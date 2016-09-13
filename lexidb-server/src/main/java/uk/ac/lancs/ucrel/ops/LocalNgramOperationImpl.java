@@ -25,7 +25,7 @@ public class LocalNgramOperationImpl implements NgramOperation {
     @Override
     public void search(String[] searchTerms, int n, int pos, int pageLength, boolean reverseOrder) throws RemoteException {
         try {
-            System.out.println("ngram for " + searchTerms);
+            System.out.println("ngram for " + Arrays.toString(searchTerms));
             long start = System.currentTimeMillis();
             this.pageLength = pageLength;
             CorpusAccessor ca = CorpusAccessor.getAccessor(dataPath);
