@@ -13,7 +13,9 @@ import uk.ac.lancs.ucrel.ds.Word;
 import uk.ac.lancs.ucrel.index.IndexEntry;
 import uk.ac.lancs.ucrel.region.RegionAccessor;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
@@ -64,18 +66,6 @@ public class CorpusAccessor extends Accessor {
         return d.size();
     }
 
-    /*private List<String> regex(String regex) throws IOException {
-        Pattern p = Pattern.compile(regex);
-        List<String> matches = new ArrayList<String>();
-        for (String word : d.getEntries()) {
-            String[] bits = word.split("\t");
-            if (p.matcher(bits[0]).matches()) {
-                matches.add(bits[0]);
-            }
-        }
-        return matches;
-    }*/
-
     public Map<Integer, Integer> list(DictionaryEntry word) {
         List<DictionaryEntry> words = new ArrayList<>();
         words.add(word);
@@ -91,28 +81,12 @@ public class CorpusAccessor extends Accessor {
         return freq;
     }
 
-    /*public List<int[]> context(List<String> words, int leftContext, int rightContext, int limit) throws IOException {
-        List<Integer> numericValues = getNumericValues(words);
-        Map<Integer, IndexEntry> indexEntries = getIndexPositions(numericValues);
-        getIndexEntryValues(indexEntries);
-        return getContexts(indexEntries, leftContext, rightContext, limit);
-    }*/
-
     public List<int[]> context(List<DictionaryEntry> words, int leftContext, int rightContext, int limit) throws IOException {
         List<Integer> numericValues = getNumericValues(words);
         Map<Integer, IndexEntry> indexEntries = getIndexPositions(numericValues);
         getIndexEntryValues(indexEntries);
         return getContexts(indexEntries, leftContext, rightContext, limit);
     }
-
-    /*public List<String> getWords(String searchTerm) throws IOException {
-        List<String> words = new ArrayList<>();
-        if (isRegex(searchTerm))
-            words.addAll(regex(searchTerm));
-        else
-            words.add(searchTerm);
-        return words;
-    }*/
 
     public List<DictionaryEntry> getWords(List<String> searchTerms) throws IOException {
         List<List<DictionaryEntry>> allWords = new ArrayList<List<DictionaryEntry>>();
@@ -229,13 +203,17 @@ public class CorpusAccessor extends Accessor {
             }
         }
         List<int[]> contexts = new ArrayList<int[]>();
+        int regionsAccessed = 0;
         for (int region : numericForEachRegion.keySet()) {
             String regionString = regionNameFormatter.format(region);
-            RegionAccessor ra = new RegionAccessor(Paths.get(getPath().toString(), regionString));
+            //RegionAccessor ra = new RegionAccessor(Paths.get(getPath().toString(), regionString));
+            RegionAccessor ra = RegionAccessor.getAccessor(Paths.get(getPath().toString(), regionString));
+            regionsAccessed++;
             contexts.addAll(ra.contextSearch(numericForEachRegion.get(region), leftContext, rightContext));
             if (limit > 0 && contexts.size() >= limit)
                 break;
         }
+        LOG.debug(regionsAccessed + " regions accessed");
         if (limit > 0 && contexts.size() >= limit)
             contexts = contexts.subList(0, limit);
         return contexts;

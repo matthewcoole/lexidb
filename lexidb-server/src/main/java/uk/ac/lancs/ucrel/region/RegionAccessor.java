@@ -11,21 +11,32 @@ import java.nio.IntBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RegionAccessor extends Accessor {
 
     private static final Logger LOG = LogManager.getLogger(RegionAccessor.class);
 
+    private static Map<String, RegionAccessor> accessors = new HashMap<String, RegionAccessor>();
+
     private int[] corpusToRegionMap;
     private int[] regionToCorpusMap;
 
-    public RegionAccessor(Path regionPath) {
+    public RegionAccessor(Path regionPath) throws IOException {
         setPath(regionPath);
+        regenerateCorpusToRegionMap();
+    }
+
+    public static RegionAccessor getAccessor(Path regionPath) throws IOException {
+        if(!accessors.containsKey(regionPath.toString())){
+            accessors.put(regionPath.toString(), new RegionAccessor(regionPath));
+        }
+        return accessors.get(regionPath.toString());
     }
 
     public List<int[]> contextSearch(List<Integer> words, int left, int right) throws IOException {
-        regenerateCorpusToRegionMap();
         List<Integer> numericValues = getNumericValues(words);
         List<IndexEntry> indexEntries = getIndexPositions(numericValues);
         getIndexEntryValues(indexEntries);

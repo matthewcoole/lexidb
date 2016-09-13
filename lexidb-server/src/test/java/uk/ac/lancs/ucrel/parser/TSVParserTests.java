@@ -10,8 +10,8 @@ public class TSVParserTests {
 
     @Test
     public void test() throws IOException {
-        Path dataPath = Paths.get("/home/mpc/data");
+        Path dataPath = Paths.get("/home/mpc/data_new");
         TSVParser p = new TSVParser(dataPath);
-        p.parse(Paths.get("/home/mpc/bnc_tag"));
+        p.parse(Paths.get("/home/mpc/bnc_s_tag"));
     }
 }

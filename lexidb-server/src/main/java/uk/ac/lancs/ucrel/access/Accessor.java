@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 
 public abstract class Accessor {
 
-    private Path p;
+    protected Path p;
 
     public Path getPath() {
         return p;
