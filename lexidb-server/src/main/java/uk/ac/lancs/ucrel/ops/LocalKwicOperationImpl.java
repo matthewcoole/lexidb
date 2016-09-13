@@ -9,7 +9,10 @@ import uk.ac.lancs.ucrel.sort.kwic.LexicalComparator;
 
 import java.nio.file.Path;
 import java.rmi.RemoteException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class LocalKwicOperationImpl implements KwicOperation {
 
@@ -35,8 +38,8 @@ public class LocalKwicOperationImpl implements KwicOperation {
             contexts = ca.context(words, context, context, limit);
             sort(sortType, sortPos, reverseOrder, context);
             long end = System.currentTimeMillis();
-            time = end -start;
-        } catch (Exception e){
+            time = end - start;
+        } catch (Exception e) {
             e.printStackTrace();
             throw new RemoteException(e.toString());
         }

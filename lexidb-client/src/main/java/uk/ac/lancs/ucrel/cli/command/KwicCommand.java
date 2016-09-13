@@ -7,7 +7,6 @@ import uk.ac.lancs.ucrel.ds.Kwic;
 import uk.ac.lancs.ucrel.ops.KwicOperation;
 import uk.ac.lancs.ucrel.rmi.Server;
 
-import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.List;
@@ -50,8 +49,8 @@ public class KwicCommand extends Command {
 
             String[] searchTerms = st.toArray(new String[0]);
 
-            for(int i = 0; i < searchTerms.length; i++){
-                if(searchTerms[i].equals("\\null"))
+            for (int i = 0; i < searchTerms.length; i++) {
+                if (searchTerms[i].equals("\\null"))
                     searchTerms[i] = null;
             }
 
@@ -82,7 +81,7 @@ public class KwicCommand extends Command {
     }
 
     public void print(List<Kwic> lines, boolean details) {
-        if(lines.size() == 0)
+        if (lines.size() == 0)
             return;
 
         ANSIColourFormatter ansi = new ANSIColourFormatter();

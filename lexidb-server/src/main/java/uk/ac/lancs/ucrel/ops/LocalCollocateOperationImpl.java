@@ -66,7 +66,7 @@ public class LocalCollocateOperationImpl implements CollocateOperation {
         List<Collocate> page = new ArrayList<Collocate>();
         for (int i = currentPos + pageLength; currentPos < i; currentPos++) {
             page.add(collocates.get(currentPos));
-            if(currentPos == collocates.size() - 1)
+            if (currentPos == collocates.size() - 1)
                 break;
         }
         return page;

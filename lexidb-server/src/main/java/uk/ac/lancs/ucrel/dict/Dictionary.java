@@ -75,26 +75,26 @@ public class Dictionary {
     /**
      * Generates indexes for each column in the dictionary.
      */
-    public void loadIndexTrees(){
-        int n = stringToEntry.values().size()/5;
+    public void loadIndexTrees() {
+        int n = stringToEntry.values().size() / 5;
         Iterator<DictionaryEntry> it = stringToEntry.values().iterator();
-        for(int i = 0; i < n; i++){
+        for (int i = 0; i < n; i++) {
             it.next();
         }
         int indexCount = it.next().getTags().size() + 1;
-        for(int i = 0; i < indexCount; i++){
+        for (int i = 0; i < indexCount; i++) {
             indexTrees.add(new HashMap<String, List<DictionaryEntry>>());
         }
-        for(DictionaryEntry de : stringToEntry.values()){
+        for (DictionaryEntry de : stringToEntry.values()) {
             Map<String, List<DictionaryEntry>> wordTree = indexTrees.get(0);
-            if(!wordTree.containsKey(de.getWord()))
+            if (!wordTree.containsKey(de.getWord()))
                 wordTree.put(de.getWord(), new ArrayList<DictionaryEntry>());
             wordTree.get(de.getWord()).add(de);
 
             int i = 1;
-            for(String tag : de.getTags()){
+            for (String tag : de.getTags()) {
                 Map<String, List<DictionaryEntry>> tree = indexTrees.get(i);
-                if(!tree.containsKey(tag))
+                if (!tree.containsKey(tag))
                     tree.put(tag, new ArrayList<DictionaryEntry>());
                 tree.get(tag).add(de);
                 i++;
@@ -171,10 +171,10 @@ public class Dictionary {
         return stringToEntry.get(s).getValue();
     }
 
-    public Integer[] get(String s, int column){
+    public Integer[] get(String s, int column) {
         List<DictionaryEntry> results = indexTrees.get(column).get(s);
         List<Integer> list = new ArrayList<Integer>();
-        for(DictionaryEntry de : results){
+        for (DictionaryEntry de : results) {
             list.add(de.getValue());
         }
         Integer[] nums = list.toArray(new Integer[0]);
@@ -192,7 +192,7 @@ public class Dictionary {
         return li;
     }
 
-    public List<Integer> getNumericValues(DictionaryEntry de){
+    public List<Integer> getNumericValues(DictionaryEntry de) {
         List<Integer> li = new ArrayList<Integer>();
         if (entryToValue.containsKey(de)) {
             li.add(entryToValue.get(de));
@@ -260,14 +260,14 @@ public class Dictionary {
         return entries;
     }
 
-    public List<String> getKeys(int column){
+    public List<String> getKeys(int column) {
         List<String> entries = new ArrayList<String>();
         entries.addAll(indexTrees.get(column).keySet());
         return entries;
     }
 
-    public List<DictionaryEntry> getEntries(String key, int column){
-        if(column < indexTrees.size() && indexTrees.get(column).containsKey(key))
+    public List<DictionaryEntry> getEntries(String key, int column) {
+        if (column < indexTrees.size() && indexTrees.get(column).containsKey(key))
             return indexTrees.get(column).get(key);
         else
             return new ArrayList<DictionaryEntry>();

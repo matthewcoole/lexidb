@@ -25,17 +25,17 @@ public class Word implements Serializable {
         return originalForm;
     }
 
-    public String toString(boolean details){
-        if(details)
+    public String toString(boolean details) {
+        if (details)
             return details();
         else
             return originalForm;
     }
 
-    public String details(){
+    public String details() {
         StringBuilder sb = new StringBuilder();
         sb.append(originalForm).append('{');
-        for(String tag : tags){
+        for (String tag : tags) {
             sb.append(tag).append(' ');
         }
         sb.deleteCharAt(sb.lastIndexOf(" "));

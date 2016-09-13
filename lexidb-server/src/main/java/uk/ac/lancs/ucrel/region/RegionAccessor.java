@@ -30,7 +30,7 @@ public class RegionAccessor extends Accessor {
     }
 
     public static RegionAccessor getAccessor(Path regionPath) throws IOException {
-        if(!accessors.containsKey(regionPath.toString())){
+        if (!accessors.containsKey(regionPath.toString())) {
             accessors.put(regionPath.toString(), new RegionAccessor(regionPath));
         }
         return accessors.get(regionPath.toString());

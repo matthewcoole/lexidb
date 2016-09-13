@@ -13,13 +13,14 @@ import uk.ac.lancs.ucrel.ds.Word;
 import uk.ac.lancs.ucrel.index.IndexEntry;
 import uk.ac.lancs.ucrel.region.RegionAccessor;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class CorpusAccessor extends Accessor {
@@ -45,13 +46,13 @@ public class CorpusAccessor extends Accessor {
         return accessors.get(dataPath.toString());
     }
 
-    private void buildIndexes(){
-        d.loadIndexTrees();
-    }
-
     public static void invalidate(Path dataPath) {
         if (accessors.containsKey(dataPath.toString()))
             accessors.remove(dataPath.toString());
+    }
+
+    private void buildIndexes() {
+        d.loadIndexTrees();
     }
 
     public int getWordCount() {
@@ -90,44 +91,44 @@ public class CorpusAccessor extends Accessor {
 
     public List<DictionaryEntry> getWords(List<String> searchTerms) throws IOException {
         List<List<DictionaryEntry>> allWords = new ArrayList<List<DictionaryEntry>>();
-        for(int i = 0; i < searchTerms.size(); i++){
-            if(searchTerms.get(i) == null)
+        for (int i = 0; i < searchTerms.size(); i++) {
+            if (searchTerms.get(i) == null)
                 continue;
             allWords.addAll(getWords(searchTerms.get(i), i));
         }
         return intersect(allWords);
     }
 
-    private List<DictionaryEntry> intersect(List<List<DictionaryEntry>> entries){
+    private List<DictionaryEntry> intersect(List<List<DictionaryEntry>> entries) {
         List<DictionaryEntry> initial = removeSmallest(entries);
-        while(entries.size() > 0) {
+        while (entries.size() > 0) {
             initial.retainAll(removeSmallest(entries));
         }
         return initial;
     }
 
-    private List<DictionaryEntry> removeSmallest(List<List<DictionaryEntry>> entries){
+    private List<DictionaryEntry> removeSmallest(List<List<DictionaryEntry>> entries) {
         List<DictionaryEntry> smallest = null;
-        for(List<DictionaryEntry> lde : entries){
-            if(smallest == null || smallest.size() > lde.size())
+        for (List<DictionaryEntry> lde : entries) {
+            if (smallest == null || smallest.size() > lde.size())
                 smallest = lde;
         }
         entries.remove(smallest);
         return smallest;
     }
 
-    public List<List<DictionaryEntry>> getWords(String searchTerm, int column){
+    public List<List<DictionaryEntry>> getWords(String searchTerm, int column) {
         List<List<DictionaryEntry>> words = new ArrayList<List<DictionaryEntry>>();
-        if(searchTerm == null)
+        if (searchTerm == null)
             return words;
-        if(isRegex(searchTerm))
+        if (isRegex(searchTerm))
             words.add(regex(searchTerm, column));
         else
             words.add(d.getEntries(searchTerm, column));
         return words;
     }
 
-    public List<DictionaryEntry> regex(String regex, int column){
+    public List<DictionaryEntry> regex(String regex, int column) {
         RegExp re = new RegExp(regex);
         Automaton a = re.toAutomaton();
         RunAutomaton ra = new RunAutomaton(a);
@@ -158,18 +159,19 @@ public class CorpusAccessor extends Accessor {
         }
         return indexEntries;
     }
-/*
-    private List<Integer> getNumericValues(List<String> words) {
-        List<Integer> numericValues = new ArrayList<Integer>();
-        for (String w : words) {
-            numericValues.addAll(d.getWords(w));
+
+    /*
+        private List<Integer> getNumericValues(List<String> words) {
+            List<Integer> numericValues = new ArrayList<Integer>();
+            for (String w : words) {
+                numericValues.addAll(d.getWords(w));
+            }
+            return numericValues;
         }
-        return numericValues;
-    }
-*/
-    private List<Integer> getNumericValues(List<DictionaryEntry> words){
+    */
+    private List<Integer> getNumericValues(List<DictionaryEntry> words) {
         List<Integer> numericValues = new ArrayList<Integer>();
-        for(DictionaryEntry de : words){
+        for (DictionaryEntry de : words) {
             numericValues.add(de.getValue());
         }
         return numericValues;
@@ -206,7 +208,6 @@ public class CorpusAccessor extends Accessor {
         int regionsAccessed = 0;
         for (int region : numericForEachRegion.keySet()) {
             String regionString = regionNameFormatter.format(region);
-            //RegionAccessor ra = new RegionAccessor(Paths.get(getPath().toString(), regionString));
             RegionAccessor ra = RegionAccessor.getAccessor(Paths.get(getPath().toString(), regionString));
             regionsAccessed++;
             contexts.addAll(ra.contextSearch(numericForEachRegion.get(region), leftContext, rightContext));

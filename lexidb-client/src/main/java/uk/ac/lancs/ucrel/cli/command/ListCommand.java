@@ -39,8 +39,8 @@ public class ListCommand extends Command {
 
             String[] searchTerms = st.toArray(new String[0]);
 
-            for(int i = 0; i < searchTerms.length; i++){
-                if(searchTerms[i].equals("\\null"))
+            for (int i = 0; i < searchTerms.length; i++) {
+                if (searchTerms[i].equals("\\null"))
                     searchTerms[i] = null;
             }
 

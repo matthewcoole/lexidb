@@ -12,7 +12,7 @@ public class DictionaryEntry {
     public DictionaryEntry(String tsv, int value) {
         String[] tsvs = tsv.split("\t");
         this.word = tsvs[0].trim();
-        for(int i = 1; i < tsvs.length; i++){
+        for (int i = 1; i < tsvs.length; i++) {
             tags.add(tsvs[i].trim());
         }
         this.value = value;
@@ -21,7 +21,7 @@ public class DictionaryEntry {
     protected DictionaryEntry(String tsv, int value, int count) {
         String[] tsvs = tsv.split("\t");
         this.word = tsvs[0].trim();
-        for(int i = 1; i < tsvs.length; i++){
+        for (int i = 1; i < tsvs.length; i++) {
             tags.add(tsvs[i].trim());
         }
         this.value = value;
@@ -61,12 +61,12 @@ public class DictionaryEntry {
     }
 
     public boolean equals(Object o) {
-        if (o instanceof DictionaryEntry){
-            DictionaryEntry de = (DictionaryEntry)o;
-            if(de.getWord().equals(word)){
-                if(de.getTags().size() == tags.size())
-                    for(int i = 0; i < tags.size(); i++){
-                        if(!de.getTags().get(i).equals(tags.get(i)))
+        if (o instanceof DictionaryEntry) {
+            DictionaryEntry de = (DictionaryEntry) o;
+            if (de.getWord().equals(word)) {
+                if (de.getTags().size() == tags.size())
+                    for (int i = 0; i < tags.size(); i++) {
+                        if (!de.getTags().get(i).equals(tags.get(i)))
                             return false;
                     }
                 return true;
@@ -75,10 +75,10 @@ public class DictionaryEntry {
         return false;
     }
 
-    public String toString(){
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(word);
-        for(String tag : tags){
+        for (String tag : tags) {
             sb.append('\t').append(tag);
         }
         return sb.toString();

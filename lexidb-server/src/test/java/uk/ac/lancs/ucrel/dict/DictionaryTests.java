@@ -19,7 +19,7 @@ public class DictionaryTests {
     }
 
     @Test
-    public void testGetString(){
+    public void testGetString() {
         d.put("the \tAT0\tART\tthe");
         Integer[] expected = {0, 3};
         d.loadIndexTrees();

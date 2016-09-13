@@ -40,9 +40,9 @@ public class LocalNgramOperationImpl implements NgramOperation {
 
             for (int[] context : contexts) {
                 int startPos = 0;
-                while(startPos + n <= context.length){
-                    int [] ngram = new int[n];
-                    for(int i = 0; i < n; i++){
+                while (startPos + n <= context.length) {
+                    int[] ngram = new int[n];
+                    for (int i = 0; i < n; i++) {
                         ngram[i] = context[startPos + i];
                     }
                     addNgramToMap(ngram, ca);
@@ -61,7 +61,7 @@ public class LocalNgramOperationImpl implements NgramOperation {
         }
     }
 
-    private void addNgramToMap(int[] ngram, CorpusAccessor ca){
+    private void addNgramToMap(int[] ngram, CorpusAccessor ca) {
         String k = getKey(ngram);
         if (!ngramsMap.containsKey(k)) {
             Ngram ng = new Ngram();
@@ -75,15 +75,15 @@ public class LocalNgramOperationImpl implements NgramOperation {
         ng.setCount(count);
     }
 
-    private int getContextLeft(int n, int pos){
-        if(pos == 0)
+    private int getContextLeft(int n, int pos) {
+        if (pos == 0)
             return n - 1;
         else
             return pos - 1;
     }
 
-    private int getContextRight(int n, int pos){
-        if(pos == 0)
+    private int getContextRight(int n, int pos) {
+        if (pos == 0)
             return n - 1;
         else
             return n - pos;
@@ -103,7 +103,7 @@ public class LocalNgramOperationImpl implements NgramOperation {
         List<Ngram> page = new ArrayList<Ngram>();
         for (int i = currentPos + pageLength; currentPos < i; currentPos++) {
             page.add(ngrams.get(currentPos));
-            if(currentPos == ngrams.size() - 1)
+            if (currentPos == ngrams.size() - 1)
                 break;
         }
         return page;

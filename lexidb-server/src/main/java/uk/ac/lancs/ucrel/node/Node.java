@@ -13,11 +13,10 @@ import java.util.Properties;
 
 public class Node {
 
+    private static Logger LOG = Logger.getLogger(Node.class);
     private Properties p;
     private Server serverObject;
     private Peer peerObject;
-
-    private static Logger LOG = Logger.getLogger(Node.class);
 
     public Node(Properties p) {
         this.p = p;
