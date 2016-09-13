@@ -24,4 +24,22 @@ public class Word implements Serializable {
     public String toString() {
         return originalForm;
     }
+
+    public String toString(boolean details){
+        if(details)
+            return details();
+        else
+            return originalForm;
+    }
+
+    public String details(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(originalForm).append('{');
+        for(String tag : tags){
+            sb.append(tag).append(' ');
+        }
+        sb.deleteCharAt(sb.lastIndexOf(" "));
+        sb.append('}');
+        return sb.toString();
+    }
 }

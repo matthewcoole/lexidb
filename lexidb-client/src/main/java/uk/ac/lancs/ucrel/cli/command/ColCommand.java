@@ -87,7 +87,7 @@ public class ColCommand extends Command {
         System.out.println("\n");
 
         for (Collocate c : cols) {
-            System.out.println(c.getCount() + "\t" + ansi.c(c.getWord()));
+            System.out.println(c.getCount() + "\t" + ansi.c(c.getWord(), details));
         }
         System.out.println("");
     }

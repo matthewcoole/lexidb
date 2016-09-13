@@ -81,7 +81,7 @@ public class NgramCommand extends Command {
         System.out.println("\n");
 
         for (Ngram ng : ngrams) {
-            System.out.println(ng.getCount() + "\t" + ansi.c(ng.getWords()));
+            System.out.println(ng.getCount() + "\t" + ansi.c(ng.getWords(), details));
         }
         System.out.println("");
     }

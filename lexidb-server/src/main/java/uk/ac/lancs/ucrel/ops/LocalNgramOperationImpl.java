@@ -35,28 +35,19 @@ public class LocalNgramOperationImpl implements NgramOperation {
             words = ca.getWords(Arrays.asList(searchTerms));
             List<int[]> contexts;
 
-            /*TODO: This can be improved by working out how big the context needs to be to capture all ngrams in one
-            search and then simply shifting through each context to extract each ngram*/
-            if (pos == 0) {
-                contexts = new ArrayList<int[]>();
-                for (int i = 0; i < n; i++) {
-                    contexts.addAll(ca.context(words, i, n - (i + 1), 0));
-                }
-            } else {
-                contexts = ca.context(words, pos - 1, n - (pos - 1), 0);
-            }
+            contexts = ca.context(words, getContextLeft(n, pos), getContextRight(n, pos), 0);
+
+
             for (int[] context : contexts) {
-                String k = getKey(context);
-                if (!ngramsMap.containsKey(k)) {
-                    Ngram ng = new Ngram();
-                    for (int i : context) {
-                        ng.add(ca.getWord(i));
+                int startPos = 0;
+                while(startPos + n <= context.length){
+                    int [] ngram = new int[n];
+                    for(int i = 0; i < n; i++){
+                        ngram[i] = context[startPos + i];
                     }
-                    ngramsMap.put(k, ng);
+                    addNgramToMap(ngram, ca);
+                    startPos++;
                 }
-                Ngram ng = ngramsMap.get(k);
-                int count = ng.getCount() + 1;
-                ng.setCount(count);
             }
             ngrams.addAll(ngramsMap.values());
             Collections.sort(ngrams, new FrequencyComparator());
@@ -68,6 +59,34 @@ public class LocalNgramOperationImpl implements NgramOperation {
             e.printStackTrace();
             throw new RemoteException(e.getMessage());
         }
+    }
+
+    private void addNgramToMap(int[] ngram, CorpusAccessor ca){
+        String k = getKey(ngram);
+        if (!ngramsMap.containsKey(k)) {
+            Ngram ng = new Ngram();
+            for (int i : ngram) {
+                ng.add(ca.getWord(i));
+            }
+            ngramsMap.put(k, ng);
+        }
+        Ngram ng = ngramsMap.get(k);
+        int count = ng.getCount() + 1;
+        ng.setCount(count);
+    }
+
+    private int getContextLeft(int n, int pos){
+        if(pos == 0)
+            return n - 1;
+        else
+            return pos - 1;
+    }
+
+    private int getContextRight(int n, int pos){
+        if(pos == 0)
+            return n - 1;
+        else
+            return n - pos;
     }
 
     private String getKey(int[] context) {

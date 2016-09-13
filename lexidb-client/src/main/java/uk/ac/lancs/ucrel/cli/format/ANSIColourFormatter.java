@@ -46,21 +46,21 @@ public class ANSIColourFormatter {
         }
     }
 
-    public String c(Word w) {
+    public String c(Word w, boolean details) {
         StringBuilder sb = new StringBuilder();
         if (w.getTags() != null && w.getTags().size() >= 2) {
             String pos = w.getTags().get(1);
-            sb.append(c(w.toString(), cols.get(pos)));
+            sb.append(c(w.toString(details), cols.get(pos)));
         } else {
-            sb.append(w.toString());
+            sb.append(w.toString(details));
         }
         return sb.toString();
     }
 
-    public String c(Collection<Word> words) {
+    public String c(Collection<Word> words, boolean details) {
         StringBuilder sb = new StringBuilder();
         for (Word w : words) {
-            sb.append(c(w));
+            sb.append(c(w, details));
             sb.append(" ");
         }
         return sb.toString();

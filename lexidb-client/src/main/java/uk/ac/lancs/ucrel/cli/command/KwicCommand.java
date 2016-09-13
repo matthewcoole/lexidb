@@ -75,13 +75,13 @@ public class KwicCommand extends Command {
     public void it() {
         try {
             List<Kwic> lines = k.it();
-            print(lines);
+            print(lines, details);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void print(List<Kwic> lines) {
+    public void print(List<Kwic> lines, boolean details) {
         if(lines.size() == 0)
             return;
 
@@ -91,7 +91,7 @@ public class KwicCommand extends Command {
             ansi.generateCols(l.getWords());
         }
 
-        KwicFormatter align = new KwicFormatter(lines);
+        KwicFormatter align = new KwicFormatter(lines, details);
 
         System.out.println("");
         ansi.printCols();

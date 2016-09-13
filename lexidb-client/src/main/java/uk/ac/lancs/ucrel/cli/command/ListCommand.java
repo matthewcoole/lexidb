@@ -77,7 +77,7 @@ public class ListCommand extends Command {
         System.out.println("\n");
 
         for (WordListEntry c : list) {
-            System.out.println(c.getCount() + "\t" + ansi.c(c.getWord()));
+            System.out.println(c.getCount() + "\t" + ansi.c(c.getWord(), details));
         }
         System.out.println("");
     }
