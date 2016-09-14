@@ -1,6 +1,7 @@
 package uk.ac.lancs.ucrel.file.system;
 
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
@@ -19,6 +20,13 @@ public class FileUtilsIT {
 
 
     @Test
+    public void test(){
+        Path test = Paths.get("/home/mpc/data_new");
+        System.out.println(test.toString());
+    }
+
+    @Ignore
+    @Test
     public void testReadAndWrite() throws IOException {
         Path fp = Paths.get(DATA.getRoot().getPath(), "test.db");
 
@@ -26,6 +34,7 @@ public class FileUtilsIT {
 
         long start = System.currentTimeMillis();
         FileUtils.write(fp, ints);
+        FileUtils.closeAllFiles();
         long mid = System.currentTimeMillis();
         IntBuffer ib = FileUtils.readAllInts(fp);
         int count = 0;

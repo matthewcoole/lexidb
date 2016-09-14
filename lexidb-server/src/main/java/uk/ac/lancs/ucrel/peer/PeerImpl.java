@@ -2,7 +2,9 @@ package uk.ac.lancs.ucrel.peer;
 
 import org.apache.log4j.Logger;
 import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
+import uk.ac.lancs.ucrel.file.system.FileUtils;
 import uk.ac.lancs.ucrel.ops.*;
+import uk.ac.lancs.ucrel.region.RegionAccessor;
 
 import java.nio.file.Paths;
 import java.rmi.NoSuchObjectException;
@@ -43,8 +45,9 @@ public class PeerImpl implements Peer {
     private void loadDB(String dataPath) {
         try {
             LOG.info("Loading database \"" + dataPath.toString() + "\". Please wait...");
-            CorpusAccessor ca = CorpusAccessor.getAccessor(Paths.get(dataPath));
-            kwic().search(new String[]{"test"}, 1, 0, 0, 0, false, 20);
+            FileUtils.openAllFiles(Paths.get(dataPath), "r");
+            RegionAccessor.rebuildAllRegions(Paths.get(dataPath));
+            CorpusAccessor.getAccessor(Paths.get(dataPath));
             LOG.info("Database loaded.");
         } catch (Exception e) {
             LOG.error(e.getMessage());

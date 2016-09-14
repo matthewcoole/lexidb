@@ -216,7 +216,6 @@ public class CorpusAccessor extends Accessor {
                 break;
         }
         LOG.debug(regionsAccessed + " regions accessed");
-        FileUtils.closeAllFiles();
         if (limit > 0 && contexts.size() >= limit)
             contexts = contexts.subList(0, limit);
         return contexts;

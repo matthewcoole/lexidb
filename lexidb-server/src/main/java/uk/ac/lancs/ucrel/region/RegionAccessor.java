@@ -8,6 +8,7 @@ import uk.ac.lancs.ucrel.index.IndexEntry;
 
 import java.io.IOException;
 import java.nio.IntBuffer;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -34,6 +35,15 @@ public class RegionAccessor extends Accessor {
             accessors.put(regionPath.toString(), new RegionAccessor(regionPath));
         }
         return accessors.get(regionPath.toString());
+    }
+
+    public static void rebuildAllRegions(Path corpusPath) throws IOException {
+        String[] files = corpusPath.toFile().list();
+        for(String f : files){
+            Path p = Paths.get(corpusPath.toString(), f);
+            if(Files.isDirectory(p))
+                getAccessor(p);
+        }
     }
 
     public List<int[]> contextSearch(List<Integer> words, int left, int right) throws IOException {
@@ -105,7 +115,6 @@ public class RegionAccessor extends Accessor {
             }
             contexts.add(context);
         }
-        FileUtils.closeAllFiles();
         return contexts;
     }
 }

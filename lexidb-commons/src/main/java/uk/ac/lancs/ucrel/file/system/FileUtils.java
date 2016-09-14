@@ -8,20 +8,29 @@ import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class FileUtils {
 
-    private static Queue<RandomAccessFile> OPEN_FILES = new LinkedBlockingQueue<RandomAccessFile>();
+    private static Map<String, FileChannel> FILES = new HashMap<String, FileChannel>();
+
+    public static void openAllFiles(Path file, String mode) throws IOException{
+        Files.walkFileTree(file, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path p, BasicFileAttributes attrs) throws IOException {
+                if(!Files.isDirectory(p))
+                    getFileChannel(p, mode);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
 
     public static void closeAllFiles() throws IOException {
-        while(!OPEN_FILES.isEmpty()){
-            OPEN_FILES.remove().close();
+        for(String s : FILES.keySet()){
+            FILES.get(s).close();
         }
     }
 
@@ -31,9 +40,10 @@ public class FileUtils {
     }
 
     public static FileChannel getFileChannel(Path file, String mode) throws FileNotFoundException {
-        RandomAccessFile f = new RandomAccessFile(file.toString(), mode);
-        OPEN_FILES.add(f);
-        return f.getChannel();
+        if(!FILES.containsKey(file.toString())){
+            FILES.put(file.toString(), new RandomAccessFile(file.toString(), mode).getChannel());
+        }
+        return FILES.get(file.toString());
     }
 
     public static MappedByteBuffer read(Path file, int pos, int length) throws IOException {
