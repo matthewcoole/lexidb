@@ -105,6 +105,7 @@ public class RegionAccessor extends Accessor {
             }
             contexts.add(context);
         }
+        FileUtils.closeAllFiles();
         return contexts;
     }
 }

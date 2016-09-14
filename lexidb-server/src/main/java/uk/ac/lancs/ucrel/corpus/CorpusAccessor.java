@@ -10,6 +10,7 @@ import uk.ac.lancs.ucrel.dict.Dictionary;
 import uk.ac.lancs.ucrel.dict.DictionaryEntry;
 import uk.ac.lancs.ucrel.ds.Kwic;
 import uk.ac.lancs.ucrel.ds.Word;
+import uk.ac.lancs.ucrel.file.system.FileUtils;
 import uk.ac.lancs.ucrel.index.IndexEntry;
 import uk.ac.lancs.ucrel.region.RegionAccessor;
 
@@ -215,6 +216,7 @@ public class CorpusAccessor extends Accessor {
                 break;
         }
         LOG.debug(regionsAccessed + " regions accessed");
+        FileUtils.closeAllFiles();
         if (limit > 0 && contexts.size() >= limit)
             contexts = contexts.subList(0, limit);
         return contexts;

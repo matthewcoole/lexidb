@@ -5,6 +5,7 @@ import uk.ac.lancs.ucrel.corpus.CorpusAccessor;
 import uk.ac.lancs.ucrel.ops.*;
 
 import java.nio.file.Paths;
+import java.rmi.NoSuchObjectException;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -27,6 +28,8 @@ public class PeerImpl implements Peer {
     private Map<String, Peer> connectedPeers;
     private boolean available;
     private ExecutorService es = Executors.newCachedThreadPool();
+
+    private Operation lastOp = null;
 
     public PeerImpl(String host, int port, String dataPath, String... peers) {
         this.host = host;
@@ -66,37 +69,48 @@ public class PeerImpl implements Peer {
 
     @Override
     public InsertOperation insert() throws RemoteException {
-        InsertOperation li = new LocalInsertOperationImpl(es, Paths.get(dataPath));
-        UnicastRemoteObject.exportObject(li, 0);
-        return li;
+        cleanupLastOp();
+        lastOp = new LocalInsertOperationImpl(es, Paths.get(dataPath));
+        UnicastRemoteObject.exportObject(lastOp, 0);
+        return (InsertOperation)lastOp;
     }
 
     @Override
     public KwicOperation kwic() throws RemoteException {
-        KwicOperation lk = new LocalKwicOperationImpl(Paths.get(dataPath));
-        UnicastRemoteObject.exportObject(lk, 0);
-        return lk;
+        cleanupLastOp();
+        lastOp = new LocalKwicOperationImpl(Paths.get(dataPath));
+        UnicastRemoteObject.exportObject(lastOp, 0);
+        return (LocalKwicOperationImpl)lastOp;
     }
 
     @Override
     public NgramOperation ngram() throws RemoteException {
-        NgramOperation ln = new LocalNgramOperationImpl(Paths.get(dataPath));
-        UnicastRemoteObject.exportObject(ln, 0);
-        return ln;
+        cleanupLastOp();
+        lastOp = new LocalNgramOperationImpl(Paths.get(dataPath));
+        UnicastRemoteObject.exportObject(lastOp, 0);
+        return (NgramOperation) lastOp;
     }
 
     @Override
     public CollocateOperation collocate() throws RemoteException {
-        CollocateOperation c = new LocalCollocateOperationImpl(Paths.get(dataPath));
-        UnicastRemoteObject.exportObject(c, 0);
-        return c;
+        cleanupLastOp();
+        lastOp = new LocalCollocateOperationImpl(Paths.get(dataPath));
+        UnicastRemoteObject.exportObject(lastOp, 0);
+        return (CollocateOperation) lastOp;
     }
 
     @Override
     public ListOperation list() throws RemoteException {
-        ListOperation l = new LocalListOperationImpl(Paths.get(dataPath));
-        UnicastRemoteObject.exportObject(l, 0);
-        return l;
+        cleanupLastOp();
+        lastOp = new LocalListOperationImpl(Paths.get(dataPath));
+        UnicastRemoteObject.exportObject(lastOp, 0);
+        return (ListOperation) lastOp;
+    }
+
+    private void cleanupLastOp() throws NoSuchObjectException {
+        if(lastOp != null){
+            UnicastRemoteObject.unexportObject(lastOp, true);
+        }
     }
 
     public Collection<Peer> getPeers() {

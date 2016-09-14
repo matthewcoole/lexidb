@@ -6,7 +6,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 
-public interface ListOperation extends Remote {
+public interface ListOperation extends Operation {
     void search(String[] searchTerms, int pageLength, boolean reverseOrder) throws RemoteException;
 
     List<WordListEntry> it() throws RemoteException;

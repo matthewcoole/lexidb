@@ -4,6 +4,7 @@ import uk.ac.lancs.ucrel.ops.*;
 import uk.ac.lancs.ucrel.peer.Peer;
 import uk.ac.lancs.ucrel.rmi.Server;
 
+import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Date;
@@ -16,6 +17,8 @@ public class ServerImpl implements Server {
     private Date startTime;
     private ExecutorService es = Executors.newCachedThreadPool();
     private Peer peerObject;
+
+    private Operation lastOp;
 
     public ServerImpl(Peer p) {
         this.startTime = new Date();
@@ -32,32 +35,43 @@ public class ServerImpl implements Server {
     }
 
     public InsertOperation insert() throws RemoteException {
-        InsertOperation i = new DistInsertOperationImpl(peerObject.getPeers());
-        UnicastRemoteObject.exportObject(i, 0);
-        return i;
+        cleanupLastOp();
+        lastOp = new DistInsertOperationImpl(peerObject.getPeers());
+        UnicastRemoteObject.exportObject(lastOp, 0);
+        return (InsertOperation) lastOp;
     }
 
     public KwicOperation kwic() throws RemoteException {
-        KwicOperation k = new DistKwicOperationImpl(peerObject.getPeers());
-        UnicastRemoteObject.exportObject(k, 0);
-        return k;
+        cleanupLastOp();
+        lastOp = new DistKwicOperationImpl(peerObject.getPeers());
+        UnicastRemoteObject.exportObject(lastOp, 0);
+        return (KwicOperation) lastOp;
     }
 
     public NgramOperation ngram() throws RemoteException {
-        NgramOperation n = new DistNgramOperationImpl(peerObject.getPeers());
-        UnicastRemoteObject.exportObject(n, 0);
-        return n;
+        cleanupLastOp();
+        lastOp = new DistNgramOperationImpl(peerObject.getPeers());
+        UnicastRemoteObject.exportObject(lastOp, 0);
+        return (NgramOperation) lastOp;
     }
 
     public CollocateOperation collocate() throws RemoteException {
-        CollocateOperation c = new DistCollocateOperationImpl(peerObject.getPeers());
-        UnicastRemoteObject.exportObject(c, 0);
-        return c;
+        cleanupLastOp();
+        lastOp = new DistCollocateOperationImpl(peerObject.getPeers());
+        UnicastRemoteObject.exportObject(lastOp, 0);
+        return (CollocateOperation)lastOp;
     }
 
     public ListOperation list() throws RemoteException {
-        ListOperation l = new DistListOperationImpl(peerObject.getPeers());
-        UnicastRemoteObject.exportObject(l, 0);
-        return l;
+        cleanupLastOp();
+        lastOp = new DistListOperationImpl(peerObject.getPeers());
+        UnicastRemoteObject.exportObject(lastOp, 0);
+        return (ListOperation) lastOp;
+    }
+
+    private void cleanupLastOp() throws NoSuchObjectException {
+        if(lastOp != null) {
+            UnicastRemoteObject.unexportObject(lastOp, true);
+        }
     }
 }
