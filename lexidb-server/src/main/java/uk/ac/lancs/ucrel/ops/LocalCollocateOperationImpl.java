@@ -38,11 +38,12 @@ public class LocalCollocateOperationImpl implements CollocateOperation {
             List<int[]> contexts = ca.context(words, leftContext, rightContext, 0);
             collocatesMap = new HashMap<String, Collocate>();
             for (int[] c : contexts) {
-                for (int i : c) {
-                    Word w = ca.getWord(i);
+                for(int i = 0; i < c.length; i++){
+                    Word w = ca.getWord(c[i]);
                     if (!collocatesMap.containsKey(w.toString()))
-                        collocatesMap.put(w.toString(), new Collocate(w, 0));
-                    collocatesMap.get(w.toString()).increment();
+                        collocatesMap.put(w.toString(), new Collocate(w, leftContext + rightContext + 1, leftContext));
+                    collocatesMap.get(w.toString()).increment(i);
+
                 }
             }
             for (DictionaryEntry de : words) {

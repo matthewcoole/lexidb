@@ -37,10 +37,11 @@ public class PeerImpl implements Peer {
         available = true;
     }
 
-    private static void loadDB(String dataPath) {
+    private void loadDB(String dataPath) {
         try {
             LOG.info("Loading database \"" + dataPath.toString() + "\". Please wait...");
-            CorpusAccessor.getAccessor(Paths.get(dataPath));
+            CorpusAccessor ca = CorpusAccessor.getAccessor(Paths.get(dataPath));
+            kwic().search(new String[]{"test"}, 1, 0, 0, 0, false, 20);
             LOG.info("Database loaded.");
         } catch (Exception e) {
             LOG.error(e.getMessage());

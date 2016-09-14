@@ -36,7 +36,7 @@ public class ColCommand extends Command {
         try {
             col = s.collocate();
             int cl = (line.hasOption("cl")) ? Integer.parseInt(line.getOptionValue("cl")) : this.cl;
-            int cr = (line.hasOption("cr")) ? Integer.parseInt(line.getOptionValue("cr")) : this.pos;
+            int cr = (line.hasOption("cr")) ? Integer.parseInt(line.getOptionValue("cr")) : this.cr;
             if (line.hasOption("c")) {
                 cl = Integer.parseInt(line.getOptionValue("c"));
                 cr = cl;
@@ -87,7 +87,7 @@ public class ColCommand extends Command {
         System.out.println("\n");
 
         for (Collocate c : cols) {
-            System.out.println(c.getCount() + "\t" + ansi.c(c.getWord(), details));
+            System.out.println(ansi.c(c.getWord(), details) + "\t" + c.getAllCounts());
         }
         System.out.println("");
     }
