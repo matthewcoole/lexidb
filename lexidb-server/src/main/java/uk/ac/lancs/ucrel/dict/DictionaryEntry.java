@@ -10,22 +10,32 @@ public class DictionaryEntry {
     private int count;
 
     public DictionaryEntry(String tsv, int value) {
+        setVals(tsv, value);
+    }
+
+    protected DictionaryEntry(String tsv, int value, int count) {
+        setVals(tsv, value);
+        this.count = count;
+    }
+
+    private void setVals(String tsv, int value){
+        tsv = cleanTsv(tsv);
         String[] tsvs = tsv.split("\t");
-        this.word = tsvs[0].trim();
+        this.word = tsvs[0];
         for (int i = 1; i < tsvs.length; i++) {
-            tags.add(tsvs[i].trim());
+            tags.add(tsvs[i]);
         }
         this.value = value;
     }
 
-    protected DictionaryEntry(String tsv, int value, int count) {
+    public static String cleanTsv(String tsv){
+        StringBuilder sb = new StringBuilder();
         String[] tsvs = tsv.split("\t");
-        this.word = tsvs[0].trim();
-        for (int i = 1; i < tsvs.length; i++) {
-            tags.add(tsvs[i].trim());
+        sb.append(tsvs[0].trim());
+        for(int i = 1; i< tsvs.length; i++){
+            sb.append('\t').append(tsvs[i]);
         }
-        this.value = value;
-        this.count = count;
+        return sb.toString();
     }
 
     public String getWord() {

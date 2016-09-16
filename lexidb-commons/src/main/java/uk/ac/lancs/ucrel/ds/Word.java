@@ -34,12 +34,14 @@ public class Word implements Serializable {
 
     public String details() {
         StringBuilder sb = new StringBuilder();
-        sb.append(originalForm).append('{');
-        for (String tag : tags) {
-            sb.append(tag).append(' ');
+        if(tags.size() > 0) {
+            sb.append(originalForm).append('{');
+            for (String tag : tags) {
+                sb.append(tag).append(' ');
+            }
+            sb.deleteCharAt(sb.lastIndexOf(" "));
+            sb.append('}');
         }
-        sb.deleteCharAt(sb.lastIndexOf(" "));
-        sb.append('}');
         return sb.toString();
     }
 }

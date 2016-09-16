@@ -78,9 +78,19 @@ public class RegionBuilder {
     private void assignInitNumericValues() {
         int i = 0;
         for (String word : words) {
-            data[i] = d.put(word);
+            data[i] = d.put(stripSpaces(word));
             i++;
         }
+    }
+
+    private String stripSpaces(String s){
+        StringBuilder sb = new StringBuilder();
+        String[] bits = s.split("\t");
+        sb.append(bits[0]);
+        for(int i = 1; i < bits.length; i++){
+            sb.append('\t').append(bits[i].trim());
+        }
+        return sb.toString();
     }
 
     private void generateInitToFinalMap() {
@@ -97,7 +107,7 @@ public class RegionBuilder {
     }
 
     private void initIndex() {
-        indexMapping = new int[d.size()];
+        indexMapping = new int[d.size() + 1];
         index = new ArrayList<List<Integer>>(d.size());
         for (int i = 0; i < d.size(); i++) {
             index.add(new ArrayList<Integer>());
@@ -110,9 +120,10 @@ public class RegionBuilder {
 
     private void generateIndexMapping() {
         int pos = 0;
-        for (int i = 0; i < indexMapping.length; i++) {
+        for (int i = 0; i < indexMapping.length - 1; i++) {
             indexMapping[i] = pos;
             pos += d.count(i);
         }
+        indexMapping[indexMapping.length - 1] = pos;
     }
 }

@@ -14,7 +14,7 @@ public class DictionaryTests {
     public void setup() {
         d = new Dictionary();
         d.put("a \tAT0\tART\ta");
-        d.put("to \tPRP\tPREP");
+        d.put("to \tPRP\tPREP\tto");
         d.put("and \tCJC\tCONJ\tand");
     }
 
@@ -29,19 +29,19 @@ public class DictionaryTests {
     @Test
     public void testPut() {
         assertThat(d.put("a \tAT0\tART\ta"), is(0));
-        assertThat(d.put("to \tPRP\tPREP"), is(1));
+        assertThat(d.put("to \tPRP\tPREP\tto"), is(1));
     }
 
     @Test
     public void testGet() {
         assertThat(d.get(0), is("a\tAT0\tART\ta"));
-        assertThat(d.get(1), is("to\tPRP\tPREP"));
+        assertThat(d.get(1), is("to\tPRP\tPREP\tto"));
     }
 
     @Test
     public void testMap() {
         Dictionary d1 = new Dictionary();
-        d1.put("to \tPRP\tPREP");
+        d1.put("to \tPRP\tPREP\tto");
         d1.put("a \tAT0\tART\ta");
         int[] map = Dictionary.map(d, d1);
         int[] expected = {1, 0, -1};
@@ -51,16 +51,16 @@ public class DictionaryTests {
     @Test
     public void testSort() {
         Dictionary d1 = Dictionary.sort(d);
-        assertThat(d1.get("a \tAT0\tART\ta"), is(0));
-        assertThat(d1.get("and \tCJC\tCONJ\tand"), is(1));
-        assertThat(d1.get("to \tPRP\tPREP"), is(2));
+        assertThat(d1.get("a\tAT0\tART\ta"), is(0));
+        assertThat(d1.get("and\tCJC\tCONJ\tand"), is(1));
+        assertThat(d1.get("to\tPRP\tPREP\tto"), is(2));
     }
 
     @Test
     public void testCount() {
-        d.put("to \tPRP\tPREP");
-        assertThat(d.count("a \tAT0\tART\ta"), is(1));
-        assertThat(d.count("to \tPRP\tPREP"), is(2));
+        d.put("to \tPRP\tPREP\tto");
+        assertThat(d.count("a\tAT0\tART\ta"), is(1));
+        assertThat(d.count("to\tPRP\tPREP\tto"), is(2));
         assertThat(d.count(2), is(1));
     }
 

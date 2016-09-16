@@ -41,6 +41,7 @@ public class CorpusBuilder {
         rb.add(words);
         rb.build();
         rb.save();
+        LOG.debug("Region added with " + words.size() + " words.");
     }
 
     public void build() throws IOException {
@@ -110,12 +111,13 @@ public class CorpusBuilder {
     }
 
     private void generateIndexMappings() {
-        indexMapping = new int[index.size()];
+        indexMapping = new int[index.size() + 1];
         int pos = 0;
-        for (int i = 0; i < indexMapping.length; i++) {
+        for (int i = 0; i < indexMapping.length - 1; i++) {
             indexMapping[i] = pos;
             pos += index.get(d.get(i)).size();
         }
+        indexMapping[indexMapping.length - 1] = pos;
         totalCount = pos;
     }
 

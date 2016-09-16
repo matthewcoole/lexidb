@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+import static uk.ac.lancs.ucrel.dict.DictionaryEntry.cleanTsv;
+
 /**
  * Holds a set of string values and their associated numeric values.
  */
@@ -43,7 +45,12 @@ public class Dictionary {
      */
     public static Dictionary sort(Dictionary d) {
         Dictionary sorted = new Dictionary();
-        Set<String> sortedKeys = new TreeSet<String>(d.stringToEntry.keySet());
+        List<String> sortedKeys = new ArrayList<String>(d.stringToEntry.keySet());
+        Collections.sort(sortedKeys, String.CASE_INSENSITIVE_ORDER);
+
+        //Set<String> sortedKeys = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+        //sortedKeys.addAll(d.stringToEntry.keySet());
+        //d.stringToEntry.keySet().removeAll(sortedKeys);
         for (String s : sortedKeys) {
             sorted.put(s, d.count(s));
         }
@@ -111,19 +118,20 @@ public class Dictionary {
     public int put(String s) {
         if (finalised)
             throwRuntimeException();
-        if (!stringToEntry.containsKey(s)) {
-            stringToEntry.put(s, new DictionaryEntry(s, stringToEntry.size()));
-            String word = s.split("\t")[0].trim().toLowerCase();
-            if (!wordToString.containsKey(word))
-                wordToString.put(word, new ArrayList<String>());
-            wordToString.get(word).add(s);
+        DictionaryEntry de = new DictionaryEntry(s, stringToEntry.size());
+        if (!stringToEntry.containsKey(de.toString())) {
+            stringToEntry.put(de.toString(), de);
+            if (!wordToString.containsKey(de.getWord()))
+                wordToString.put(de.getWord(), new ArrayList<String>());
+            wordToString.get(de.getWord()).add(de.toString());
         }
-        DictionaryEntry de = stringToEntry.get(s);
+        de = stringToEntry.get(de.toString());
         de.increment();
         return de.getValue();
     }
 
     public int putMany(String s, int n) {
+        s = cleanTsv(s);
         put(s);
         DictionaryEntry de = stringToEntry.get(s);
         de.addToCount(n - 1);
@@ -131,11 +139,11 @@ public class Dictionary {
     }
 
     private void put(String s, int count) {
-        stringToEntry.put(s, new DictionaryEntry(s, stringToEntry.size(), count));
-        String word = s.split("\t")[0].trim().toLowerCase();
-        if (!wordToString.containsKey(word))
-            wordToString.put(word, new ArrayList<String>());
-        wordToString.get(word).add(s);
+        DictionaryEntry de = new DictionaryEntry(s, stringToEntry.size(), count);
+        stringToEntry.put(de.toString(), de);
+        if (!wordToString.containsKey(de.getWord()))
+            wordToString.put(de.getWord(), new ArrayList<String>());
+        wordToString.get(de.getWord()).add(s);
     }
 
     /**
@@ -256,7 +264,7 @@ public class Dictionary {
      */
     public List<String> getEntries() {
         List<String> entries = new ArrayList<String>(stringToEntry.keySet());
-        Collections.sort(entries);
+        Collections.sort(entries, String.CASE_INSENSITIVE_ORDER);
         return entries;
     }
 

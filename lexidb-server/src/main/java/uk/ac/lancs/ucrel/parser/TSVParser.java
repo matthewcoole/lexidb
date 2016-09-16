@@ -17,7 +17,7 @@ import java.util.List;
 public class TSVParser {
 
     private static final Logger LOG = LogManager.getLogger(TextParser.class);
-    private static final int REGION_SIZE = 10;
+    private static final int REGION_SIZE = 1;
 
     private Path dataPath;
     private List<String> currentWords;
