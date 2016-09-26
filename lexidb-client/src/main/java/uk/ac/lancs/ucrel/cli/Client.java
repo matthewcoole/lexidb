@@ -27,9 +27,9 @@ public class Client {
     private DefaultParser parser = new DefaultParser();
     private Command lastCommand;
 
-    private Client() {
+    private Client(String host, int port) {
         try {
-            r = LocateRegistry.getRegistry(1289);
+            r = LocateRegistry.getRegistry(host, port);
             Remote tmp = r.lookup("serv");
             if (tmp instanceof Server)
                 s = (Server) tmp;
@@ -44,7 +44,9 @@ public class Client {
     }
 
     public static void main(String[] args) {
-        Client c = new Client();
+        String host = (args.length > 0) ? args[0] : "localhost";
+        int port = (args.length > 1) ? Integer.parseInt(args[1]) : 1289;
+        Client c = new Client(host, port);
         c.run();
     }
 
