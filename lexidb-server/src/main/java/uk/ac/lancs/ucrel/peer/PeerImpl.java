@@ -17,6 +17,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -125,7 +126,7 @@ public class PeerImpl implements Peer {
     }
 
     private void connect() {
-        connectedPeers = new HashMap<String, Peer>();
+        connectedPeers = new ConcurrentHashMap<String, Peer>();
         while (!available) {
             try {
                 Thread.sleep(1000);
@@ -168,10 +169,10 @@ public class PeerImpl implements Peer {
         if (tmp instanceof Peer)
             p = (Peer) tmp;
         if (p != null) {
-            connectedPeers.put(getServerString(host, port), p);
             if (notify)
-                p.notify(host, port);
+                p.notify(this.host, this.port);
             LOG.info("Connected to new peer " + getServerString(host, port));
+            connectedPeers.put(getServerString(host, port), p);
         }
     }
 

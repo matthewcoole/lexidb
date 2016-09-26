@@ -11,11 +11,11 @@ import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FileUtils {
 
-    private static Map<String, FileChannel> FILES = new HashMap<String, FileChannel>();
+    private static Map<String, FileChannel> FILES = new ConcurrentHashMap<String, FileChannel>();
 
     public static void openAllFiles(Path file, String mode) throws IOException{
         Files.walkFileTree(file, new SimpleFileVisitor<Path>() {
@@ -31,12 +31,8 @@ public class FileUtils {
     public static void closeAllFiles() throws IOException {
         for(String s : FILES.keySet()){
             FILES.get(s).close();
+            FILES.remove(s);
         }
-    }
-
-    public static FileChannel getNewFileChannel(Path file, String mode) throws IOException {
-        Files.createFile(file);
-        return getFileChannel(file, mode);
     }
 
     public static FileChannel getFileChannel(Path file, String mode) throws FileNotFoundException {
@@ -64,21 +60,21 @@ public class FileUtils {
     }
 
     public static void write(Path file, byte[] data) throws IOException {
-        FileChannel fc = getNewFileChannel(file, "rw");
+        FileChannel fc = getFileChannel(file, "rw");
         MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_WRITE, 0, data.length);
         mbb.put(data);
         fc.close();
     }
 
     public static void write(Path file, CharBuffer data, Charset cs) throws IOException {
-        FileChannel fc = getNewFileChannel(file, "rw");
+        FileChannel fc = getFileChannel(file, "rw");
         MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_WRITE, 0, data.length());
         mbb.put(cs.encode(data));
         fc.close();
     }
 
     public static void write(Path file, List<String> data, Charset cs) throws IOException {
-        FileChannel fc = getNewFileChannel(file, "rw");
+        FileChannel fc = getFileChannel(file, "rw");
         StringBuilder sb = new StringBuilder();
         int size = 0;
         for (String s : data) {
@@ -95,7 +91,7 @@ public class FileUtils {
     }
 
     public static void write(Path file, int[] data) throws IOException {
-        FileChannel fc = getNewFileChannel(file, "rw");
+        FileChannel fc = getFileChannel(file, "rw");
         IntBuffer ib = fc.map(FileChannel.MapMode.READ_WRITE, 0, data.length * 4).asIntBuffer();
         for (int i : data) {
             ib.put(i);
