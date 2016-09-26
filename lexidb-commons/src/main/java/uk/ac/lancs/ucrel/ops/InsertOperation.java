@@ -9,4 +9,8 @@ public interface InsertOperation extends Operation {
     void insert() throws RemoteException;
 
     boolean isComplete() throws RemoteException;
+
+    int getFileCount() throws RemoteException;
+
+    long getTime() throws RemoteException;
 }

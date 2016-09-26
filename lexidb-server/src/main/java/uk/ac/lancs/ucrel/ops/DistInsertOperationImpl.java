@@ -12,6 +12,7 @@ public class DistInsertOperationImpl implements InsertOperation {
     private List<InsertOperation> insertOperations = new ArrayList<InsertOperation>();
     private int next = 0;
     private int fileCount = 0;
+    private long start, end;
 
     public DistInsertOperationImpl(Collection<Peer> peers) throws RemoteException {
         for (Peer p : peers) {
@@ -21,6 +22,8 @@ public class DistInsertOperationImpl implements InsertOperation {
 
     @Override
     public boolean sendRaw(String filename, byte[] data) throws RemoteException {
+        if(fileCount == 0)
+            start = System.currentTimeMillis();
         insertOperations.get(next).sendRaw(filename, data);
         next = (next + 1) % insertOperations.size();
         fileCount++;
@@ -40,6 +43,17 @@ public class DistInsertOperationImpl implements InsertOperation {
             if (!li.isComplete())
                 return false;
         }
+        end = System.currentTimeMillis();
         return true;
+    }
+
+    @Override
+    public int getFileCount() throws RemoteException {
+        return fileCount;
+    }
+
+    @Override
+    public long getTime() throws RemoteException {
+        return end - start;
     }
 }

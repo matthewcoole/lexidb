@@ -21,6 +21,8 @@ public class LocalInsertOperationImpl implements InsertOperation {
     private Path dataPath;
     private Path temp;
     private boolean complete = false;
+    private int fileCount;
+    private long start, end;
 
     public LocalInsertOperationImpl(ExecutorService es, Path dataPath) {
         this.es = es;
@@ -35,8 +37,11 @@ public class LocalInsertOperationImpl implements InsertOperation {
     @Override
     public boolean sendRaw(String filename, byte[] data) throws RemoteException {
         try {
+            if(fileCount == 0)
+                start = System.currentTimeMillis();
             LOG.trace("Raw file received " + filename);
             FileUtils.write(Paths.get(temp.toString(), filename), data);
+            fileCount++;
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -55,6 +60,16 @@ public class LocalInsertOperationImpl implements InsertOperation {
         return complete;
     }
 
+    @Override
+    public int getFileCount() throws RemoteException {
+        return fileCount;
+    }
+
+    @Override
+    public long getTime() throws RemoteException {
+        return end - start;
+    }
+
     private void insertRunner() {
         try {
             LOG.debug(" Inserting from " + temp.toString() + " to " + dataPath.toString());
@@ -64,6 +79,7 @@ public class LocalInsertOperationImpl implements InsertOperation {
             FileUtils.openAllFiles(dataPath, "r");
             RegionAccessor.rebuildAllRegions(dataPath);
             CorpusAccessor.getAccessor(dataPath);
+            end = System.currentTimeMillis();
         } catch (Exception e) {
             e.printStackTrace();
         }

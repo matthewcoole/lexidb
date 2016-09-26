@@ -39,6 +39,8 @@ public class InsertCommand extends Command {
                 Thread.sleep(1000);
             }
 
+            System.out.println("\nInserted " + i.getFileCount() + " files in " + i.getTime() + "ms.\n");
+
         } catch (Exception e) {
             System.err.println("Unable to insert data: " + e.getMessage());
         }
