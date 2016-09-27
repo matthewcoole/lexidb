@@ -49,15 +49,6 @@
 
     </dependencies>
     <build>
-        <!--<resources>
-            <resource>
-                <directory>src/resources</directory>
-                <includes>
-                    <include>log4j.properties</include>
-                    <include>node.properties</include>
-                </includes>
-            </resource>
-        </resources>-->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -136,11 +127,6 @@
                                         <Class-Path>conf/</Class-Path>
                                     </manifestEntries>
                                 </transformer>
-                                <!--<transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>uk.ac.lancs.ucrel.server.DBStartup</mainClass>
-                                    <Class-Path>conf/</Class-Path>
-                                </transformer>-->
                             </transformers>
                         </configuration>
                     </execution>
