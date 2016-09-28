@@ -6,6 +6,7 @@ import uk.ac.lancs.ucrel.file.system.FileUtils;
 import uk.ac.lancs.ucrel.ops.*;
 import uk.ac.lancs.ucrel.region.RegionAccessor;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.NoSuchObjectException;
 import java.rmi.NotBoundException;
@@ -45,10 +46,11 @@ public class PeerImpl implements Peer {
 
     private void loadDB(String dataPath) {
         try {
-            LOG.info("Loading database \"" + dataPath.toString() + "\". Please wait...");
-            FileUtils.openAllFiles(Paths.get(dataPath), "r");
-            RegionAccessor.rebuildAllRegions(Paths.get(dataPath));
-            CorpusAccessor.getAccessor(Paths.get(dataPath));
+            Path dp = Paths.get(dataPath);
+            LOG.info("Loading database \"" + dp.toRealPath().toString() + "\". Please wait...");
+            FileUtils.openAllFiles(dp, "r");
+            RegionAccessor.rebuildAllRegions(dp);
+            CorpusAccessor.getAccessor(dp);
             LOG.info("Database loaded.");
         } catch (Exception e) {
             LOG.error(e.getMessage());
