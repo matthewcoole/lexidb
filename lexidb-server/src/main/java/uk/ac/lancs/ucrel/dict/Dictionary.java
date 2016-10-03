@@ -1,5 +1,7 @@
 package uk.ac.lancs.ucrel.dict;
 
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -13,6 +15,7 @@ import static uk.ac.lancs.ucrel.dict.DictionaryEntry.cleanTsv;
  */
 public class Dictionary {
 
+    private static Logger LOG = Logger.getLogger(Dictionary.class);
     private Map<String, DictionaryEntry> stringToEntry = new HashMap<String, DictionaryEntry>();
     private Map<DictionaryEntry, Integer> entryToValue = new HashMap<DictionaryEntry, Integer>();
     private Map<String, List<String>> wordToString = new HashMap<String, List<String>>();
@@ -64,18 +67,26 @@ public class Dictionary {
      * @return
      */
     public static Dictionary load(Path p) {
+        long start = System.currentTimeMillis();
         Dictionary d = new Dictionary();
         try {
+            long a = System.currentTimeMillis();
             List<String> words = Files.readAllLines(p, StandardCharsets.UTF_8);
+            long b = System.currentTimeMillis();
+            LOG.trace("Loading dictionary file took " + (b - a) + "ms");
             for (String s : words) {
                 String[] bits = s.split("\t");
                 String word = s.substring(0, s.lastIndexOf("\t"));
                 int count = Integer.parseInt(bits[bits.length - 1]);
                 d.put(word, count);
             }
+            long c = System.currentTimeMillis();
+            LOG.trace("Processing lines of dictionary took " + (c - b) + "ms");
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
+        long end = System.currentTimeMillis();
+        LOG.trace("Dicitonary loaded in " + (end - start) + "ms");
         return d;
     }
 
@@ -83,6 +94,7 @@ public class Dictionary {
      * Generates indexes for each column in the dictionary.
      */
     public void loadIndexTrees() {
+        long start = System.currentTimeMillis();
         int n = stringToEntry.values().size() / 5;
         Iterator<DictionaryEntry> it = stringToEntry.values().iterator();
         for (int i = 0; i < n; i++) {
@@ -107,6 +119,8 @@ public class Dictionary {
                 i++;
             }
         }
+        long end = System.currentTimeMillis();
+        LOG.trace("Loaded index trees in " + (end - start) + "ms");
     }
 
     /**

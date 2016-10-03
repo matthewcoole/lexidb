@@ -16,7 +16,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -44,19 +43,6 @@ public class PeerImpl implements Peer {
         available = true;
     }
 
-    private void loadDB(String dataPath) {
-        try {
-            Path dp = Paths.get(dataPath);
-            LOG.info("Loading database \"" + dp.toRealPath().toString() + "\". Please wait...");
-            FileUtils.openAllFiles(dp, "r");
-            RegionAccessor.rebuildAllRegions(dp);
-            CorpusAccessor.getAccessor(dp);
-            LOG.info("Database loaded.");
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-        }
-    }
-
     private static String getHost(String serverString) {
         return split(serverString)[0];
     }
@@ -73,12 +59,29 @@ public class PeerImpl implements Peer {
         return new StringBuilder().append(host).append(":").append(port).toString();
     }
 
+    private void loadDB(String dataPath) {
+        try {
+            Path dp = Paths.get(dataPath);
+            LOG.info("Loading database \"" + dp.toRealPath().toString() + "\". Please wait...");
+            long a = System.currentTimeMillis();
+            FileUtils.openAllFiles(dp, "r");
+            long b = System.currentTimeMillis();
+            RegionAccessor.rebuildAllRegions(dp);
+            long c = System.currentTimeMillis();
+            CorpusAccessor.getAccessor(dp);
+            long d = System.currentTimeMillis();
+            LOG.info("Database loaded. [open files = " + (b - a) + "ms, rebuild regions = " + (c - b) + "ms, get accessor = " + (d - c));
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
+    }
+
     @Override
     public InsertOperation insert() throws RemoteException {
         cleanupLastOp();
         lastOp = new LocalInsertOperationImpl(es, Paths.get(dataPath));
         UnicastRemoteObject.exportObject(lastOp, 0);
-        return (InsertOperation)lastOp;
+        return (InsertOperation) lastOp;
     }
 
     @Override
@@ -86,7 +89,7 @@ public class PeerImpl implements Peer {
         cleanupLastOp();
         lastOp = new LocalKwicOperationImpl(Paths.get(dataPath));
         UnicastRemoteObject.exportObject(lastOp, 0);
-        return (LocalKwicOperationImpl)lastOp;
+        return (LocalKwicOperationImpl) lastOp;
     }
 
     @Override
@@ -114,7 +117,7 @@ public class PeerImpl implements Peer {
     }
 
     private void cleanupLastOp() throws NoSuchObjectException {
-        if(lastOp != null){
+        if (lastOp != null) {
             UnicastRemoteObject.unexportObject(lastOp, true);
         }
     }

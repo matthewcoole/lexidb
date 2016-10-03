@@ -1,6 +1,5 @@
 package uk.ac.lancs.ucrel.ops;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface InsertOperation extends Operation {

@@ -37,7 +37,7 @@ public class LocalInsertOperationImpl implements InsertOperation {
     @Override
     public boolean sendRaw(String filename, byte[] data) throws RemoteException {
         try {
-            if(fileCount == 0)
+            if (fileCount == 0)
                 start = System.currentTimeMillis();
             LOG.trace("Raw file received " + filename);
             FileUtils.write(Paths.get(temp.toString(), filename), data);

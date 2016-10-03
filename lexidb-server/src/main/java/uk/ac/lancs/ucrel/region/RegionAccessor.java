@@ -11,10 +11,7 @@ import java.nio.IntBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RegionAccessor extends Accessor {
 
@@ -39,24 +36,25 @@ public class RegionAccessor extends Accessor {
 
     public static void rebuildAllRegions(Path corpusPath) throws IOException {
         String[] files = corpusPath.toFile().list();
-        for(String f : files){
+        for (String f : files) {
             Path p = Paths.get(corpusPath.toString(), f);
-            if(Files.isDirectory(p))
+            if (Files.isDirectory(p))
                 getAccessor(p);
         }
     }
 
     public List<int[]> contextSearch(List<Integer> words, int left, int right) throws IOException {
+        long a = System.currentTimeMillis();
         List<Integer> numericValues = getNumericValues(words);
-        List<IndexEntry> indexEntries = getIndexPositions(numericValues);
+        long b = System.currentTimeMillis();
+        Collection<IndexEntry> indexEntries = getIndexPos(numericValues).values();
+        long c = System.currentTimeMillis();
         getIndexEntryValues(indexEntries);
-        return getContexts(getIndexValues(indexEntries), left, right);
-    }
-
-    private void getIndexEntryValues(List<IndexEntry> indexEntries) throws IOException {
-        for (IndexEntry i : indexEntries) {
-            getIndexEntryValues(i);
-        }
+        long d = System.currentTimeMillis();
+        List<int[]> contexts = getContexts(getIndexValues(indexEntries), left, right);
+        long e = System.currentTimeMillis();
+        LOG.trace("Contexts for region retrieved in " + (e - a) + "ms [getNumericValues= " + (b - a) + "ms, getIndexPositions= " + (c - b) + "ms, getIndexEntryValues= " + (d - c) + "ms, getContexts=" + (e - d) + "ms]");
+        return contexts;
     }
 
     private List<Integer> getNumericValues(List<Integer> words) {
@@ -67,14 +65,6 @@ public class RegionAccessor extends Accessor {
                 numericValues.add(val);
         }
         return numericValues;
-    }
-
-    private List<IndexEntry> getIndexPositions(List<Integer> numericValues) throws IOException {
-        List<IndexEntry> indexEntries = new ArrayList<IndexEntry>();
-        for (int i : numericValues) {
-            indexEntries.add(getIndexPos(i));
-        }
-        return indexEntries;
     }
 
     private void regenerateCorpusToRegionMap() throws IOException {
@@ -91,7 +81,7 @@ public class RegionAccessor extends Accessor {
         }
     }
 
-    private List<Integer> getIndexValues(List<IndexEntry> indexEntries) {
+    private List<Integer> getIndexValues(Collection<IndexEntry> indexEntries) {
         List<Integer> allIndexValues = new ArrayList<Integer>();
         for (IndexEntry ie : indexEntries) {
             allIndexValues.addAll(ie.getIndexValuesAsList());
@@ -100,12 +90,22 @@ public class RegionAccessor extends Accessor {
     }
 
     private List<int[]> getContexts(List<Integer> indexValues, int left, int right) throws IOException {
+        int first = Integer.MAX_VALUE;
+        int last = 0;
+        for (int i : indexValues) {
+            first = (i - left < first) ? i - left : first;
+            last = (i + 1 + right > last) ? i + 1 + right : last;
+            // this loop calculates the first and last values needed in the file so the whole file doesn't need to be read
+        }
         Path dataFile = Paths.get(getPath().toString(), "data.disco");
-        IntBuffer ib = FileUtils.readAllInts(dataFile);
+        long a = System.currentTimeMillis();
+        IntBuffer ib = FileUtils.readInts(dataFile, first, last - first);
+        long b = System.currentTimeMillis();
+        LOG.trace("Read " + dataFile.toString() + " in " + (b - a) + "ms");
         List<int[]> contexts = new ArrayList<int[]>();
         for (int i : indexValues) {
             int[] context = new int[left + right + 1];
-            int n = i - left;
+            int n = i - left - first;
             for (int j = 0; j < context.length; j++) {
                 try {
                     context[j] = regionToCorpusMap[ib.get(n++)];
@@ -115,6 +115,8 @@ public class RegionAccessor extends Accessor {
             }
             contexts.add(context);
         }
+        long c = System.currentTimeMillis();
+        LOG.trace("Processed " + dataFile.toString() + " in " + (c - b) + "ms");
         return contexts;
     }
 }

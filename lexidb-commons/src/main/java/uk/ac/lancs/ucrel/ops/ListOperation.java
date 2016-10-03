@@ -2,7 +2,6 @@ package uk.ac.lancs.ucrel.ops;
 
 import uk.ac.lancs.ucrel.ds.WordListEntry;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 

@@ -22,7 +22,7 @@ public class DistInsertOperationImpl implements InsertOperation {
 
     @Override
     public boolean sendRaw(String filename, byte[] data) throws RemoteException {
-        if(fileCount == 0)
+        if (fileCount == 0)
             start = System.currentTimeMillis();
         insertOperations.get(next).sendRaw(filename, data);
         next = (next + 1) % insertOperations.size();

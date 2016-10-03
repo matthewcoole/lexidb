@@ -83,11 +83,11 @@ public class RegionBuilder {
         }
     }
 
-    private String stripSpaces(String s){
+    private String stripSpaces(String s) {
         StringBuilder sb = new StringBuilder();
         String[] bits = s.split("\t");
         sb.append(bits[0]);
-        for(int i = 1; i < bits.length; i++){
+        for (int i = 1; i < bits.length; i++) {
             sb.append('\t').append(bits[i].trim());
         }
         return sb.toString();

@@ -34,7 +34,7 @@ public class Word implements Serializable {
 
     public String details() {
         StringBuilder sb = new StringBuilder();
-        if(tags.size() > 0) {
+        if (tags.size() > 0) {
             sb.append(originalForm).append('{');
             for (String tag : tags) {
                 sb.append(tag).append(' ');

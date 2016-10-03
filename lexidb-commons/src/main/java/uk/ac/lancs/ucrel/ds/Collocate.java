@@ -29,10 +29,10 @@ public class Collocate implements Serializable {
         return collocate;
     }
 
-    public String getAllCounts(){
+    public String getAllCounts() {
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < count.length; i++){
-            if(i != pos)
+        for (int i = 0; i < count.length; i++) {
+            if (i != pos)
                 sb.append(count[i]);
             else
                 sb.append('#');
@@ -48,7 +48,7 @@ public class Collocate implements Serializable {
 
     public int getCount() {
         int total = 0;
-        for(int i : count){
+        for (int i : count) {
             total += i;
         }
         return total;

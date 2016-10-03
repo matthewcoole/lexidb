@@ -10,7 +10,6 @@ import uk.ac.lancs.ucrel.dict.Dictionary;
 import uk.ac.lancs.ucrel.dict.DictionaryEntry;
 import uk.ac.lancs.ucrel.ds.Kwic;
 import uk.ac.lancs.ucrel.ds.Word;
-import uk.ac.lancs.ucrel.file.system.FileUtils;
 import uk.ac.lancs.ucrel.index.IndexEntry;
 import uk.ac.lancs.ucrel.region.RegionAccessor;
 
@@ -18,7 +17,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class CorpusAccessor extends Accessor {
@@ -82,18 +84,21 @@ public class CorpusAccessor extends Accessor {
 
     public List<int[]> context(List<DictionaryEntry> words, int leftContext, int rightContext, int limit) throws IOException {
         List<Integer> numericValues = getNumericValues(words);
-        Map<Integer, IndexEntry> indexEntries = getIndexPositions(numericValues);
-        getIndexEntryValues(indexEntries);
+        Map<Integer, IndexEntry> indexEntries = getIndexPos(numericValues);
+        getIndexEntryValues(indexEntries.values());
         return getContexts(indexEntries, leftContext, rightContext, limit);
     }
 
     public List<DictionaryEntry> getWords(List<String> searchTerms) throws IOException {
+        long start = System.currentTimeMillis();
         List<List<DictionaryEntry>> allWords = new ArrayList<List<DictionaryEntry>>();
         for (int i = 0; i < searchTerms.size(); i++) {
             if (searchTerms.get(i) == null)
                 continue;
             allWords.addAll(getWords(searchTerms.get(i), i));
         }
+        long end = System.currentTimeMillis();
+        LOG.trace("Got list of words in " + (end - start) + "ms");
         return intersect(allWords);
     }
 
@@ -144,29 +149,6 @@ public class CorpusAccessor extends Accessor {
         return s.matches("^.*[^a-zA-Z ].*$");
     }
 
-    private void getIndexEntryValues(Map<Integer, IndexEntry> indexEntries) throws IOException {
-        for (IndexEntry ie : indexEntries.values()) {
-            getIndexEntryValues(ie);
-        }
-    }
-
-    private Map<Integer, IndexEntry> getIndexPositions(List<Integer> numericValues) throws IOException {
-        Map<Integer, IndexEntry> indexEntries = new HashMap<Integer, IndexEntry>();
-        for (int i : numericValues) {
-            indexEntries.put(i, getIndexPos(i));
-        }
-        return indexEntries;
-    }
-
-    /*
-        private List<Integer> getNumericValues(List<String> words) {
-            List<Integer> numericValues = new ArrayList<Integer>();
-            for (String w : words) {
-                numericValues.addAll(d.getWords(w));
-            }
-            return numericValues;
-        }
-    */
     private List<Integer> getNumericValues(List<DictionaryEntry> words) {
         List<Integer> numericValues = new ArrayList<Integer>();
         for (DictionaryEntry de : words) {
@@ -194,6 +176,7 @@ public class CorpusAccessor extends Accessor {
     }
 
     private List<int[]> getContexts(Map<Integer, IndexEntry> indexEntries, int leftContext, int rightContext, int limit) throws IOException {
+        long a = System.currentTimeMillis();
         Map<Integer, List<Integer>> numericForEachRegion = new HashMap<Integer, List<Integer>>();
         for (int numeric : indexEntries.keySet()) {
             for (int i : indexEntries.get(numeric).getIndexValues()) {
@@ -202,15 +185,20 @@ public class CorpusAccessor extends Accessor {
                 numericForEachRegion.get(i).add(numeric);
             }
         }
+        long b = System.currentTimeMillis();
+        LOG.trace("Calculated numerics for each region in " + (b - a) + "ms");
         List<int[]> contexts = new ArrayList<int[]>();
         int regionsAccessed = 0;
         for (int region : numericForEachRegion.keySet()) {
+            long c = System.currentTimeMillis();
             String regionString = regionNameFormatter.format(region);
             RegionAccessor ra = RegionAccessor.getAccessor(Paths.get(getPath().toString(), regionString));
             regionsAccessed++;
             contexts.addAll(ra.contextSearch(numericForEachRegion.get(region), leftContext, rightContext));
             if (limit > 0 && contexts.size() >= limit)
                 break;
+            long d = System.currentTimeMillis();
+            LOG.trace("Got contexts for region " + region + " in " + (d - c) + "ms");
         }
         LOG.debug(regionsAccessed + " regions accessed");
         if (limit > 0 && contexts.size() >= limit)

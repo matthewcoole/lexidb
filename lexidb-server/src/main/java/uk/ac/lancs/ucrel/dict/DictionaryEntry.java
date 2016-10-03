@@ -18,7 +18,17 @@ public class DictionaryEntry {
         this.count = count;
     }
 
-    private void setVals(String tsv, int value){
+    public static String cleanTsv(String tsv) {
+        StringBuilder sb = new StringBuilder();
+        String[] tsvs = tsv.split("\t");
+        sb.append(tsvs[0].trim());
+        for (int i = 1; i < tsvs.length; i++) {
+            sb.append('\t').append(tsvs[i]);
+        }
+        return sb.toString();
+    }
+
+    private void setVals(String tsv, int value) {
         tsv = cleanTsv(tsv);
         String[] tsvs = tsv.split("\t");
         this.word = tsvs[0];
@@ -26,16 +36,6 @@ public class DictionaryEntry {
             tags.add(tsvs[i]);
         }
         this.value = value;
-    }
-
-    public static String cleanTsv(String tsv){
-        StringBuilder sb = new StringBuilder();
-        String[] tsvs = tsv.split("\t");
-        sb.append(tsvs[0].trim());
-        for(int i = 1; i< tsvs.length; i++){
-            sb.append('\t').append(tsvs[i]);
-        }
-        return sb.toString();
     }
 
     public String getWord() {

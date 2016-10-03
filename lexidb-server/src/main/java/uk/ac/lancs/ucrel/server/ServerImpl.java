@@ -59,7 +59,7 @@ public class ServerImpl implements Server {
         cleanupLastOp();
         lastOp = new DistCollocateOperationImpl(peerObject.getPeers());
         UnicastRemoteObject.exportObject(lastOp, 0);
-        return (CollocateOperation)lastOp;
+        return (CollocateOperation) lastOp;
     }
 
     public ListOperation list() throws RemoteException {
@@ -70,7 +70,7 @@ public class ServerImpl implements Server {
     }
 
     private void cleanupLastOp() throws NoSuchObjectException {
-        if(lastOp != null) {
+        if (lastOp != null) {
             UnicastRemoteObject.unexportObject(lastOp, true);
         }
     }

@@ -20,7 +20,7 @@ public class FileUtilsIT {
 
 
     @Test
-    public void test(){
+    public void test() {
         Path test = Paths.get("/home/mpc/data_new");
         System.out.println(test.toString());
     }
