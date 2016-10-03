@@ -6,6 +6,7 @@ import uk.ac.lancs.ucrel.access.Accessor;
 import uk.ac.lancs.ucrel.file.system.FileUtils;
 import uk.ac.lancs.ucrel.index.IndexEntry;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.IntBuffer;
 import java.nio.file.Files;
@@ -99,13 +100,14 @@ public class RegionAccessor extends Accessor {
         }
         Path dataFile = Paths.get(getPath().toString(), "data.disco");
         long a = System.currentTimeMillis();
-        IntBuffer ib = FileUtils.readInts(dataFile, first, last - first);
+        //IntBuffer ib = FileUtils.readInts(dataFile, first, last - first);
+        IntBuffer ib = FileUtils.readAllInts(dataFile);
         long b = System.currentTimeMillis();
         LOG.trace("Read " + dataFile.toString() + " in " + (b - a) + "ms");
         List<int[]> contexts = new ArrayList<int[]>();
         for (int i : indexValues) {
             int[] context = new int[left + right + 1];
-            int n = i - left - first;
+            int n = i - left;
             for (int j = 0; j < context.length; j++) {
                 try {
                     context[j] = regionToCorpusMap[ib.get(n++)];

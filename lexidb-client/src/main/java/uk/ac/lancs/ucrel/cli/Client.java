@@ -27,7 +27,7 @@ public class Client {
     private DefaultParser parser = new DefaultParser();
     private Command lastCommand;
 
-    private Client(String host, int port) {
+    public Client(String host, int port) {
         try {
             r = LocateRegistry.getRegistry(host, port);
             Remote tmp = r.lookup("serv");
@@ -87,7 +87,7 @@ public class Client {
         }
     }
 
-    private void runCommand(String cmd) {
+    public void runCommand(String cmd) {
         try {
             CommandLine line = parser.parse(new Options(), cmd.split(" "), true);
             String op = line.getArgs()[0];
@@ -120,5 +120,9 @@ public class Client {
             c.printHelp();
             return null;
         }
+    }
+
+    public Server getServer(){
+        return s;
     }
 }
