@@ -11,6 +11,4 @@ public interface CollocateOperation extends Operation {
     List<Collocate> it() throws RemoteException;
 
     int getLength() throws RemoteException;
-
-    long getTime() throws RemoteException;
 }

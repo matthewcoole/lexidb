@@ -11,6 +11,7 @@ import uk.ac.lancs.ucrel.ops.NgramOperation;
 import uk.ac.lancs.ucrel.rmi.Server;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TestRunner {
@@ -20,9 +21,9 @@ public class TestRunner {
         Client c = new Client(host, port);
         Server s = c.getServer();
 
-        int nterms = 20;
-        List<WordListEntry> words = listResults(s, nterms);
-        int runs = 10;
+        int nterms = 10;
+        List<WordListEntry> words = getWordList(s, nterms);
+        int runs = 3;
 
         System.out.println("Word Frequency");
         for(WordListEntry wle : words){
@@ -49,7 +50,7 @@ public class TestRunner {
     private static long ngram(Server s, int runs, String term, int n) throws RemoteException {
         long start = System.currentTimeMillis();
         for(int i = 0; i < runs; i++){
-            colResults(s, term);
+            ngramResults(s, term, n);
         }
         long end = System.currentTimeMillis();
         return (end - start)/runs;
@@ -126,5 +127,15 @@ public class TestRunner {
         ListOperation l = s.list();
         l.search(new String[]{".*"}, n, false);
         return l.it();
+    }
+
+    private static List<WordListEntry> getWordList(Server s, int n) throws RemoteException {
+        List<WordListEntry> words = listResults(s, n*3);
+        List<WordListEntry> wordList = new ArrayList<WordListEntry>();
+        for(WordListEntry wle : words){
+            if(wle.getWord().toString().matches("[a-zA-Z]+") && !wordList.contains(wle.getWord().toString()))
+                wordList.add(wle);
+        }
+        return wordList.subList(0, 20);
     }
 }

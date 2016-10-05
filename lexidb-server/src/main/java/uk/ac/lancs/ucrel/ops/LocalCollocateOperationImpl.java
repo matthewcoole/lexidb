@@ -10,11 +10,14 @@ import uk.ac.lancs.ucrel.sort.col.FrequencyComparator;
 import java.nio.file.Path;
 import java.rmi.RemoteException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 
 public class LocalCollocateOperationImpl implements CollocateOperation {
 
     private static Logger LOG = Logger.getLogger(LocalCollocateOperationImpl.class);
 
+    private ExecutorService es;
+    private boolean complete = false;
     private Path dataPath;
     private long time;
     private int pageLength, currentPos;
@@ -22,13 +25,18 @@ public class LocalCollocateOperationImpl implements CollocateOperation {
     private List<Collocate> collocates;
 
 
-    public LocalCollocateOperationImpl(Path dataPath) {
+    public LocalCollocateOperationImpl(ExecutorService es, Path dataPath) {
+        this.es = es;
         this.dataPath = dataPath;
 
     }
 
     @Override
     public void search(String[] searchTerms, int leftContext, int rightContext, int pageLength, boolean reverseOrder) throws RemoteException {
+        es.execute(() -> searchRunner(searchTerms, leftContext, rightContext, pageLength, reverseOrder));
+    }
+
+    public void searchRunner(String[] searchTerms, int leftContext, int rightContext, int pageLength, boolean reverseOrder) {
         try {
             LOG.debug("Collocation search for " + Arrays.toString(searchTerms));
             this.pageLength = pageLength;
@@ -58,8 +66,8 @@ public class LocalCollocateOperationImpl implements CollocateOperation {
             time = end - start;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RemoteException(e.getMessage());
         }
+        complete = true;
     }
 
     @Override
@@ -76,6 +84,11 @@ public class LocalCollocateOperationImpl implements CollocateOperation {
     @Override
     public int getLength() throws RemoteException {
         return collocates.size();
+    }
+
+    @Override
+    public boolean isComplete() throws RemoteException {
+        return complete;
     }
 
     @Override

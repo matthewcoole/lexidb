@@ -11,7 +11,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 public class LocalNgramImplTests {
-
+/*
     @BeforeClass
     public static void setup() throws IOException {
         CorpusAccessor.getAccessor(Paths.get("/home/mpc/data"));
@@ -26,5 +26,5 @@ public class LocalNgramImplTests {
             System.out.println(ngg);
         }
         System.out.println(ng.getTime() + "ms");
-    }
+    }*/
 }

@@ -11,6 +11,4 @@ public interface NgramOperation extends Operation {
     List<Ngram> it() throws RemoteException;
 
     int getLength() throws RemoteException;
-
-    long getTime() throws RemoteException;
 }

@@ -24,11 +24,12 @@ public class LocalInsertOperationImpl implements InsertOperation {
     private int fileCount;
     private long start, end;
 
-    public LocalInsertOperationImpl(ExecutorService es, Path dataPath) {
+    public LocalInsertOperationImpl(ExecutorService es, Path dataPath, Path tmp) {
         this.es = es;
         this.dataPath = dataPath;
         try {
-            temp = Files.createTempDirectory("discodb_raw");
+            Files.createDirectories(tmp);
+            temp = Files.createTempDirectory(tmp, "discodb_raw");
         } catch (IOException e) {
             e.printStackTrace();
         }

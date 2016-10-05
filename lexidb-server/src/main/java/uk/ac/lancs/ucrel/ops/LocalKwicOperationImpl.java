@@ -13,22 +13,30 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 public class LocalKwicOperationImpl implements KwicOperation {
 
     private static Logger LOG = Logger.getLogger(LocalKwicOperationImpl.class);
 
+    private ExecutorService es;
+    private boolean complete = false;
     private Path dataPath;
     private List<int[]> contexts;
     private List<DictionaryEntry> words;
     private long time;
     private int position, pageLength;
 
-    public LocalKwicOperationImpl(Path dataPath) {
+    public LocalKwicOperationImpl(ExecutorService es, Path dataPath) {
+        this.es = es;
         this.dataPath = dataPath;
     }
 
     public void search(String[] searchTerms, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) throws RemoteException {
+        es.execute(() -> searchRunner(searchTerms, context, limit, sortType, sortPos, reverseOrder, pageLength));
+    }
+
+    public void searchRunner(String[] searchTerms, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) {
         try {
             LOG.debug("Kwic search for " + Arrays.toString(searchTerms));
             long start = System.currentTimeMillis();
@@ -41,8 +49,8 @@ public class LocalKwicOperationImpl implements KwicOperation {
             time = end - start;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RemoteException(e.toString());
         }
+        complete = true;
     }
 
     @Override
@@ -63,6 +71,11 @@ public class LocalKwicOperationImpl implements KwicOperation {
 
     public long getTime() {
         return time;
+    }
+
+    @Override
+    public boolean isComplete() throws RemoteException {
+        return complete;
     }
 
     @Override

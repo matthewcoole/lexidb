@@ -8,7 +8,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 public class LocalCollocationImplTests {
-    @Test
+    /*@Test
     public void test() throws RemoteException {
         LocalCollocateOperationImpl col = new LocalCollocateOperationImpl(Paths.get("/home/mpc/data"));
         col.search(new String[]{"zombie"}, 2, 2, 10, false);
@@ -18,5 +18,5 @@ public class LocalCollocationImplTests {
         }
         System.out.println("length=" + col.getLength() + ", time=" + col.getTime());
     }
-
+*/
 }

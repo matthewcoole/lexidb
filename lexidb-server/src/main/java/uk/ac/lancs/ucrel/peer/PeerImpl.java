@@ -25,7 +25,7 @@ public class PeerImpl implements Peer {
 
     private static Logger LOG = Logger.getLogger(PeerImpl.class);
 
-    private String host, dataPath;
+    private String host, dataPath, tmp;
     private int port;
     private String[] peers;
     private Map<String, Peer> connectedPeers;
@@ -34,10 +34,11 @@ public class PeerImpl implements Peer {
 
     private Operation lastOp = null;
 
-    public PeerImpl(String host, int port, String dataPath, String... peers) {
+    public PeerImpl(String host, int port, String dataPath, String tmpPath, String... peers) {
         this.host = host;
         this.port = port;
         this.dataPath = dataPath;
+        this.tmp = tmpPath;
         this.peers = peers;
         loadDB(dataPath);
         available = true;
@@ -79,7 +80,7 @@ public class PeerImpl implements Peer {
     @Override
     public InsertOperation insert() throws RemoteException {
         cleanupLastOp();
-        lastOp = new LocalInsertOperationImpl(es, Paths.get(dataPath));
+        lastOp = new LocalInsertOperationImpl(es, Paths.get(dataPath), Paths.get(tmp));
         UnicastRemoteObject.exportObject(lastOp, 0);
         return (InsertOperation) lastOp;
     }
@@ -87,7 +88,7 @@ public class PeerImpl implements Peer {
     @Override
     public KwicOperation kwic() throws RemoteException {
         cleanupLastOp();
-        lastOp = new LocalKwicOperationImpl(Paths.get(dataPath));
+        lastOp = new LocalKwicOperationImpl(es, Paths.get(dataPath));
         UnicastRemoteObject.exportObject(lastOp, 0);
         return (LocalKwicOperationImpl) lastOp;
     }
@@ -95,7 +96,7 @@ public class PeerImpl implements Peer {
     @Override
     public NgramOperation ngram() throws RemoteException {
         cleanupLastOp();
-        lastOp = new LocalNgramOperationImpl(Paths.get(dataPath));
+        lastOp = new LocalNgramOperationImpl(es, Paths.get(dataPath));
         UnicastRemoteObject.exportObject(lastOp, 0);
         return (NgramOperation) lastOp;
     }
@@ -103,7 +104,7 @@ public class PeerImpl implements Peer {
     @Override
     public CollocateOperation collocate() throws RemoteException {
         cleanupLastOp();
-        lastOp = new LocalCollocateOperationImpl(Paths.get(dataPath));
+        lastOp = new LocalCollocateOperationImpl(es, Paths.get(dataPath));
         UnicastRemoteObject.exportObject(lastOp, 0);
         return (CollocateOperation) lastOp;
     }
@@ -111,7 +112,7 @@ public class PeerImpl implements Peer {
     @Override
     public ListOperation list() throws RemoteException {
         cleanupLastOp();
-        lastOp = new LocalListOperationImpl(Paths.get(dataPath));
+        lastOp = new LocalListOperationImpl(es, Paths.get(dataPath));
         UnicastRemoteObject.exportObject(lastOp, 0);
         return (ListOperation) lastOp;
     }

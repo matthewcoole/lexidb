@@ -23,6 +23,7 @@ public class Node {
         peerObject = new PeerImpl(p.getProperty("node.host"),
                 Integer.parseInt(p.getProperty("node.port")),
                 p.getProperty("node.data.path"),
+                p.getProperty("node.tmp.path"),
                 p.getProperty("node.peers").split(" "));
         serverObject = new ServerImpl(peerObject);
     }

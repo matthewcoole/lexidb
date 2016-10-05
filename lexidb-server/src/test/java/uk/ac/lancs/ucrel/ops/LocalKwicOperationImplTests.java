@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 import java.rmi.RemoteException;
 
 public class LocalKwicOperationImplTests {
-
+/*
     @Test
     public void test() throws RemoteException {
         LocalKwicOperationImpl kop = new LocalKwicOperationImpl(Paths.get("/home/mpc/data_new"));
@@ -16,5 +16,5 @@ public class LocalKwicOperationImplTests {
             System.out.println(k);
         }
         System.out.println("tag search " + kop.getLength() + " results in " + kop.getTime() + "ms");
-    }
+    }*/
 }

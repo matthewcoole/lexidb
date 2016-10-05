@@ -12,7 +12,7 @@ public class DistNgramOperationImpl implements NgramOperation {
 
     private List<NgramOperation> ngramOperations = new ArrayList<NgramOperation>();
     private int next = 0;
-    private long time;
+    private long start, end;
 
     public DistNgramOperationImpl(Collection<Peer> peers) throws RemoteException {
         for (Peer p : peers) {
@@ -22,12 +22,17 @@ public class DistNgramOperationImpl implements NgramOperation {
 
     @Override
     public void search(String[] searchTerms, int n, int pos, int pageLength, boolean reverseOrder) throws RemoteException {
-        long start = System.currentTimeMillis();
+        start = System.currentTimeMillis();
         for (NgramOperation ng : ngramOperations) {
             ng.search(searchTerms, n, pos, pageLength, reverseOrder);
         }
-        long end = System.currentTimeMillis();
-        time = end - start;
+        while(!isComplete()){
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -47,7 +52,17 @@ public class DistNgramOperationImpl implements NgramOperation {
     }
 
     @Override
+    public boolean isComplete() throws RemoteException {
+        for(NgramOperation n : ngramOperations){
+            if(!n.isComplete())
+                return false;
+        }
+        end = System.currentTimeMillis();
+        return true;
+    }
+
+    @Override
     public long getTime() throws RemoteException {
-        return time;
+        return end - start;
     }
 }

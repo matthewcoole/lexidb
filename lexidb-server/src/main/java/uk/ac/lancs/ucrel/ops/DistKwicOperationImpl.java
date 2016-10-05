@@ -11,7 +11,7 @@ import java.util.List;
 public class DistKwicOperationImpl implements KwicOperation {
 
     private List<KwicOperation> kwicOperations = new ArrayList<KwicOperation>();
-    private long time;
+    private long start, end;
     private int next = 0;
 
     public DistKwicOperationImpl(Collection<Peer> peers) throws RemoteException {
@@ -21,12 +21,17 @@ public class DistKwicOperationImpl implements KwicOperation {
     }
 
     public void search(String[] searchTerms, int context, int limit, int sortType, int sortPos, boolean reverseOrder, int pageLength) throws RemoteException {
-        long start = System.currentTimeMillis();
+        start = System.currentTimeMillis();
         for (KwicOperation k : kwicOperations) {
             k.search(searchTerms, context, limit, sortType, sortPos, reverseOrder, pageLength);
         }
-        long end = System.currentTimeMillis();
-        time = end - start;
+        while(!isComplete()){
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public int getLength() throws RemoteException {
@@ -38,7 +43,17 @@ public class DistKwicOperationImpl implements KwicOperation {
     }
 
     public long getTime() throws RemoteException {
-        return time;
+        return end - start;
+    }
+
+    @Override
+    public boolean isComplete() throws RemoteException {
+        for(KwicOperation k : kwicOperations){
+            if(!k.isComplete())
+                return false;
+        }
+        end = System.currentTimeMillis();
+        return true;
     }
 
     @Override

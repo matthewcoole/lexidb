@@ -11,6 +11,4 @@ public interface ListOperation extends Operation {
     List<WordListEntry> it() throws RemoteException;
 
     int getLength() throws RemoteException;
-
-    long getTime() throws RemoteException;
 }

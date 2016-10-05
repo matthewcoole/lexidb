@@ -12,7 +12,7 @@ public class DistCollocateOperationImpl implements CollocateOperation {
 
     private List<CollocateOperation> cols = new ArrayList<CollocateOperation>();
     private int next = 0;
-    private long time;
+    private long start, end;
 
     public DistCollocateOperationImpl(Collection<Peer> peers) throws RemoteException {
         for (Peer p : peers) {
@@ -22,12 +22,17 @@ public class DistCollocateOperationImpl implements CollocateOperation {
 
     @Override
     public void search(String[] searchTerms, int contextLeft, int contextRight, int pageLength, boolean reverseOrder) throws RemoteException {
-        long start = System.currentTimeMillis();
+        start = System.currentTimeMillis();
         for (CollocateOperation c : cols) {
             c.search(searchTerms, contextLeft, contextRight, pageLength, reverseOrder);
         }
-        long end = System.currentTimeMillis();
-        time = end - start;
+        while(!isComplete()){
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -47,7 +52,17 @@ public class DistCollocateOperationImpl implements CollocateOperation {
     }
 
     @Override
+    public boolean isComplete() throws RemoteException {
+        for(CollocateOperation c : cols){
+            if(!c.isComplete())
+                return false;
+        }
+        end = System.currentTimeMillis();
+        return true;
+    }
+
+    @Override
     public long getTime() throws RemoteException {
-        return time;
+        return end - start;
     }
 }

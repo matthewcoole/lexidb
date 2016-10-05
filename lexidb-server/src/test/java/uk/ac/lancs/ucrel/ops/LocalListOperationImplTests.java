@@ -8,7 +8,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 public class LocalListOperationImplTests {
-
+/*
     @Test
     public void test() throws RemoteException {
         LocalListOperationImpl l = new LocalListOperationImpl(Paths.get("/home/mpc/data"));
@@ -17,5 +17,5 @@ public class LocalListOperationImplTests {
         for (WordListEntry e : results) {
             System.out.println(e);
         }
-    }
+    }*/
 }

@@ -11,6 +11,4 @@ public interface KwicOperation extends Operation {
     List<Kwic> it() throws RemoteException;
 
     int getLength() throws RemoteException;
-
-    long getTime() throws RemoteException;
 }

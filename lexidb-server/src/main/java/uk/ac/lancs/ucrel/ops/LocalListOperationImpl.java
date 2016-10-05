@@ -10,24 +10,31 @@ import uk.ac.lancs.ucrel.sort.list.FrequencyComparator;
 import java.nio.file.Path;
 import java.rmi.RemoteException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 
 public class LocalListOperationImpl implements ListOperation {
 
     private static Logger LOG = Logger.getLogger(LocalListOperationImpl.class);
 
+    private ExecutorService es;
+    private boolean complete = false;
     private Path dataPath;
     private long time;
     private int pageLength, currentPos;
     private List<WordListEntry> wordlist;
 
 
-    public LocalListOperationImpl(Path dataPath) {
+    public LocalListOperationImpl(ExecutorService es, Path dataPath) {
+        this.es = es;
         this.dataPath = dataPath;
-
     }
 
     @Override
     public void search(String[] searchTerms, int pageLength, boolean reverseOrder) throws RemoteException {
+        es.execute(()->searchRunner(searchTerms, pageLength, reverseOrder));
+    }
+
+    public void searchRunner(String[] searchTerms, int pageLength, boolean reverseOrder) {
         try {
             LOG.debug("List search for " + Arrays.toString(searchTerms));
             this.pageLength = pageLength;
@@ -50,8 +57,8 @@ public class LocalListOperationImpl implements ListOperation {
             time = end - start;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RemoteException(e.getMessage());
         }
+        complete = true;
     }
 
     @Override
@@ -68,6 +75,11 @@ public class LocalListOperationImpl implements ListOperation {
     @Override
     public int getLength() throws RemoteException {
         return wordlist.size();
+    }
+
+    @Override
+    public boolean isComplete() throws RemoteException {
+        return complete;
     }
 
     @Override
