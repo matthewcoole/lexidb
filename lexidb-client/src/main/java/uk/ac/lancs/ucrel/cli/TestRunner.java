@@ -20,9 +20,9 @@ public class TestRunner {
         Client c = new Client(host, port);
         Server s = c.getServer();
 
-        int nterms = 5;
+        int nterms = 10;
         Map<String, Integer> words = getWordList(s, nterms);
-        int runs = 2;
+        int runs = 3;
 
         System.out.println("Word Frequency");
         for(String wle : words.keySet()){
