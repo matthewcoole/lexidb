@@ -11,8 +11,7 @@ import uk.ac.lancs.ucrel.ops.NgramOperation;
 import uk.ac.lancs.ucrel.rmi.Server;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class TestRunner {
     public static void main(String[] args) throws RemoteException {
@@ -21,26 +20,25 @@ public class TestRunner {
         Client c = new Client(host, port);
         Server s = c.getServer();
 
-        int nterms = 10;
-        List<WordListEntry> words = getWordList(s, nterms);
-        int runs = 3;
+        int nterms = 5;
+        Map<String, Integer> words = getWordList(s, nterms);
+        int runs = 2;
 
         System.out.println("Word Frequency");
-        for(WordListEntry wle : words){
-            System.out.println(wle.getWord().toString() + ", " + wle.getCount());
+        for(String wle : words.keySet()){
+            System.out.println(wle + ", " + words.get(wle));
         }
         System.out.println();
 
-        kwic(s, runs, words);
-        col(s, runs, words);
-        ngram(s, runs, words);
+        kwic(s, runs, words.keySet());
+        col(s, runs, words.keySet());
+        ngram(s, runs, words.keySet());
         list(s, runs, nterms);
     }
 
-    private static void ngram(Server s, int runs, List<WordListEntry> terms) throws RemoteException {
+    private static void ngram(Server s, int runs, Collection<String> terms) throws RemoteException {
         System.out.println("ngram (" + runs + " runs)");
-        for(WordListEntry wle : terms){
-            String word = wle.getWord().toString();
+        for(String word : terms){
             long time = ngram(s, runs, word, 2);
             System.out.println(word + ", " + time);
         }
@@ -62,10 +60,9 @@ public class TestRunner {
         return ng.it();
     }
 
-    private static void col(Server s, int runs, List<WordListEntry> terms) throws RemoteException {
+    private static void col(Server s, int runs, Collection<String> terms) throws RemoteException {
         System.out.println("cols (" + runs + " runs)");
-        for(WordListEntry wle : terms){
-            String word = wle.getWord().toString();
+        for(String word : terms){
             long time = col(s, runs, word);
             System.out.println(word + ", " + time);
         }
@@ -87,10 +84,9 @@ public class TestRunner {
         return c.it();
     }
 
-    private static void kwic(Server s, int runs, List<WordListEntry> terms) throws RemoteException {
+    private static void kwic(Server s, int runs, Collection<String> terms) throws RemoteException {
         System.out.println("kwics (" + runs +" runs)");
-        for(WordListEntry wle : terms){
-            String word = wle.getWord().toString();
+        for(String word : terms){
             long time = kwic(s, runs, word);
             System.out.println(word + ", " + time);
         }
@@ -129,13 +125,26 @@ public class TestRunner {
         return l.it();
     }
 
-    private static List<WordListEntry> getWordList(Server s, int n) throws RemoteException {
-        List<WordListEntry> words = listResults(s, n*3);
-        List<WordListEntry> wordList = new ArrayList<WordListEntry>();
-        for(WordListEntry wle : words){
-            if(wle.getWord().toString().matches("[a-zA-Z]+") && !wordList.contains(wle.getWord().toString()))
-                wordList.add(wle);
+    private static int count(Server s, String term) throws RemoteException{
+        ListOperation l = s.list();
+        l.search(new String[]{term}, 20, false);
+        List<WordListEntry> wl = l.it();
+        int count = 0;
+        for(WordListEntry wle : wl){
+            count += wle.getCount();
         }
-        return wordList.subList(0, 20);
+        return count;
+    }
+
+    private static Map<String, Integer> getWordList(Server s, int n) throws RemoteException {
+        List<WordListEntry> words = listResults(s, n*3);
+        Map<String, Integer> wordList = new HashMap<String, Integer>();
+        for(WordListEntry wle : words){
+            if(wle.getWord().toString().matches("[a-zA-Z]+") && !wordList.containsKey(wle.getWord().toString()))
+                wordList.put(wle.getWord().toString(), count(s, wle.getWord().toString()));
+            if(wordList.size() >= n)
+                break;
+        }
+        return wordList;
     }
 }
