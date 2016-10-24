@@ -1,6 +1,10 @@
 package uk.ac.lancs.ucrel.node;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
 import uk.ac.lancs.ucrel.peer.Peer;
 import uk.ac.lancs.ucrel.peer.PeerImpl;
 import uk.ac.lancs.ucrel.rmi.Server;
@@ -28,6 +32,28 @@ public class Node {
         serverObject = new ServerImpl(peerObject);
     }
 
+    public void startJetty(){
+
+        LOG.info("Starting jetty server...");
+
+        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
+        context.setContextPath("/");
+        org.eclipse.jetty.server.Server jettyServer = new org.eclipse.jetty.server.Server(Integer.parseInt(p.getProperty("server.port")));
+        jettyServer.setHandler(context);
+        ServletHolder jerseyServlet = context.addServlet(ServletContainer.class, "/*");
+        jerseyServlet.setInitOrder(0);
+        jerseyServlet.setInitParameter("jersey.config.server.provider.packages", "uk.ac.lancs.ucrel.handler");
+
+        try {
+            jettyServer.start();
+            jettyServer.join();
+        } catch(Exception e) {
+            LOG.error(e.getMessage());
+        } finally{
+            jettyServer.destroy();
+        }
+    }
+
     public void start() {
         int port = Integer.parseInt(p.getProperty("node.port"));
         try {
@@ -43,13 +69,15 @@ public class Node {
 
             LOG.info("Listening for peers on port " + port);
 
-            while (!((ServerImpl) serverObject).isShutdown()) {
+            startJetty();
+
+            /*while (!((ServerImpl) serverObject).isShutdown()) {
                 Thread.sleep(3000);
             }
 
             ((PeerImpl) peerObject).shutdown();
 
-            LOG.info("Shuting down...");
+            LOG.info("Shuting down...");*/
 
         } catch (Exception e) {
             e.printStackTrace();
