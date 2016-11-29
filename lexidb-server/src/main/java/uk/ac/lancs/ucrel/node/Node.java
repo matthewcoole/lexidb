@@ -3,7 +3,6 @@ package uk.ac.lancs.ucrel.node;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import uk.ac.lancs.ucrel.peer.Peer;
 import uk.ac.lancs.ucrel.peer.PeerImpl;
@@ -42,6 +41,10 @@ public class Node {
         jettyServer.setHandler(context);
         ServletHolder jerseyServlet = context.addServlet(ServletContainer.class, "/*");
         jerseyServlet.setInitOrder(0);
+       /* jerseyServlet.setInitParameter("jersey.config.server.provider.classnames",
+                "org.glassfish.jersey.moxy.json.MoxyJsonFeature");
+        jerseyServlet.setInitParameter("com.sun.jersey.api.json.POJOMappingFeature",
+                "true");*/
         jerseyServlet.setInitParameter("jersey.config.server.provider.packages", "uk.ac.lancs.ucrel.handler");
 
         try {
@@ -70,14 +73,6 @@ public class Node {
             LOG.info("Listening for peers on port " + port);
 
             startJetty();
-
-            /*while (!((ServerImpl) serverObject).isShutdown()) {
-                Thread.sleep(3000);
-            }
-
-            ((PeerImpl) peerObject).shutdown();
-
-            LOG.info("Shuting down...");*/
 
         } catch (Exception e) {
             e.printStackTrace();

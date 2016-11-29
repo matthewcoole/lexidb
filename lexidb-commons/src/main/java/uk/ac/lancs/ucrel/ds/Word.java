@@ -17,6 +17,10 @@ public class Word implements Serializable {
         tags.add(tag.trim());
     }
 
+    public String getOriginalForm(){
+        return originalForm;
+    }
+
     public List<String> getTags() {
         return tags;
     }

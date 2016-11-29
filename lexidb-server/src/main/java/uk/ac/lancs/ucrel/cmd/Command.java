@@ -1,11 +1,12 @@
-package uk.ac.lancs.ucrel.cli.command;
+package uk.ac.lancs.ucrel.cmd;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
-import uk.ac.lancs.ucrel.cli.Client;
 import uk.ac.lancs.ucrel.rmi.Server;
 
+import javax.json.Json;
+import javax.json.JsonObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +29,7 @@ public abstract class Command implements Comparable<Command> {
         this.ops = new Options();
     }
 
-    public static List<Command> getDefaultCommands(Server s, Client c) {
+    public static List<Command> getDefaultCommands(Server s) {
         defaultCommands = new ArrayList<Command>();
         defaultCommands.add(new HelpCommand(defaultCommands));
         defaultCommands.add(new ShutdownCommand(s));
@@ -39,7 +40,6 @@ public abstract class Command implements Comparable<Command> {
         defaultCommands.add(new NgramCommand(s));
         defaultCommands.add(new ColCommand(s));
         defaultCommands.add(new ListCommand(s));
-        defaultCommands.add(new ItCommand(c));
         defaultCommands.add(new StatusCommand(s));
         Collections.sort(defaultCommands);
         return defaultCommands;
@@ -66,8 +66,15 @@ public abstract class Command implements Comparable<Command> {
         System.err.println("Unimplemented cmd!");
     }
 
-    public void it() {
+    public Object it() {
         System.err.println("Cannot iterate!");
+        return "Cannot iterate";
+    }
+
+    public JsonObject json(){
+        return Json.createObjectBuilder()
+                .add("error", "not implemented")
+                .build();
     }
 
     public int compareTo(Command cmd) {

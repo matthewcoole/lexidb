@@ -13,6 +13,8 @@ import java.util.concurrent.Executors;
 
 public class ServerImpl implements Server {
 
+    private static Server INSTANCE;
+
     public boolean shutdown = false;
     private Date startTime;
     private ExecutorService es = Executors.newCachedThreadPool();
@@ -23,6 +25,11 @@ public class ServerImpl implements Server {
     public ServerImpl(Peer p) {
         this.startTime = new Date();
         peerObject = p;
+        INSTANCE = this;
+    }
+
+    public static Server getInstance(){
+        return INSTANCE;
     }
 
     public boolean isShutdown() throws RemoteException {
