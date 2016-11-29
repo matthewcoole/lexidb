@@ -36,7 +36,7 @@ public class Query {
     @GET
     @Path("query")
     @Produces(MediaType.APPLICATION_JSON)
-    public JsonObject kwic(@QueryParam("q") String query){
+    public Response kwic(@QueryParam("q") String query){
         LOG.info("Query received: " + query);
         try {
             CommandLine line = parser.parse(new Options(), query.split(" "), true);
@@ -45,7 +45,7 @@ public class Query {
                 Command c = commands.get(op);
                 line = getCommandLine(c, query);
                 c.invoke(line);
-                return c.json();
+                return Response.ok().header("Access-Control-Allow-Origin", "*").entity(c.json()).build();
             } else {
                 System.err.println("Command not found!");
             }
