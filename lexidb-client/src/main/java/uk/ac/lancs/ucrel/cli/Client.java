@@ -107,8 +107,8 @@ public class Client {
                 System.err.println("Command not found!");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Command failed!: " + e.getMessage());
+            //e.printStackTrace();
+            System.err.println("Command failed! (No results): " + e.getMessage());
         }
     }
 

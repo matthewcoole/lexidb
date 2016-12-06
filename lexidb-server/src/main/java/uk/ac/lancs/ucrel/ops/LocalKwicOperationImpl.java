@@ -80,6 +80,9 @@ public class LocalKwicOperationImpl implements KwicOperation {
 
     @Override
     public int getLength() throws RemoteException {
+        if (contexts == null){
+            return 0;
+        }
         return contexts.size();
     }
 

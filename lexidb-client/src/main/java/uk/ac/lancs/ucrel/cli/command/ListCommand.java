@@ -46,9 +46,12 @@ public class ListCommand extends Command {
 
             lop.search(searchTerms, page, reverseOrder);
 
-            System.out.println("\n" + lop.getLength() + " list results for \"" + Arrays.toString(searchTerms) + "\" retrieved in " + lop.getTime() + "ms.\n");
+            int lopLength = lop.getLength();
 
-            it();
+            System.out.println("\n" + lopLength + " list results for \"" + Arrays.toString(searchTerms) + "\" retrieved in " + lop.getTime() + "ms.\n");
+
+            if(lopLength > 0)
+                it();
 
         } catch (RemoteException e) {
             e.printStackTrace();

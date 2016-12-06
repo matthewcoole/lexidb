@@ -56,9 +56,12 @@ public class ColCommand extends Command {
 
             col.search(searchTerms, cl, cr, page, reverseOrder);
 
-            System.out.println("\n" + col.getLength() + " collocation results for \"" + Arrays.toString(searchTerms) + "\" retrieved in " + col.getTime() + "ms.\n");
+            int colLength = col.getLength();
 
-            it();
+            System.out.println("\n" + colLength + " collocation results for \"" + Arrays.toString(searchTerms) + "\" retrieved in " + col.getTime() + "ms.\n");
+
+            if(colLength  > 0)
+                it();
 
         } catch (RemoteException e) {
             e.printStackTrace();

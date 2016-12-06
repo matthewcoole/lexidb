@@ -62,9 +62,12 @@ public class KwicCommand extends Command {
                     reverse,
                     page);
 
-            System.out.println("\n" + k.getLength() + " concordance lines for \"" + Arrays.toString(searchTerms) + "\" retrieved in " + k.getTime() + "ms.\n");
+            int kLength = k.getLength();
 
-            it();
+            System.out.println("\n" + kLength + " concordance lines for \"" + Arrays.toString(searchTerms) + "\" retrieved in " + k.getTime() + "ms.\n");
+
+            if(kLength > 0)
+                it();
 
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -76,7 +79,7 @@ public class KwicCommand extends Command {
             List<Kwic> lines = k.it();
             print(lines, details);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
