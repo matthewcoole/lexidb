@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html class="gr__getbootstrap_com" lang="en">
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <meta content="" name="description">
+    <meta content="" name="author">
+    <link href="/logo.png" rel="icon">
+
+    <title>lexiDB Query Builder</title>
+    <link href="./template_files/bootstrap.min.css" rel="stylesheet">
+    <link href="./template_files/narrow-jumbotron.css" rel="stylesheet">
+
+    <style>
+        .code {
+            font-family: Courier;
+            font-size: 12pt;
+            height: 250px;
+        }
+    </style>
+
+    <script type="text/javascript">
+
+        query = {
+            "query": {
+                "tokens": [{"token": "the"}]
+            }
+        }
+
+        function runQuery() {
+            jsonString = $("#queryText").val();
+            jsonQuery = JSON.parse(jsonString);
+            $.ajax({
+                type: "POST",
+                url: "/mycorpus/query",
+                data: JSON.stringify(jsonQuery),
+                processData: false,
+                contentType: "application/json",
+                success: function (data) {
+                    displayResults(data);
+                },
+                failure: function (errMsg) {
+                    handleError(errMsg);
+                }
+            });
+        }
+
+        function updateQuery() {
+            paramvalue = $(".param-value").val();
+            query.query.tokens[0].token = paramvalue;
+            querytext = JSON.stringify(query, null, 4);
+            $("#queryText").val(querytext);
+        }
+
+        function displayResults(data) {
+            if (data.concordances == null) {
+                $(".jumbotron").first().html("No results to show");
+                $.notify({
+                    message: "0 results found"
+                }, {
+                    type: "warning"
+                });
+                return;
+            }
+
+            var concs = data.concordances;
+            var html = "<table align=\"center\">";
+            for (var i = 0; i < concs.length; i++) {
+                var conc = concs[i];
+                html += "<tr><td class=\"pre\">";
+                for (var j = 0; j < conc.length; j++) {
+                    var token = conc[j];
+                    html += "<span class=\"lexitooltip";
+                    if (token != null && token.pos != null)
+                        html += " " + token.pos.charAt(0);
+                    if (token.hit)
+                        html += " hit";
+                    html += "\">";
+                    if (token != null && token.token != null)
+                        html += token.token;
+                    html += " ";
+                    html += "<span class=\"lexitooltiptext\">";
+                    html += "<table>";
+                    for (var prop in token) {
+                        html += "<tr><td><b>";
+                        html += prop;
+                        html += ":</b></td><td>";
+                        html += token[prop];
+                        html += "</td></tr>"
+                    }
+                    html += "</table>";
+                    html += "</span>";
+                    html += "</span>";
+                }
+                html += "</td></tr>"
+            }
+            html += "</table>";
+            $(".jumbotron").first().html(html);
+            $.notify({
+                message: data.concordances.length + " results found."
+            }, {
+                type: "success"
+            });
+        }
+
+        function handleError(errMsg) {
+            alert(errMsg);
+        }
+
+
+    </script>
+
+</head>
+
+<body data-gr-c-s-loaded="true">
+
+<div class="container">
+    <header class="header clearfix">
+        <nav>
+            <ul class="nav nav-pills float-right">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Reset</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Clear</a>
+                </li>
+            </ul>
+        </nav>
+        <h3 class="text-muted">lexiDB Query Builder</h3>
+    </header>
+
+    <main role="main">
+
+        <div class="jumbotron">
+            No results to show.
+        </div>
+
+        <div class="row marketing">
+            <div class="col-lg-6">
+                <h4>Builder</h4>
+                <div class="input-group">
+                    <div class="input-group-btn query-param">
+                        <button aria-expanded="false" aria-haspopup="true" class="btn btn-secondary dropdown-toggle"
+                                data-toggle="dropdown" id="column" type="button">token
+                        </button>
+                        <div class="dropdown-menu param-key">
+                            <a class="dropdown-item" href="#" onclick="$('#column').text('token')">token</a>
+                            <a class="dropdown-item" href="#" onclick="$('#column').text('pos')">pos</a>
+                            <div class="dropdown-divider" role="separator"></div>
+                            <a class="dropdown-item" href="#" onclick="$('#column').text('file')">file</a>
+                        </div>
+                    </div>
+                    <input aria-label="Text input with dropdown button" class="form-control param-value"
+                           onchange="updateQuery()"
+                           type="text" value="the">
+                </div>
+                <hr/>
+                <button class="btn btn-secondary" href="#" role="button">+</button>
+            </div>
+
+            <div class="col-lg-6">
+                <h4>JSON Code</h4>
+                <textarea class="form-control code" id="queryText" rows="3">
+
+            </textarea>
+            </div>
+
+            <button class="btn btn-primary float-right" href="#" onclick="runQuery()" role="button">Run Query</button>
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>lexiDB</p>
+    </footer>
+
+</div> <!-- /container -->
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<script crossorigin="anonymous"
+        integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
+        src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
+
+<script src="./template_files/bootstrap-notify.min.js"></script>
+
+<script>
+    updateQuery()
+</script>
+
+</body>
+</html>

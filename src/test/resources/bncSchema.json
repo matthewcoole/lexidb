@@ -1,0 +1,46 @@
+{
+  "name": "tokens",
+  "sets": [
+    {
+      "name": "tokens",
+      "columns": [
+        {
+          "name": "token"
+        }
+      ]
+    },
+    {
+      "name": "c5",
+      "columns": [
+        {
+          "name": "c5"
+        }
+      ]
+    },
+    {
+      "name": "pos",
+      "columns": [
+        {
+          "name": "pos"
+        }
+      ]
+    },
+    {
+      "name": "lemma",
+      "columns": [
+        {
+          "name": "lemma"
+        }
+      ]
+    },
+    {
+      "name": "file",
+      "rle": true,
+      "columns": [
+        {
+          "name": "$file"
+        }
+      ]
+    }
+  ]
+}

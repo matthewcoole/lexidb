@@ -1,0 +1,20 @@
+#sequence {
+    width: 600px;
+    height: 70px;
+}
+
+#sequence text {
+    fill: #fff;
+}
+
+#chart {
+    position: relative;
+}
+
+#chart path {
+    stroke: #fff;
+}
+
+#percentage {
+    font-size: 2.5em;
+}

@@ -1,0 +1,287 @@
+/* Space out content a bit */
+body {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    display: block;
+}
+
+.sidebar {
+    padding-left: 5px;
+    padding-top: 70px;
+    height: 100%; /* 100% Full-height */
+    width: 0; /* 0 width - change this with JavaScript */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Stay on top */
+    top: 0;
+    right: 0;
+    background-color: #f8f9fa; /* Black*/
+    overflow-x: hidden; /* Disable horizontal scroll */
+    transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
+}
+
+.hideable {
+    max-height: 0;
+    transition: max-height 0.2s ease-out;
+    padding: 0px;
+}
+
+.sidebar > div {
+    margin: 15px;
+}
+
+.sidebar div {
+    margin-bottom: 5px;
+}
+
+.sidebar label {
+    margin-top: 15px;
+}
+
+#content {
+    transition: margin-left .5s; /* If you want a transition effect */
+    padding: 20px;
+}
+
+/* Everything but the jumbotron gets side spacing for mobile first views */
+.header,
+.marketing,
+.footer {
+    padding-right: 1rem;
+    padding-left: 1rem;
+}
+
+.hit {
+    font-weight: bold;
+}
+
+table.results > tr:nth-child(even) {
+    background: #f8f9fa
+}
+
+table.results td {
+    white-space: nowrap;
+}
+
+table.results td:last-child {
+    width: 100%
+}
+
+.results {
+    width: 100%;
+    table-layout: auto;
+    align: center;
+}
+
+.bar {
+    fill: dodgerblue
+}
+
+.meta {
+    text-align: left;
+    color: #b9bbbe;
+    padding-right: 10px;
+}
+
+.pre {
+    text-align: right;
+}
+
+.post {
+    text-align: left;
+}
+
+.lexitooltip {
+    position: relative;
+    display: inline-block;
+    white-space: pre;
+}
+
+/*CLAWS colors*/
+
+.A {
+    color: darkgoldenrod
+}
+
+.B {
+    color: blueviolet
+}
+
+.C {
+    color: crimson
+}
+
+.D {
+    color: darkred
+}
+
+.E {
+    color: fuchsia
+}
+
+.F {
+    color: greenyellow
+}
+
+.G {
+    color: hotpink
+}
+
+.I {
+    color: indigo
+}
+
+.J {
+    color: lightcoral
+}
+
+.M {
+    color: mediumaquamarine
+}
+
+.N {
+    color: darkgreen
+}
+
+.P {
+    color: olive
+}
+
+.R {
+    color: plum
+}
+
+.T {
+    color: peru
+}
+
+.U {
+    color: rosybrown
+}
+
+.V {
+    color: dodgerblue
+}
+
+.X {
+    color: saddlebrown
+}
+
+.Z {
+    color: teal
+}
+
+.light {
+    font-weight: lighter;
+    font-size: x-small;
+}
+
+.lexitooltip .lexitooltiptext {
+    font-family: sans-serif;
+    visibility: hidden;
+    width: auto;
+    background-color: #e9ecef;
+    text-align: left;
+    position: absolute;
+    top: 18pt;
+    left: -20px;
+    z-index: 1;
+    box-shadow: 5px 5px 5px #888888;
+    border-radius: 6px 6px 6px 6px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.lexitooltip:hover {
+    background-color: #e9ecef;
+    border-radius: 6px 6px 0px 0px;
+    box-shadow: 5px 5px 5px #888888;
+}
+
+.lexitooltip:hover .lexitooltiptext {
+    visibility: visible;
+    text-decoration: none;
+    font-weight: normal;
+}
+
+/* Custom page header */
+.header {
+    padding-bottom: 1rem;
+    border-bottom: .05rem solid #e5e5e5;
+}
+
+/* Make the masthead heading the same height as the navigation */
+.header h3 {
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: 3rem;
+}
+
+/* Customize container */
+@media (min-width: 48em) {
+    .container {
+        max-width: 60rem;
+    }
+}
+
+.viz {
+    margin-top: 10px;
+    text-align: center;
+    display: none;
+}
+
+.timeline {
+    width: 100%;
+    height: 400px;
+    margin: auto;
+    text-align: center;
+}
+
+.wordcloud {
+    width: 100%;
+    height: 500px;
+    margin: auto;
+    text-align: center;
+}
+
+/* Main marketing message and sign up button */
+.jumbotron {
+    text-align: center;
+    margin-bottom: 0px;
+    padding: 0px;
+    background-color: white;
+    border-radius: .25rem;
+}
+
+.jumbotron .btn {
+    padding: .75rem 1.5rem;
+    font-size: 1.5rem;
+}
+
+/* Supporting marketing content */
+.marketing {
+    margin: 3rem 0;
+}
+
+.marketing p + h4 {
+    margin-top: 1.5rem;
+}
+
+/* Responsive: Portrait tablets and up */
+@media screen and (min-width: 48em) {
+    /* Remove the padding we set earlier */
+    .header,
+    .marketing,
+    .footer {
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    /* Space out the masthead */
+    .header {
+        margin-bottom: 2rem;
+    }
+
+    /* Remove the bottom border on the jumbotron for visual effect */
+}

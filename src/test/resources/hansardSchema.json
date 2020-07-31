@@ -1,0 +1,71 @@
+{
+  "name": "tokens",
+  "sets": [
+    {
+      "name": "tokens",
+      "columns": [
+        {
+          "name": "token"
+        }
+      ]
+    },
+    {
+      "name": "pos",
+      "columns": [
+        {
+          "name": "pos"
+        }
+      ]
+    },
+    {
+      "name": "lemma",
+      "columns": [
+        {
+          "name": "lemma"
+        }
+      ]
+    },
+    {
+      "name": "sem",
+      "columns": [
+        {
+          "name": "sem",
+          "clean": "[/\\[].*"
+        }
+      ]
+    },
+    {
+      "name": "speaker",
+      "rle": true,
+      "columns": [
+        {
+          "name": "speaker",
+          "xml": "Member/@ContinuationText"
+        },
+        {
+          "name": "id",
+          "xml": "Member/@MnisId"
+        }
+      ]
+    },
+    {
+      "name": "date",
+      "rle": true,
+      "columns": [
+        {
+          "name": "date",
+          "xml": "Sitting/@short-date"
+        }
+      ]
+    },
+    {
+      "name": "file",
+      "rle": true,
+      "columns": [
+        {
+          "name": "$file"
+        }
+      ]
+    }
+  ]
+}

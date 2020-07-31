@@ -1,0 +1,87 @@
+{
+  "name": "tokens",
+  "sets": [
+    {
+      "name": "tokens",
+      "columns": [
+        {
+          "name": "token"
+        }
+      ]
+    },
+    {
+      "name": "pos",
+      "columns": [
+        {
+          "name": "pos"
+        }
+      ]
+    },
+    {
+      "name": "lemma",
+      "columns": [
+        {
+          "name": "lemma"
+        }
+      ]
+    },
+    {
+      "name": "ht_label",
+      "columns": [
+        {
+          "name": "ht_label"
+        }
+      ]
+    },
+    {
+      "name": "ht_thm",
+      "columns": [
+        {
+          "name": "ht_thm"
+        }
+      ]
+    },
+    {
+      "name": "sem",
+      "columns": [
+        {
+          "name": "sem",
+          "clean": "[/\\[].*"
+        }
+      ]
+    },
+    {
+      "name": "file",
+      "rle": true,
+      "columns": [
+        {
+          "name": "$file"
+        }
+      ]
+    },
+    {
+      "name": "speaker",
+      "rle": true,
+      "columns": [
+        {
+          "name": "speaker",
+          "xml": "meta/@member"
+        },
+        {
+          "name": "id",
+          "xml": "meta/@memberID"
+        }
+      ]
+    },
+    {
+      "name": "date",
+      "rle": true,
+      "columns": [
+        {
+          "name": "date",
+          "xml": "meta/@date"
+        }
+      ]
+    }
+  ]
+}

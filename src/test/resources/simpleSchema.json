@@ -1,0 +1,22 @@
+{
+  "name": "tokens",
+  "sets": [
+    {
+      "name": "tokens",
+      "columns": [
+        {
+          "name": "token"
+        }
+      ]
+    },
+    {
+      "name": "file",
+      "rle": true,
+      "columns": [
+        {
+          "name": "$file"
+        }
+      ]
+    }
+  ]
+}
