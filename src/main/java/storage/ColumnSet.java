@@ -234,14 +234,18 @@ public class ColumnSet {
         int currentIndex = 0;
         int posInRleInMem = 0;
         for (int index : rowIndices) {
-            Map<String, String> row = new LinkedHashMap<>();
-            while (currentIndex <= index) {
-                lastVal = rleInMem[posInRleInMem++];
-                currentIndex += rleInMem[posInRleInMem++];
+            try {
+                Map<String, String> row = new LinkedHashMap<>();
+                while (currentIndex <= index) {
+                    lastVal = rleInMem[posInRleInMem++];
+                    currentIndex += rleInMem[posInRleInMem++];
+                }
+                row = numericValueToRowMap(lastVal);
+                //row.put("i", Integer.toString(index));
+                rows.put(index, row);
+            } catch (Exception e){
+                LOG.debug("Spooled off end of corpus");
             }
-            row = numericValueToRowMap(lastVal);
-            //row.put("i", Integer.toString(index));
-            rows.put(index, row);
         }
 
         return rows;
@@ -261,10 +265,10 @@ public class ColumnSet {
                 //int numericValue = buf.getInt(index*4);
                 row = numericValueToRowMap(numericValue);
                 //row.put("i", Integer.toString(index));
+                rows.put(index, row);
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.debug("Spooled off end of corpus");
             }
-            rows.put(index, row);
         }
 
         fc.close();
